@@ -49,7 +49,7 @@ public enum OpenLibertyRuntime implements Runnable {
 	}
 	private static final String serverName = "defaultServer";
 	
-	private final BlockingQueue<Object> commandQueue = new LinkedBlockingDeque<Object>();
+	private final BlockingQueue<String> commandQueue = new LinkedBlockingDeque<String>();
 
 	@Override
 	public void run() {
@@ -66,14 +66,16 @@ public enum OpenLibertyRuntime implements Runnable {
 				log.info(format("Using runtime deployed to {0}", wlp));
 			}
 			
-			Process process = sendCommand(wlp, "start");
+			sendCommand(wlp, "start");
 			watchLog(wlp);
-			process.waitFor();
 			
 			while(!Thread.interrupted()) {
-				Object command = commandQueue.take();
-				if(command != null) {
-					
+				String command = commandQueue.take();
+				if(StringUtil.isNotEmpty(command)) {
+					if(log.isLoggable(Level.INFO)) {
+						log.info(format("Received command: {0}", command));
+					}
+					sendCommand(wlp, command);
 				}
 			}
 		} catch(InterruptedException e) {
@@ -98,6 +100,10 @@ public enum OpenLibertyRuntime implements Runnable {
 				log.info("Shutdown");
 			}
 		}
+	}
+	
+	public void sendCommand(String command) {
+		commandQueue.add(command);
 	}
 	
 	private Path deployRuntime(String version) throws IOException {
@@ -220,6 +226,9 @@ public enum OpenLibertyRuntime implements Runnable {
 				e.printStackTrace(OpenLibertyLog.out);
 			} catch(InterruptedException e) {
 				// Then we're shutting down
+				if(log.isLoggable(Level.FINE)) {
+					log.fine("Terminating log monitor");
+				}
 			}
 		});
 	}
