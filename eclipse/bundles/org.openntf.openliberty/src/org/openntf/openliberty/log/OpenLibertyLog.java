@@ -5,14 +5,15 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.openntf.openliberty.Activator;
+import org.openntf.openliberty.config.RuntimeProperties;
 
 import com.ibm.commons.util.StringUtil;
 
 public enum OpenLibertyLog {
 	;
 	
-	private static final String PREFIX = "OpenLiberty"; //$NON-NLS-1$
-	public final static Logger LIBERTY_LOG = createLogger(Activator.class.getPackage().getName(), "OpenLiberty"); //$NON-NLS-1$
+	private static final String PREFIX = RuntimeProperties.instance.getPrefix();
+	public final static Logger LIBERTY_LOG = createLogger(Activator.class.getPackage().getName(), PREFIX);
 	
 	static {
 		LIBERTY_LOG.setLevel(Level.INFO);

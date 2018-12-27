@@ -14,4 +14,8 @@ public enum RuntimeProperties {
 	public String getVersion() {
 		return bundle.getString("version");
 	}
+	
+	public String getPrefix() {
+		return bundle.getString("prefix");
+	}
 }
