@@ -17,7 +17,7 @@
 
 -->
 <site>
-	<feature url="features/org.openntf.openliberty.feature_1.0.0.qualifier.jar" id="org.openntf.openliberty.feature" version="1.0.0.qualifier">
+	<feature url="features/org.openntf.openliberty.feature_1.18004.0.qualifier.jar" id="org.openntf.openliberty.feature" version="1.18004.0.qualifier">
 		<category name="Domino OpenLiberty Runtime"/>
 	</feature>
    
