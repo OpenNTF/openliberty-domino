@@ -7,8 +7,13 @@ Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: org.eclipse.core.runtime;bundle-version="3.12.0",
- com.ibm.xsp.core;bundle-version="9.0.1",
- com.ibm.xsp.domino;bundle-version="9.0.1",
- com.ibm.commons
+ com.ibm.commons,
+ org.eclipse.equinox.http.servlet,
+ com.ibm.domino.xsp.bootstrap;bundle-version="9.0.1",
+ com.ibm.domino.xsp.adapter;bundle-version="9.0.1",
+ com.ibm.domino.napi;bundle-version="9.0.1"
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: org.openntf.openliberty.Activator
+Import-Package: javax.servlet,
+ javax.servlet.http,
+ lotus.domino
