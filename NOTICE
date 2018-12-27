@@ -1,0 +1,12 @@
+Domino Open Liberty Runtime
+
+Portions (c) Copyright 2018 Jesse Gallagher
+
+This product includes software contributed to
+OpenNTF Alliance (http://www.OpenNTF.org/)
+
+This product is licensed under the terms of the Apache 2.0 license.
+
+The binary distribution contains the following 3rd party code:
+
+- Open Liberty 18.0.0.4, which is available from https://openliberty.io and is licensed under the Eclipse Public License 1.0
