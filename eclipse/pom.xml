@@ -41,7 +41,6 @@
 		
 		<module>releng/org.openntf.openliberty.updatesite</module>
 		<module>releng/org.openntf.openliberty.source.updatesite</module>
-		<module>releng/openliberty-domino-dist</module>
 	</modules>
 
 	<properties>
@@ -69,7 +68,19 @@
 			<layout>p2</layout>
 			<url>${notes-platform}</url>
 		</repository>
+		<repository>
+			<id>artifactory.openntf.org</id>
+			<name>artifactory.openntf.org</name>
+			<url>https://artifactory.openntf.org/openntf</url>
+		</repository>
 	</repositories>
+    <pluginRepositories>
+		<pluginRepository>
+			<id>artifactory.openntf.org</id>
+			<name>artifactory.openntf.org</name>
+			<url>https://artifactory.openntf.org/openntf</url>
+		</pluginRepository>
+    </pluginRepositories>
 	
 	<dependencies>
 		<dependency>
@@ -223,6 +234,18 @@
 						</environment>
 					</environments>
 					<resolver>p2</resolver>
+				</configuration>
+			</plugin>
+			
+			<plugin>
+				<groupId>org.openntf.maven</groupId>
+				<artifactId>nsfodp-maven-plugin</artifactId>
+				<version>1.4.0</version>
+				<extensions>true</extensions>
+				
+				<configuration>
+					<appendTimestampToTitle>true</appendTimestampToTitle>
+					<setProductionXspOptions>true</setProductionXspOptions>
 				</configuration>
 			</plugin>
 
@@ -423,4 +446,22 @@
 			</plugins>
 		</pluginManagement>
 	</build>
+	
+	<profiles>
+		<profile>
+			<id>odpcompiler</id>
+			<activation>
+				<property>
+					<name>nsfodp.compiler.server</name>
+				</property>
+			</activation>
+			
+			<modules>
+				<module>nsfs/nsf-libertyadmin</module>
+				
+				<module>releng/openliberty-domino-dist</module>
+			</modules>
+		</profile>
+	</profiles>
+	
 </project>

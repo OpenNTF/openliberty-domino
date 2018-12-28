@@ -19,6 +19,12 @@
 			<version>${project.version}</version>
 			<type>eclipse-update-site</type>
 		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>nsf-libertyadmin</artifactId>
+			<version>${project.version}</version>
+			<type>domino-nsf</type>
+		</dependency>
 	</dependencies>
 
 	<build>

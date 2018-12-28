@@ -64,5 +64,18 @@
 				<includeDependencies>false</includeDependencies>
 			</binaries>
 		</moduleSet>
+		<moduleSet>
+			<useAllReactorProjects>true</useAllReactorProjects>
+			<includes>
+				<include>org.openntf:*:domino-nsf</include>
+			</includes>
+			
+			<binaries>
+				<outputDirectory>.</outputDirectory>
+				<unpack>false</unpack>
+				<includeDependencies>false</includeDependencies>
+				<outputFileNameMapping>${module.artifactId}.ntf</outputFileNameMapping>
+			</binaries>
+		</moduleSet>
 	</moduleSets>
 </assembly>
