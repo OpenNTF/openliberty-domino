@@ -235,4 +235,5 @@
 
    <plugin id="org.openntf.openliberty" version="0.0.0"/>
    <plugin id="org.openntf.openliberty.httpservice" version="0.0.0" fragment="true"/>
+   <plugin id="org.openntf.openliberty.adminnsf" version="0.0.0" fragment="true"/>
 </feature>

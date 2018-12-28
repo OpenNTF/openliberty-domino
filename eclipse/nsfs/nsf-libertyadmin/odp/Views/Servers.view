@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<note xmlns="http://www.lotus.com/dxl" class="view">
+  <item name="$FormatNote" summary="true">
+    <rawitemdata type="4">
+AQCU7G6FoWlsP/FjaADvdyWF
+</rawitemdata>
+  </item>
+  <item name="$FormulaClass" sign="true">
+    <text>1</text>
+  </item>
+  <item name="$TITLE" sign="true">
+    <text>Servers</text>
+  </item>
+  <item name="$Index" sign="true">
+    <text/>
+  </item>
+  <item name="$Formula" summary="true" sign="true">
+    <formula compiled="true">
+egAFACgAJAAEAAcABAAJAAQAQXBwTmFtZU5hbWUkQ29uZmxpY3QkUkVGBAAEAAAAPgAFAAQARm9y
+bQEABgBTZXJ2ZXIBAAkARHJvcGluQXBwAB8CCgIFAAkAJENvbmZsaWN0AGgBHgEcAgMABwAOAAgA
+CUwxUzZTN1M=
+</formula>
+  </item>
+  <item name="$Collation" summary="true">
+    <rawitemdata type="2">
+EQABAABEgGYAAAAEAE5hbWU=
+</rawitemdata>
+  </item>
+  <item name="$ViewFormat" summary="true" sign="true">
+    <rawitemdata type="5">
+AQACAAQAiEAAAFZDEAAHAAAAAAAAAAkAAQAACgAAAAAAAAAAAAICAAAAVkMBAAQABAAAAAAAlwAB
+AAAKAAAAAAAAAAAAAgIAAABBcHBOYW1lTmFtZU5hbWUmAAEAAAABAQAJAQAACgEBDgoAAD8ArSsB
+AAEAAQAAAAAAAAAAAFdDAQEACQAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAP//AAAAAAAAAAAAAAAA
+AABXQwEFAAkAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAD//wAAAAAAAAAAAAAAAAAAQgARAAAAAQD/
+//8AAQDv7+8AAQD///8AAAAAAAAAAAABAP///wABAP///wAAAAEAAAAAAAEAAAAAAAEAAAAAAAAA
+CAAAAAAAAQA=
+</rawitemdata>
+  </item>
+  <item name="$Comment" sign="true">
+    <text/>
+  </item>
+  <item name="$Flags">
+    <text>PY</text>
+  </item>
+  <item name="$V5ACTIONS" sign="true">
+    <rawitemdata type="1">
+vRwjAAAAAQABAAAAAQAAAAAAAAAAAAAACAACAHn/bAABANTQyAABAAAAAAAJAAAAAAABANTQyAAA
+AB8AAAAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAPz/OgAAAAAAAQAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAEAAAAAAAAAAAAAAAAAAAC+/0wAAAABAAAAnwEAAA0AAAAAAAAAQ3JlYXRlXFNlcnZl
+cgAoAAAAHAACAOgDAAAAAAAAAQAGAFNlcnZlcu0CAwAHAAoAAwAJNFMAvv9UAAAAAQAAAJ8BAAAR
+AAAAAAAAAENyZWF0ZVxEcm9waW4gQXBwACwAAAAgAAIA6AMAAAAAAAABAAkARHJvcGluQXBwAO0C
+AwAHAAoAAwAJNFMA
+</rawitemdata>
+  </item>
+</note>

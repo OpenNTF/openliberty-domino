@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.PrintStream;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -29,8 +30,13 @@ import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
@@ -40,9 +46,12 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import org.openntf.openliberty.config.RuntimeProperties;
+import org.openntf.openliberty.ext.RuntimeService;
 import org.openntf.openliberty.log.OpenLibertyLog;
 import org.openntf.openliberty.util.DominoThreadFactory;
+import org.openntf.openliberty.util.OpenLibertyUtil;
 
+import com.ibm.commons.extension.ExtensionManager;
 import com.ibm.commons.util.StringUtil;
 import com.ibm.commons.util.io.StreamUtil;
 import com.ibm.domino.napi.c.Os;
@@ -55,16 +64,16 @@ public enum OpenLibertyRuntime implements Runnable {
 	private static final Logger log = OpenLibertyLog.LIBERTY_LOG;
 	private static final String serverFile;
 	static {
-		String os = System.getProperty("os.name");
-		if(os.toLowerCase().contains("windows")) {
+		if(OpenLibertyUtil.IS_WINDOWS) {
 			serverFile = "server.bat";
 		} else {
 			serverFile = "server";
 		}
 	}
-	private static final String serverName = "defaultServer";
 	
-	private final BlockingQueue<String> commandQueue = new LinkedBlockingDeque<String>();
+	private final BlockingQueue<RuntimeTask> taskQueue = new LinkedBlockingDeque<RuntimeTask>();
+	
+	private Set<String> startedServers = Collections.synchronizedSet(new HashSet<>());
 
 	@Override
 	public void run() {
@@ -81,16 +90,56 @@ public enum OpenLibertyRuntime implements Runnable {
 				log.info(format("Using runtime deployed to {0}", wlp));
 			}
 			
-			sendCommand(wlp, "start");
-			watchLog(wlp);
+			List<RuntimeService> runtimeServices = ExtensionManager.findServices(null, getClass().getClassLoader(), RuntimeService.SERVICE_ID, RuntimeService.class);
+			if(runtimeServices != null) {
+				for(RuntimeService service : runtimeServices) {
+					DominoThreadFactory.executor.submit(service);
+				}
+			}
 			
 			while(!Thread.interrupted()) {
-				String command = commandQueue.take();
-				if(StringUtil.isNotEmpty(command)) {
-					if(log.isLoggable(Level.INFO)) {
-						log.info(format("Received command: {0}", command));
+				RuntimeTask command = taskQueue.take();
+				if(command != null) {
+					if(log.isLoggable(Level.FINER)) {
+						log.finer(format("Received command: {0}", command));
 					}
-					sendCommand(wlp, command);
+					switch(command.type) {
+					case START:
+						sendCommand(wlp, "start", command.args).waitFor();
+						watchLog(wlp, (String)command.args[0]);
+						break;
+					case STOP:
+						sendCommand(wlp, "stop", command.args);
+						break;
+					case CREATE_SERVER: {
+						String serverName = (String)command.args[0];
+						String serverXml = (String)command.args[1];
+						
+						if(!serverExists(wlp, serverName)) {
+							sendCommand(wlp, "create", serverName).waitFor();
+						}
+						if(StringUtil.isNotEmpty(serverXml)) {
+							deployServerXml(wlp, serverName, serverXml);
+						}
+						break;
+					}
+					case DEPLOY_DROPIN: {
+						String serverName = (String)command.args[0];
+						String warName = (String)command.args[1];
+						Path warFile = (Path)command.args[2];
+						boolean deleteAfterDeploy = (Boolean)command.args[3];
+						
+						if(Files.isRegularFile(warFile)) {
+							deployWar(wlp, serverName, warName, warFile);
+						}
+						if(deleteAfterDeploy) {
+							Files.deleteIfExists(warFile);
+						}
+						
+						break;
+					}
+					}
+					
 				}
 			}
 		} catch(InterruptedException e) {
@@ -102,12 +151,12 @@ public enum OpenLibertyRuntime implements Runnable {
 			}
 		} finally {
 			if(wlp != null) {
-				try {
-					sendCommand(wlp, "stop").waitFor();
-				} catch (IOException e) {
-					// Not much to do here
-				} catch (InterruptedException e) {
-					// Neither here
+				for(String serverName : startedServers) {
+					try {
+						sendCommand(wlp, "stop", serverName);
+					} catch (IOException e) {
+						// Nothing to do here
+					}
 				}
 			}
 			
@@ -117,8 +166,44 @@ public enum OpenLibertyRuntime implements Runnable {
 		}
 	}
 	
-	public void sendCommand(String command) {
-		commandQueue.add(command);
+	public void startServer(String serverName) {
+		taskQueue.add(new RuntimeTask(RuntimeTask.Type.START, serverName));
+		startedServers.add(serverName);
+	}
+	
+	public void stopServer(String serverName) {
+		taskQueue.add(new RuntimeTask(RuntimeTask.Type.STOP, serverName));
+		startedServers.remove(serverName);
+	}
+	
+	public void createServer(String serverName, String serverXml) {
+		taskQueue.add(new RuntimeTask(RuntimeTask.Type.CREATE_SERVER, serverName, serverXml));
+	}
+	
+	public void deployDropin(String serverName, String warName, Path warFile, boolean deleteAfterDeploy) {
+		taskQueue.add(new RuntimeTask(RuntimeTask.Type.DEPLOY_DROPIN, serverName, warName, warFile, deleteAfterDeploy));
+	}
+	
+	// *******************************************************************************
+	// * Internal utility methods
+	// *******************************************************************************
+	
+	private static class RuntimeTask {
+		enum Type {
+			START, STOP, CREATE_SERVER, DEPLOY_DROPIN
+		}
+		private final Type type;
+		private final Object[] args;
+		
+		RuntimeTask(Type type, Object... args) {
+			this.type = type;
+			this.args = args;
+		}
+
+		@Override
+		public String toString() {
+			return "RuntimeTask [type=" + type + ", args=" + Arrays.toString(args) + "]";
+		}
 	}
 	
 	private Path deployRuntime(String version) throws IOException {
@@ -171,12 +256,27 @@ public enum OpenLibertyRuntime implements Runnable {
 		
 		return wlp;
 	}
+	
+	private void deployServerXml(Path path, String serverName, String serverXml) throws IOException {
+		Path xmlFile = path.resolve("usr").resolve("servers").resolve(serverName).resolve("server.xml");
+		try(OutputStream os = Files.newOutputStream(xmlFile, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
+			try(PrintStream ps = new PrintStream(os)) {
+				ps.print(serverXml);
+			}
+		}
+	}
 
-	private Process sendCommand(Path path, String command) throws IOException {
+	private Process sendCommand(Path path, String command, Object... args) throws IOException {
 		Path serverScript = path.resolve("bin").resolve(serverFile);
 		
-		ProcessBuilder pb = new ProcessBuilder()
-			.command(Arrays.asList(serverScript.toString(), command));
+		List<String> commands = new ArrayList<>();
+		commands.add(serverScript.toString());
+		commands.add(command);
+		for(Object arg : args) {
+			commands.add(StringUtil.toString(arg));
+		}
+		
+		ProcessBuilder pb = new ProcessBuilder().command(commands);
 		
 		Map<String, String> env = pb.environment();
 		env.put("JAVA_HOME", System.getProperty("java.home"));
@@ -189,7 +289,7 @@ public enum OpenLibertyRuntime implements Runnable {
 		return process;
 	}
 	
-	private void watchLog(Path path) {
+	private void watchLog(Path path, String serverName) {
 		Path logs = path.resolve("usr").resolve("servers").resolve(serverName).resolve("logs");
 		String consoleLog = "console.log";
 		DominoThreadFactory.executor.submit(() -> {
@@ -246,6 +346,26 @@ public enum OpenLibertyRuntime implements Runnable {
 				}
 			}
 		});
+	}
+	
+	private boolean serverExists(Path path, String serverName) {
+		// TODO change to ask Liberty for a list of servers
+		Path server = path.resolve("usr").resolve("servers").resolve(serverName);
+		return Files.isDirectory(server);
+	}
+	
+	private void deployWar(Path wlp, String serverName, String warName, Path warFile) throws IOException {
+		Path dropins = wlp.resolve("usr").resolve("servers").resolve(serverName).resolve("dropins");
+		
+		String name;
+		if(StringUtil.isNotEmpty(warName)) {
+			name = warName;
+		} else {
+			name = warFile.getFileName().toString();
+		}
+		
+		Path dest = dropins.resolve(name);
+		Files.copy(warFile, dest);
 	}
 	
 	private static class StreamRedirector implements Runnable {

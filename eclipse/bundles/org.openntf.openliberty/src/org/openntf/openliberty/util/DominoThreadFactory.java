@@ -19,6 +19,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 
 import lotus.domino.NotesThread;
 
@@ -28,8 +29,23 @@ public class DominoThreadFactory implements ThreadFactory {
 
 	public static final DominoThreadFactory instance = new DominoThreadFactory();
 
-	public static final ExecutorService executor = Executors.newCachedThreadPool(instance);
-	public static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(5, instance);
+	public static ExecutorService executor;
+	public static ScheduledExecutorService scheduler;
+	
+	public static void init() {
+		executor = Executors.newCachedThreadPool(instance);
+		scheduler = Executors.newScheduledThreadPool(5, instance);
+	}
+	public static void term() {
+		executor.shutdownNow();
+		scheduler.shutdownNow();
+		try {
+			executor.awaitTermination(1, TimeUnit.MINUTES);
+			scheduler.awaitTermination(1, TimeUnit.MINUTES);
+		} catch (InterruptedException e) {
+			// Ignore
+		}
+	}
 
 	@Override
 	public Thread newThread(final Runnable runnable) {

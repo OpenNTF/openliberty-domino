@@ -12,3 +12,6 @@ Require-Bundle: org.eclipse.core.runtime;bundle-version="3.12.0",
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: org.openntf.openliberty.Activator
 Import-Package: lotus.domino
+Export-Package: org.openntf.openliberty.ext,
+ org.openntf.openliberty.runtime,
+ org.openntf.openliberty.util

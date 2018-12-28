@@ -13,35 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openntf.openliberty;
+package org.openntf.openliberty.adminnsf.config;
 
-import org.eclipse.core.runtime.Plugin;
-import org.openntf.openliberty.util.DominoThreadFactory;
-import org.osgi.framework.BundleContext;
+import java.util.ResourceBundle;
 
-public class Activator extends Plugin {
-	private static Activator instance;
+public enum AdminNSFProperties {
+	instance;
 	
-	public static Activator getDefault() {
-		return instance;
+	private final ResourceBundle bundle;
+	
+	private AdminNSFProperties() {
+		this.bundle = ResourceBundle.getBundle("adminnsf");
 	}
 	
-	public Activator() {
-		instance = this;
+	public String getNsfPath() {
+		return bundle.getString("defaultAdminNsf");
 	}
-	
-	@Override
-	public void start(BundleContext context) throws Exception {
-		super.start(context);
-		
-		DominoThreadFactory.init();
-	}
-	
-	@Override
-	public void stop(BundleContext context) throws Exception {
-		super.stop(context);
-
-		DominoThreadFactory.term();
-	}
-
 }

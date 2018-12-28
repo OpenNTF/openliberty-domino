@@ -17,7 +17,6 @@ package org.openntf.openliberty.httpservice;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -27,7 +26,6 @@ import org.openntf.openliberty.log.OpenLibertyLog;
 import org.openntf.openliberty.runtime.OpenLibertyRuntime;
 import org.openntf.openliberty.util.DominoThreadFactory;
 
-import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import com.ibm.designer.runtime.domino.adapter.HttpService;
 import com.ibm.designer.runtime.domino.adapter.LCDEnvironment;
@@ -51,13 +49,6 @@ public class OpenLibertyService extends HttpService {
 		if(log.isLoggable(Level.INFO)) {
 			log.info("Shutting down Open Liberty server");
 		}
-		
-		DominoThreadFactory.executor.shutdownNow();
-		try {
-			DominoThreadFactory.executor.awaitTermination(1, TimeUnit.MINUTES);
-		} catch (InterruptedException e) {
-			// Ignore
-		}
 	}
 
 
@@ -72,12 +63,6 @@ public class OpenLibertyService extends HttpService {
 
 	@Override
 	public Object tellCommand(String command) {
-		if(StringUtil.startsWithIgnoreCase(command, "wlp ")) {
-			String cmd = command.substring(4);
-			OpenLibertyRuntime.instance.sendCommand(cmd);
-			return "Sent command to Open Liberty server";
-		}
-		
 		return super.tellCommand(command);
 	}
 
