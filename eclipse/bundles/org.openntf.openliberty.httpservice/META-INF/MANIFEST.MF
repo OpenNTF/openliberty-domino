@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Domino OpenLiberty Runtime nHTTP Service
+Bundle-Name: Domino Open Liberty Runtime nHTTP Service
 Bundle-SymbolicName: org.openntf.openliberty.httpservice;singleton:=true
 Automatic-Module-Name: org.openntf.openliberty.httpservice
 Fragment-Host: org.openntf.openliberty

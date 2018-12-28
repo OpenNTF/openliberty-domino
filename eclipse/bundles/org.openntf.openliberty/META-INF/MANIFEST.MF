@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Domino OpenLiberty Runtime
+Bundle-Name: Domino Open Liberty Runtime
 Bundle-SymbolicName: org.openntf.openliberty;singleton:=true
 Automatic-Module-Name: org.openntf.openliberty
 Bundle-Version: 1.18004.0.qualifier
