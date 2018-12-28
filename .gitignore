@@ -4,6 +4,7 @@
 .settings/
 
 .vscode/
+.idea/
 
 target/
 
