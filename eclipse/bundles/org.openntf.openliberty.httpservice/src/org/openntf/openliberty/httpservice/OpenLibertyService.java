@@ -49,7 +49,7 @@ public class OpenLibertyService extends HttpService {
 		super.destroyService();
 		
 		if(log.isLoggable(Level.INFO)) {
-			log.info("Shutting down OpenLiberty server");
+			log.info("Shutting down Open Liberty server");
 		}
 		
 		DominoThreadFactory.executor.shutdownNow();
@@ -75,7 +75,7 @@ public class OpenLibertyService extends HttpService {
 		if(StringUtil.startsWithIgnoreCase(command, "wlp ")) {
 			String cmd = command.substring(4);
 			OpenLibertyRuntime.instance.sendCommand(cmd);
-			return "Sent command to OpenLiberty server";
+			return "Sent command to Open Liberty server";
 		}
 		
 		return super.tellCommand(command);
