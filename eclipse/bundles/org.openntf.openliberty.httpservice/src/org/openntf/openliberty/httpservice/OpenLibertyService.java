@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openntf.openliberty.service;
+package org.openntf.openliberty.httpservice;
 
 import java.io.IOException;
 import java.util.List;
@@ -24,6 +24,7 @@ import java.util.logging.Logger;
 import javax.servlet.ServletException;
 
 import org.openntf.openliberty.log.OpenLibertyLog;
+import org.openntf.openliberty.runtime.OpenLibertyRuntime;
 import org.openntf.openliberty.util.DominoThreadFactory;
 
 import com.ibm.commons.util.StringUtil;

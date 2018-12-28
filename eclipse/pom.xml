@@ -36,6 +36,7 @@
 
 	<modules>
 		<module>bundles/org.openntf.openliberty</module>
+		<module>bundles/org.openntf.openliberty.httpservice</module>
 		<module>features/org.openntf.openliberty.feature</module>
 		
 		<module>releng/org.openntf.openliberty.updatesite</module>
