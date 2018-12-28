@@ -42,7 +42,7 @@
 		<moduleSet>
 			<useAllReactorProjects>true</useAllReactorProjects>
 			<includes>
-				<include>org.openntf:org.openntf.openliberty.updatesite</include>
+				<include>org.openntf:org.openntf.openliberty.domino.updatesite</include>
 			</includes>
 			
 			<binaries>
@@ -55,7 +55,7 @@
 		<moduleSet>
 			<useAllReactorProjects>true</useAllReactorProjects>
 			<includes>
-				<include>org.openntf:org.openntf.openliberty.source.updatesite</include>
+				<include>org.openntf:org.openntf.openliberty.domino.source.updatesite</include>
 			</includes>
 			
 			<binaries>

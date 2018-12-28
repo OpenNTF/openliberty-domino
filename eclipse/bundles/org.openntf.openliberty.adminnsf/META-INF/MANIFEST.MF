@@ -1,9 +1,0 @@
-Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Name: Domino Open Liberty Runtime Admin NSF Adapter
-Bundle-SymbolicName: org.openntf.openliberty.adminnsf;singleton:=true
-Automatic-Module-Name: org.openntf.openliberty.adminnsf
-Fragment-Host: org.openntf.openliberty
-Bundle-Version: 1.18004.0.qualifier
-Bundle-Vendor: OpenNTF
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8

@@ -15,7 +15,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>org.openntf.openliberty.updatesite</artifactId>
+			<artifactId>org.openntf.openliberty.domino.updatesite</artifactId>
 			<version>${project.version}</version>
 			<type>eclipse-update-site</type>
 		</dependency>

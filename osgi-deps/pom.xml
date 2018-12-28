@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<project
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.openntf</groupId>
+	<artifactId>openliberty-domino-osgi-deps</artifactId>
+	<version>1.0.0-SNAPSHOT</version>
+	
+	<description>
+		This project exists to generate a local p2 site for use as part of the OSGi
+		target platform during compilation
+	</description>
+	
+	<packaging>pom</packaging>
+	
+	<build>
+		<plugins>
+			<plugin>
+			    <groupId>org.reficio</groupId>
+				<artifactId>p2-maven-plugin</artifactId>
+				<version>1.3.0</version>
+				<extensions>true</extensions>
+				
+				<executions>
+					<execution>
+						<id>generate-p2-site</id>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>site</goal>
+						</goals>
+						<configuration>
+							<artifacts>
+								<artifact><id>com.ibm.websphere.appserver.api:com.ibm.websphere.appserver.api.securityClient:1.1.23</id><source>true</source></artifact>
+								<artifact><id>com.ibm.websphere.appserver.api:com.ibm.websphere.appserver.api.security:1.2.23</id><source>true</source></artifact>
+							</artifacts>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+</project>

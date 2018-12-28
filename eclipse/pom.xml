@@ -35,13 +35,13 @@
 	</developers>
 
 	<modules>
-		<module>bundles/org.openntf.openliberty</module>
-		<module>bundles/org.openntf.openliberty.httpservice</module>
-		<module>bundles/org.openntf.openliberty.adminnsf</module>
-		<module>features/org.openntf.openliberty.feature</module>
+		<module>bundles/org.openntf.openliberty.domino</module>
+		<module>bundles/org.openntf.openliberty.domino.httpservice</module>
+		<module>bundles/org.openntf.openliberty.domino.adminnsf</module>
+		<module>features/org.openntf.openliberty.domino.feature</module>
 		
-		<module>releng/org.openntf.openliberty.updatesite</module>
-		<module>releng/org.openntf.openliberty.source.updatesite</module>
+		<module>releng/org.openntf.openliberty.domino.updatesite</module>
+		<module>releng/org.openntf.openliberty.domino.source.updatesite</module>
 	</modules>
 
 	<properties>
@@ -52,6 +52,9 @@
 		
 		<!-- Maven API version. This version should be supported by m2e -->
 		<maven.api.version>3.3.9</maven.api.version>
+		
+		<!-- This will be re-computed per-project, hence the extra two layers -->
+		<osgi-deps-path>${project.baseUri}../../../osgi-deps/target/repository</osgi-deps-path>
 	</properties>
 	
 	<prerequisites>
@@ -68,6 +71,11 @@
 			<id>notes</id>
 			<layout>p2</layout>
 			<url>${notes-platform}</url>
+		</repository>
+		<repository>
+			<id>osgi-deps</id>
+			<layout>p2</layout>
+			<url>${osgi-deps-path}</url>
 		</repository>
 		<repository>
 			<id>artifactory.openntf.org</id>
