@@ -25,6 +25,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
@@ -354,7 +355,7 @@ public enum OpenLibertyRuntime implements Runnable {
 		return Files.isDirectory(server);
 	}
 	
-	private void deployWar(Path wlp, String serverName, String warName, Path warFile) throws IOException {
+	private void deployWar(Path wlp, String serverName, String warName, Path warFile) {
 		Path dropins = wlp.resolve("usr").resolve("servers").resolve(serverName).resolve("dropins");
 		
 		String name;
@@ -365,7 +366,13 @@ public enum OpenLibertyRuntime implements Runnable {
 		}
 		
 		Path dest = dropins.resolve(name);
-		Files.copy(warFile, dest);
+		try {
+			Files.copy(warFile, dest, StandardCopyOption.REPLACE_EXISTING);
+		} catch(IOException e) {
+			if(log.isLoggable(Level.SEVERE)) {
+				log.log(Level.SEVERE, "Encountered exception when deploying dropin: " + e, e);
+			}
+		}
 	}
 	
 	private static class StreamRedirector implements Runnable {
