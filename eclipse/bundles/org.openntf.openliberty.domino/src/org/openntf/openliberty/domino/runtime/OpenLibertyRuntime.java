@@ -41,12 +41,14 @@ import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
+import java.util.jar.Manifest;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import org.openntf.openliberty.domino.config.RuntimeProperties;
+import org.openntf.openliberty.domino.ext.ExtensionDeployer;
 import org.openntf.openliberty.domino.ext.RuntimeService;
 import org.openntf.openliberty.domino.log.OpenLibertyLog;
 import org.openntf.openliberty.domino.util.DominoThreadFactory;
@@ -90,6 +92,7 @@ public enum OpenLibertyRuntime implements Runnable {
 			if(log.isLoggable(Level.INFO)) {
 				log.info(format("Using runtime deployed to {0}", wlp));
 			}
+			deployExtensions(wlp);
 			
 			List<RuntimeService> runtimeServices = ExtensionManager.findServices(null, getClass().getClassLoader(), RuntimeService.SERVICE_ID, RuntimeService.class);
 			if(runtimeServices != null) {
@@ -371,6 +374,52 @@ public enum OpenLibertyRuntime implements Runnable {
 		} catch(IOException e) {
 			if(log.isLoggable(Level.SEVERE)) {
 				log.log(Level.SEVERE, "Encountered exception when deploying dropin: " + e, e);
+			}
+		}
+	}
+	
+	private void deployExtensions(Path wlp) throws IOException {
+		Path lib = wlp.resolve("usr").resolve("extension").resolve("lib");
+		Files.createDirectories(lib);
+		Path features = lib.resolve("features");
+		Files.createDirectories(features);
+		
+		List<ExtensionDeployer> extensions = ExtensionManager.findServices(null, getClass().getClassLoader(), ExtensionDeployer.SERVICE_ID, ExtensionDeployer.class);
+		if(extensions != null) {
+			for(ExtensionDeployer ext : extensions) {
+				List<String> fileNames = ext.getBundleFileNames();
+				List<InputStream> fileData = ext.getBundleData();
+				try {
+					for(int i = 0; i < fileData.size(); i++) {
+						InputStream is = fileData.get(i);
+						String name = fileNames.get(i);
+						
+						Path dest = lib.resolve(name);
+						try(OutputStream os = Files.newOutputStream(dest, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
+							StreamUtil.copyStream(is, os);
+						}
+					}
+					
+					// Build the feature manifest
+					Manifest mf = new Manifest();
+					mf.getMainAttributes().putValue("Manifest-Version", "1.0");
+					mf.getMainAttributes().putValue("IBM-Feature-Version", "2");
+					mf.getMainAttributes().putValue("Subsystem-Type", "osgi.subsystem.feature");
+					mf.getMainAttributes().putValue("Subsystem-Version", ext.getSubsystemVersion());
+					mf.getMainAttributes().putValue("Subsystem-ManifestVersion", "1.0");
+					mf.getMainAttributes().putValue("Subsystem-SymbolicName", ext.getFeatureId() + ";visibility:=public");
+					mf.getMainAttributes().putValue("Subsystem-Content", ext.getSubsystemContent());
+					mf.getMainAttributes().putValue("IBM-ShortName", ext.getFeatureId());
+					Path mfDest = features.resolve(ext.getFeatureId() + ".mf");
+					try(OutputStream os = Files.newOutputStream(mfDest, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
+						mf.write(os);
+					}
+					
+				} finally {
+					for(InputStream is : fileData) {
+						StreamUtil.close(is);
+					}
+				}
 			}
 		}
 	}

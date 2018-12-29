@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Domino Open Liberty WLP User Registry
+Bundle-SymbolicName: org.openntf.openliberty.wlp.userregistry
+Automatic-Module-Name: org.openntf.openliberty.wlp.userregistry
+Bundle-Version: 1.18004.0.qualifier
+Bundle-Vendor: OpenNTF
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Import-Package: com.ibm.websphere.security;version="1.0.0",
+ com.ibm.websphere.security.cred;version="1.0.0",
+ lotus.domino;resolution:=optional,
+ lotus.notes.addins;resolution:=optional,
+ org.osgi.framework;version="1.5.0",
+ org.osgi.service.cm;version="1.5.0"
+Bundle-Activator: org.openntf.openliberty.wlp.userregistry.Activator

@@ -35,9 +35,18 @@
 	</developers>
 
 	<modules>
+		<!--
+			Open Liberty Extensions 
+		-->
+		<module>bundles/org.openntf.openliberty.wlp.userregistry</module>
+		
+		<!--
+			Domino Runtime 
+		-->
 		<module>bundles/org.openntf.openliberty.domino</module>
 		<module>bundles/org.openntf.openliberty.domino.httpservice</module>
 		<module>bundles/org.openntf.openliberty.domino.adminnsf</module>
+		<module>bundles/org.openntf.openliberty.domino.userregistry</module>
 		<module>features/org.openntf.openliberty.domino.feature</module>
 		
 		<module>releng/org.openntf.openliberty.domino.updatesite</module>
@@ -135,6 +144,16 @@
 				<configuration>
 					<strictVersions>false</strictVersions>
 				</configuration>
+
+				<!-- Contribute the "buildQualifier" property to the environment -->
+				<executions>
+					<execution>
+						<goals>
+							<goal>build-qualifier</goal>
+						</goals>
+						<phase>validate</phase>
+					</execution>
+				</executions>
 			</plugin>
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
