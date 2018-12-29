@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -46,6 +47,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 import org.openntf.openliberty.domino.config.RuntimeProperties;
 import org.openntf.openliberty.domino.ext.ExtensionDeployer;
@@ -92,6 +94,7 @@ public enum OpenLibertyRuntime implements Runnable {
 			if(log.isLoggable(Level.INFO)) {
 				log.info(format("Using runtime deployed to {0}", wlp));
 			}
+			createNotesApi(wlp);
 			deployExtensions(wlp);
 			
 			List<RuntimeService> runtimeServices = ExtensionManager.findServices(null, getClass().getClassLoader(), RuntimeService.SERVICE_ID, RuntimeService.class);
@@ -374,6 +377,55 @@ public enum OpenLibertyRuntime implements Runnable {
 		} catch(IOException e) {
 			if(log.isLoggable(Level.SEVERE)) {
 				log.log(Level.SEVERE, "Encountered exception when deploying dropin: " + e, e);
+			}
+		}
+	}
+	
+	private void createNotesApi(Path wlp) throws IOException {
+		Path lib = wlp.resolve("usr").resolve("extension").resolve("lib");
+		Files.createDirectories(lib);
+		
+		// Find Notes.jar
+		String execDir = Os.OSGetExecutableDirectory();
+		Path notesJar = Paths.get(execDir, "jvm", "lib", "ext", "Notes.jar");
+		Path dest = lib.resolve("org.openntf.notes.java.api_10.0.1.jar");
+		try(InputStream is = Files.newInputStream(notesJar)) {
+			try(ZipInputStream zis = new ZipInputStream(is)) {
+				try(OutputStream os = Files.newOutputStream(dest, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
+					try(ZipOutputStream zos = new ZipOutputStream(os)) {
+						ZipEntry entry = zis.getNextEntry();
+						Set<String> packages = new LinkedHashSet<String>();
+						while(entry != null) {
+							if(!entry.getName().startsWith("META-INF")) {
+								if(!entry.isDirectory()) {
+									zos.putNextEntry(entry);
+									StreamUtil.copyStream(zis, zos);
+									zos.closeEntry();
+									
+									int slashIndex = entry.getName().lastIndexOf('/');
+									if(slashIndex > 0) {
+										packages.add(entry.getName().substring(0, slashIndex).replace('/', '.'));
+									}
+								}
+							}
+							
+							zis.closeEntry();
+							entry = zis.getNextEntry();
+						}
+						
+						ZipEntry manifestEntry = new ZipEntry("META-INF/MANIFEST.MF");
+						zos.putNextEntry(manifestEntry);
+						Manifest mf = new Manifest();
+						mf.getMainAttributes().putValue("Manifest-Version", "1.0");
+						mf.getMainAttributes().putValue("Bundle-SymbolicName", "org.openntf.notes.java.api");
+						mf.getMainAttributes().putValue("Export-Package", String.join(",", packages));
+						mf.getMainAttributes().putValue("Bundle-Name", "Notes Java API");
+						mf.getMainAttributes().putValue("Bundle-Version", "10.0.1");
+						mf.getMainAttributes().putValue("Bundle-ManifestVersion", "2");
+						mf.getMainAttributes().putValue("DynamicImport-Package", "org.omg.CORBA");
+						mf.write(zos);
+					}
+				}
 			}
 		}
 	}

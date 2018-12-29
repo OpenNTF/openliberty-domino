@@ -8,8 +8,8 @@ Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: com.ibm.websphere.security;version="1.0.0",
  com.ibm.websphere.security.cred;version="1.0.0",
- lotus.domino;resolution:=optional,
- lotus.notes.addins;resolution:=optional,
+ lotus.domino,
+ lotus.notes.addins,
  org.osgi.framework;version="1.5.0",
  org.osgi.service.cm;version="1.5.0"
 Bundle-Activator: org.openntf.openliberty.wlp.userregistry.Activator

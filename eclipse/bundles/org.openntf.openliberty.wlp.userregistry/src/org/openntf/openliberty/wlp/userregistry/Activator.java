@@ -3,6 +3,7 @@ package org.openntf.openliberty.wlp.userregistry;
 import java.util.Dictionary;
 import java.util.Hashtable;
 
+import org.openntf.openliberty.wlp.userregistry.util.DominoThreadFactory;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
@@ -25,6 +26,8 @@ public class Activator implements BundleActivator, ManagedService {
 
 	@Override
 	public void start(BundleContext context) throws Exception {
+		DominoThreadFactory.init();
+		
 		this.configRef = context.registerService(ManagedService.class, this, getDefaults());
 		this.curRef = context.registerService(UserRegistry.class, registry, getDefaults());
 	}
@@ -39,6 +42,8 @@ public class Activator implements BundleActivator, ManagedService {
 			this.curRef.unregister();
 			this.curRef = null;
 		}
+		
+		DominoThreadFactory.term();
 	}
 
 	@Override

@@ -1,24 +1,56 @@
 package org.openntf.openliberty.domino.userregistry;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
+import java.util.jar.Manifest;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import org.openntf.openliberty.domino.ext.ExtensionDeployer;
-import org.openntf.openliberty.domino.userregistry.config.UserRegistryProperties;
 
 public class UserRegistryExtension implements ExtensionDeployer {
+	private final String symbolicName;
+	private final String bundleVersion;
+	
+	public UserRegistryExtension() throws IOException {
+		String name = null;
+		String version = null;
+		try(InputStream is = getClass().getResourceAsStream("/ext/plugin.jar")) {
+			try(ZipInputStream zis = new ZipInputStream(is)) {
+				ZipEntry entry = zis.getNextEntry();
+				while(entry != null) {
+					if(entry.getName().replace('\\', '/').equals("META-INF/MANIFEST.MF")) {
+						Manifest mf = new Manifest(zis);
+						name = mf.getMainAttributes().getValue("Bundle-SymbolicName");
+						int semiIndex = name.indexOf(';');
+						if(semiIndex > -1) {
+							name = name.substring(0, semiIndex);
+						}
+						version = mf.getMainAttributes().getValue("Bundle-Version");
+					}
+					
+					zis.closeEntry();
+					entry = zis.getNextEntry();
+				}
+			}
+		}
+		
+		symbolicName = name;
+		bundleVersion = version;
+	}
 
 	@Override
 	public List<InputStream> getBundleData() {
 		return Arrays.asList(
-			getClass().getResourceAsStream("/ext/" + getBundleFileName())
+			getClass().getResourceAsStream("/ext/plugin.jar")
 		);
 	}
 
 	@Override
 	public List<String> getBundleFileNames() {
-		return Arrays.asList(getBundleFileName());
+		return Arrays.asList(symbolicName + "_" + bundleVersion + ".jar");
 	}
 
 	@Override
@@ -28,18 +60,16 @@ public class UserRegistryExtension implements ExtensionDeployer {
 	
 	@Override
 	public String getSubsystemContent() {
-		return UserRegistryProperties.instance.getPluginName() + ";version=" + UserRegistryProperties.instance.getUnqualifiedVersion() + '.' + UserRegistryProperties.instance.getBuildQualifier();
+		String core = symbolicName + ";version=" + bundleVersion;
+		StringBuilder content = new StringBuilder();
+		content.append("org.openntf.notes.java.api; version=0.0.0");
+		content.append(',');
+		content.append(core);
+		return content.toString();
 	}
 	
 	@Override
 	public String getSubsystemVersion() {
-		return UserRegistryProperties.instance.getUnqualifiedVersion() + '.' + UserRegistryProperties.instance.getBuildQualifier();
-	}
-
-	private String getBundleFileName() {
-		String name = UserRegistryProperties.instance.getPluginName();
-		String version = UserRegistryProperties.instance.getUnqualifiedVersion();
-		String qualifier = UserRegistryProperties.instance.getBuildQualifier();
-		return name + '_' + version + '.' + qualifier + ".jar";
+		return bundleVersion;
 	}
 }
