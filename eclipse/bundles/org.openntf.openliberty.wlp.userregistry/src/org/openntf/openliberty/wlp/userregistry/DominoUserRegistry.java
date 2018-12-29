@@ -2,6 +2,7 @@ package org.openntf.openliberty.wlp.userregistry;
 
 import java.rmi.RemoteException;
 import java.security.cert.X509Certificate;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
@@ -55,7 +56,6 @@ public class DominoUserRegistry implements UserRegistry {
 	@Override
 	public String checkPassword(String userSecurityName, String password)
 			throws PasswordCheckFailedException, CustomRegistryException, RemoteException {
-		System.out.println(getClass().getSimpleName() + " checking password for user \"" + userSecurityName + "\"");
 		if(log.isLoggable(Level.FINE)) {
 			log.fine(getClass().getSimpleName() + " checking password for user \"" + userSecurityName + "\"");
 		}
@@ -69,17 +69,16 @@ public class DominoUserRegistry implements UserRegistry {
 					tempDoc.replaceItemValue("Username", userSecurityName);
 					tempDoc.replaceItemValue("Password", password);
 					session.evaluate(" @SetField('HashPassword'; @NameLookup([NoCache]:[Exhaustive]; Username; 'HTTPPassword')[1]) ", tempDoc);
+					// TODO look up against other password variants, or find real way to do this
 					List<?> result = session.evaluate(" @VerifyPassword(Password; HashPassword) ", tempDoc);
 					if(!result.isEmpty() && Double.valueOf(1).equals(result.get(0))) {
 						// Then it's good! Look up the user's real name
 						String fullName = (String)session.evaluate(" @NameLookup([NoCache]:[Exhaustive]; Username; 'FullName') ", tempDoc).get(0);
-						System.out.println("Successfully logged in for user \"" + userSecurityName + "\"; fullName=\"" + fullName + "\"");
 						if(log.isLoggable(Level.FINER)) {
 							log.finer("Successfully logged in for user \"" + userSecurityName + "\"; fullName=\"" + fullName + "\"");
 						}
 						return fullName;
 					} else {
-						System.out.println("Didn't find anything");
 						return null;
 					}
 				} catch(Throwable t) {
@@ -106,8 +105,7 @@ public class DominoUserRegistry implements UserRegistry {
 
 	@Override
 	public String getRealm() throws CustomRegistryException, RemoteException {
-		// TODO use the active domain name?
-		return "Domino";
+		return "defaultRealm";
 	}
 
 	@Override
@@ -131,7 +129,7 @@ public class DominoUserRegistry implements UserRegistry {
 					Database names = session.getDatabase("", "names.nsf");
 					Document tempDoc = names.createDocument();
 					tempDoc.replaceItemValue("Username", userSecurityName);
-					List<?> result = session.evaluate(" @NameLookup([Exhaustive]; Username; 'FullName') ", tempDoc);
+					List<?> result = session.evaluate(" @Trim(@NameLookup([NoCache]:[Exhaustive]; Username; 'FullName')) ", tempDoc);
 					if(!result.isEmpty()) {
 						Name name = session.createName((String)result.get(0));
 						return name.getCommon();
@@ -156,7 +154,7 @@ public class DominoUserRegistry implements UserRegistry {
 					Database names = session.getDatabase("", "names.nsf");
 					Document tempDoc = names.createDocument();
 					tempDoc.replaceItemValue("Username", userSecurityName);
-					List<?> result = session.evaluate(" @NameLookup([Exhaustive]; Username; 'ShortName') ", tempDoc);
+					List<?> result = session.evaluate(" @Trim(@NameLookup([NoCache]:[Exhaustive]; Username; 'ShortName')) ", tempDoc);
 					if(!result.isEmpty()) {
 						return (String)result.get(0);
 					} else {
@@ -181,7 +179,7 @@ public class DominoUserRegistry implements UserRegistry {
 					Database names = session.getDatabase("", "names.nsf");
 					Document tempDoc = names.createDocument();
 					tempDoc.replaceItemValue("Username", uniqueUserId);
-					List<?> result = session.evaluate(" @NameLookup([Exhaustive]; Username; 'FullName') ", tempDoc);
+					List<?> result = session.evaluate(" @Trim(@NameLookup([NoCache]:[Exhaustive]; Username; 'FullName')) ", tempDoc);
 					if(!result.isEmpty()) {
 						return (String)result.get(0);
 					} else {
@@ -200,7 +198,7 @@ public class DominoUserRegistry implements UserRegistry {
 	public boolean isValidUser(String userSecurityName) throws CustomRegistryException, RemoteException {
 		String cn;
 		try {
-			cn = getUserDisplayName(userSecurityName);
+			cn = getUserSecurityName(userSecurityName);
 		} catch (EntryNotFoundException e) {
 			throw new CustomRegistryException(e);
 		}
@@ -231,7 +229,7 @@ public class DominoUserRegistry implements UserRegistry {
 	public List<String> getUniqueGroupIds(String uniqueUserId)
 			throws EntryNotFoundException, CustomRegistryException, RemoteException {
 		// TODO Look up groups
-		return null;
+		return Collections.emptyList();
 	}
 
 	@Override
