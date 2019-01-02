@@ -25,6 +25,12 @@
 			<version>${project.version}</version>
 			<type>domino-nsf</type>
 		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>openliberty-domino-proxy</artifactId>
+			<version>${project.version}</version>
+			<type>war</type>
+		</dependency>
 	</dependencies>
 
 	<build>
