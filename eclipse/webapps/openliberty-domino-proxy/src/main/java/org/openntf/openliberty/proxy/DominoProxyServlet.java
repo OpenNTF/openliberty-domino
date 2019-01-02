@@ -34,7 +34,6 @@
 
 package org.openntf.openliberty.proxy;
 
-import lombok.SneakyThrows;
 import org.apache.http.*;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.CookieSpecs;
@@ -65,10 +64,13 @@ import java.util.BitSet;
 import java.util.Enumeration;
 import java.util.Formatter;
 
+@SuppressWarnings("deprecation")
 public class DominoProxyServlet extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+	
     /* INIT PARAMETER NAME CONSTANTS */
 
-    /** A boolean parameter name to enable logging of input and target URLs to the servlet log. */
+	/** A boolean parameter name to enable logging of input and target URLs to the servlet log. */
     private static final String P_LOG = "log";
 
     /** A boolean parameter name to enable forwarding of the client IP  */
@@ -686,7 +688,6 @@ public class DominoProxyServlet extends HttpServlet {
      * Reads the request URI from {@code servletRequest} and rewrites it, considering targetUri.
      * It's used to make the new request.
      */
-    @SneakyThrows
     private String rewriteUrlFromRequest(HttpServletRequest servletRequest) {
         String uriS = getTargetUri(servletRequest);
         // Handle the path given to the servlet

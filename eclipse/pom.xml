@@ -36,6 +36,11 @@
 
 	<modules>
 		<!--
+			Web Applications 
+		-->
+		<module>webapps/openliberty-domino-proxy</module>
+		
+		<!--
 			Open Liberty Extensions 
 		-->
 		<module>bundles/org.openntf.openliberty.wlp.userregistry</module>
