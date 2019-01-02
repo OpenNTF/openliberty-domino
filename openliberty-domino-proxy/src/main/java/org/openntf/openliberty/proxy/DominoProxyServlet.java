@@ -98,6 +98,7 @@ public class DominoProxyServlet extends HttpServlet {
             DominoProxyServlet.class.getSimpleName() + ".targetUri";
     private static final String ATTR_TARGET_HOST =
             DominoProxyServlet.class.getSimpleName() + ".targetHost";
+    private static final String ATTR_SEND_WSIS = DominoProxyServlet.class.getSimpleName() + ".sendWsis";
 
     /* MISC */
 
@@ -109,6 +110,7 @@ public class DominoProxyServlet extends HttpServlet {
     private boolean doPreserveCookies = false;
     private boolean doHandleRedirects = false;
     private boolean useSystemProperties = true;
+    private boolean sendWsis = true;
     private int connectTimeout = -1;
     private int readTimeout = -1;
 
@@ -188,6 +190,11 @@ public class DominoProxyServlet extends HttpServlet {
         String useSystemPropertiesString = getConfigParam(P_USESYSTEMPROPERTIES);
         if (useSystemPropertiesString != null) {
             this.useSystemProperties = Boolean.parseBoolean(useSystemPropertiesString);
+        }
+
+        String sendWsisString = getConfigParam(ATTR_SEND_WSIS);
+        if(sendWsisString != null) {
+            this.sendWsis = Boolean.parseBoolean(sendWsisString);
         }
 
         initTarget();//sets target*
@@ -465,12 +472,14 @@ public class DominoProxyServlet extends HttpServlet {
         // Skip $WSPR, since Domino wouldn't like HTTP/2.0
         // TODO $WSRU for the user?
         proxyRequest.setHeader("Host", servletRequest.getServerName());
-        proxyRequest.setHeader("$WSSC", servletRequest.getScheme());
         proxyRequest.setHeader("$WSRA", servletRequest.getRemoteAddr());
         proxyRequest.setHeader("$WSRH", servletRequest.getRemoteHost());
         proxyRequest.setHeader("$WSSN", servletRequest.getServerName());
-        proxyRequest.setHeader("$WSIS", servletRequest.isSecure() ? "True" : "False");
-        proxyRequest.setHeader("$WSSP", String.valueOf(servletRequest.getServerPort()));
+        if(sendWsis) {
+            proxyRequest.setHeader("$WSSC", servletRequest.getScheme());
+            proxyRequest.setHeader("$WSIS", servletRequest.isSecure() ? "True" : "False");
+            proxyRequest.setHeader("$WSSP", String.valueOf(servletRequest.getServerPort()));
+        }
     }
 
     /** Copy proxied response headers back to the servlet client. */
