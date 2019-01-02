@@ -39,6 +39,7 @@ public class AdminNSFService implements Runnable {
 	
 	public static final String VIEW_SERVERS = "Servers";
 	public static final String ITEM_SERVERNAME = "Name";
+	public static final String ITEM_SERVERENV = "ServerEnv";
 	public static final String ITEM_SERVERXML = "ServerXML";
 	public static final String ITEM_APPNAME = "AppName";
 	public static final String ITEM_WAR = "WarFile";
@@ -88,8 +89,9 @@ public class AdminNSFService implements Runnable {
 									log.info(format("{0}: Deploying NSF-defined server \"{1}\"", getClass().getSimpleName(), serverName));
 								}
 								String serverXml = serverDoc.getItemValueString(ITEM_SERVERXML);
+								String serverEnv = serverDoc.getItemValueString(ITEM_SERVERENV);
 								
-								OpenLibertyRuntime.instance.createServer(serverName, serverXml);
+								OpenLibertyRuntime.instance.createServer(serverName, serverXml, serverEnv);
 								OpenLibertyRuntime.instance.startServer(serverName);
 							} else {
 								if(log.isLoggable(Level.FINER)) {

@@ -121,12 +121,16 @@ public enum OpenLibertyRuntime implements Runnable {
 					case CREATE_SERVER: {
 						String serverName = (String)command.args[0];
 						String serverXml = (String)command.args[1];
+						String serverEnv = (String)command.args[2];
 						
 						if(!serverExists(wlp, serverName)) {
 							sendCommand(wlp, "create", serverName).waitFor();
 						}
 						if(StringUtil.isNotEmpty(serverXml)) {
 							deployServerXml(wlp, serverName, serverXml);
+						}
+						if(StringUtil.isNotEmpty(serverEnv)) {
+							deployServerEnv(wlp, serverName, serverEnv);
 						}
 						break;
 					}
@@ -183,8 +187,8 @@ public enum OpenLibertyRuntime implements Runnable {
 		startedServers.remove(serverName);
 	}
 	
-	public void createServer(String serverName, String serverXml) {
-		taskQueue.add(new RuntimeTask(RuntimeTask.Type.CREATE_SERVER, serverName, serverXml));
+	public void createServer(String serverName, String serverXml, String serverEnv) {
+		taskQueue.add(new RuntimeTask(RuntimeTask.Type.CREATE_SERVER, serverName, serverXml, serverEnv));
 	}
 	
 	public void deployDropin(String serverName, String warName, Path warFile, boolean deleteAfterDeploy) {
@@ -266,6 +270,14 @@ public enum OpenLibertyRuntime implements Runnable {
 	
 	private void deployServerXml(Path path, String serverName, String serverXml) throws IOException {
 		Path xmlFile = path.resolve("usr").resolve("servers").resolve(serverName).resolve("server.xml");
+		try(OutputStream os = Files.newOutputStream(xmlFile, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
+			try(PrintStream ps = new PrintStream(os)) {
+				ps.print(serverXml);
+			}
+		}
+	}
+	private void deployServerEnv(Path path, String serverName, String serverXml) throws IOException {
+		Path xmlFile = path.resolve("usr").resolve("servers").resolve(serverName).resolve("server.env");
 		try(OutputStream os = Files.newOutputStream(xmlFile, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
 			try(PrintStream ps = new PrintStream(os)) {
 				ps.print(serverXml);
