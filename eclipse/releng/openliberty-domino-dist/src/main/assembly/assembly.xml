@@ -67,14 +67,14 @@
 		<moduleSet>
 			<useAllReactorProjects>true</useAllReactorProjects>
 			<includes>
-				<include>org.openntf:*:domino-nsf</include>
+				<include>org.openntf:nsf-libertyadmin:domino-nsf</include>
 			</includes>
 			
 			<binaries>
 				<outputDirectory>.</outputDirectory>
 				<unpack>false</unpack>
 				<includeDependencies>false</includeDependencies>
-				<outputFileNameMapping>${module.artifactId}.ntf</outputFileNameMapping>
+				<outputFileNameMapping>libertyadmin.ntf</outputFileNameMapping>
 			</binaries>
 		</moduleSet>
 		<moduleSet>
