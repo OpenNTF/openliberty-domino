@@ -26,16 +26,27 @@ import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
 
 import com.ibm.websphere.security.UserRegistry;
+import com.ibm.wsspi.security.tai.TrustAssociationInterceptor;
 
 public class Activator implements BundleActivator, ManagedService {
 	private ServiceRegistration<ManagedService> configRef = null;
 	private ServiceRegistration<UserRegistry> curRef = null;
+	private ServiceRegistration<TrustAssociationInterceptor> taiRef = null;
 	private static final String CFG_PID = "dominoUserRegistry";
-	private final UserRegistry registry = new DominoUserRegistry();
 	
-	Hashtable<String, ?> getDefaults() {
+	private final UserRegistry registry = new DominoUserRegistry();
+	private final TrustAssociationInterceptor tai = new DominoTAI();
+	
+	Hashtable<String, Object> getDefaults() {
 		Hashtable<String, Object> defaults = new Hashtable<>();
 		defaults.put("service.pid", CFG_PID);
+		return defaults;
+	}
+	Hashtable<String, Object> getTAIDefaults() {
+		Hashtable<String, Object> defaults = new Hashtable<>();
+		defaults.put("invokeBeforeSSO", true);
+		defaults.put("service.pid", tai.getType());
+		defaults.put("id", tai.getType());
 		return defaults;
 	}
 
@@ -45,6 +56,7 @@ public class Activator implements BundleActivator, ManagedService {
 		
 		this.configRef = context.registerService(ManagedService.class, this, getDefaults());
 		this.curRef = context.registerService(UserRegistry.class, registry, getDefaults());
+		this.taiRef = context.registerService(TrustAssociationInterceptor.class, tai, getTAIDefaults());
 	}
 
 	@Override
@@ -56,6 +68,10 @@ public class Activator implements BundleActivator, ManagedService {
 		if(this.curRef != null) {
 			this.curRef.unregister();
 			this.curRef = null;
+		}
+		if(this.taiRef != null) {
+			this.taiRef.unregister();
+			this.taiRef = null;
 		}
 		
 		DominoThreadFactory.term();

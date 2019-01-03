@@ -50,6 +50,7 @@
 		-->
 		<module>bundles/org.openntf.openliberty.domino</module>
 		<module>bundles/org.openntf.openliberty.domino.httpservice</module>
+		<module>bundles/org.openntf.openliberty.domino.httpident</module>
 		<module>bundles/org.openntf.openliberty.domino.adminnsf</module>
 		<module>bundles/org.openntf.openliberty.domino.userregistry</module>
 		<module>features/org.openntf.openliberty.domino.feature</module>
