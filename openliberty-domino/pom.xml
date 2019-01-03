@@ -9,7 +9,7 @@
 
 	<name>Domino OpenLiberty Runtime</name>
 
-	<url>...</url>
+	<url>https://github.com/OpenNTF/openliberty-domino</url>
 	<inceptionYear>2018</inceptionYear>
 
 	<licenses>
