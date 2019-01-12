@@ -17,7 +17,8 @@ package org.openntf.openliberty.wlp.userregistry;
 
 import java.rmi.RemoteException;
 import java.security.cert.X509Certificate;
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
@@ -41,6 +42,7 @@ import lotus.domino.Document;
 import lotus.domino.Name;
 import lotus.domino.NotesFactory;
 import lotus.domino.Session;
+import lotus.notes.addins.DominoServer;
 
 /**
  * 
@@ -125,9 +127,28 @@ public class DominoUserRegistry implements UserRegistry {
 
 	@Override
 	public Result getUsers(String pattern, int limit) throws CustomRegistryException, RemoteException {
-		// TODO search for users
-		
-		return null;
+		try {
+			return DominoThreadFactory.executor.submit(() -> {
+				Session session = NotesFactory.createSession();
+				try {
+					// TODO change API to avoid 64k trouble
+					Database names = session.getDatabase("", "names.nsf");
+					Document tempDoc = names.createDocument();
+					List<?> users = session.evaluate(" @Trim(@Sort(@Unique(@NameLookup([NoCache]:[Exhaustive]; ''; 'FullName')))) ", tempDoc);
+					Result result = new Result();
+					if(limit > users.size()) {
+						users = users.subList(0, limit);
+						result.setHasMore();
+					}
+					result.setList(users);
+					return result;
+				} finally {
+					session.recycle();
+				}
+			}).get();
+		} catch (InterruptedException | ExecutionException e) {
+			throw new CustomRegistryException(e);
+		}
 	}
 
 	@Override
@@ -222,14 +243,33 @@ public class DominoUserRegistry implements UserRegistry {
 
 	@Override
 	public Result getGroups(String pattern, int limit) throws CustomRegistryException, RemoteException {
-		// TODO Look up groups
-		return null;
+		try {
+			return DominoThreadFactory.executor.submit(() -> {
+				Session session = NotesFactory.createSession();
+				try {
+					Database names = session.getDatabase("", "names.nsf");
+					Document tempDoc = names.createDocument();
+					List<?> groups = session.evaluate(" @Trim(@Sort(@Unique(@NameLookup([NoCache]:[Exhaustive]; ''; 'ListName')))) ", tempDoc);
+					Result result = new Result();
+					if(limit > groups.size()) {
+						groups = groups.subList(0, limit);
+						result.setHasMore();
+					}
+					result.setList(groups);
+					return result;
+				} finally {
+					session.recycle();
+				}
+			}).get();
+		} catch (InterruptedException | ExecutionException e) {
+			throw new CustomRegistryException(e);
+		}
 	}
 
 	@Override
 	public String getGroupDisplayName(String groupSecurityName)
 			throws EntryNotFoundException, CustomRegistryException, RemoteException {
-		// TODO return CN?
+		// No such distinction
 		return groupSecurityName;
 	}
 
@@ -240,11 +280,31 @@ public class DominoUserRegistry implements UserRegistry {
 		return groupSecurityName;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<String> getUniqueGroupIds(String uniqueUserId)
 			throws EntryNotFoundException, CustomRegistryException, RemoteException {
-		// TODO Look up groups
-		return Collections.emptyList();
+		try {
+			return DominoThreadFactory.executor.submit(() -> {
+				Session session = NotesFactory.createSession();
+				try {
+					DominoServer server = new DominoServer(session.getUserName());
+					String name = getUserSecurityName(uniqueUserId);
+					List<String> names = new ArrayList<>((Collection<String>)server.getNamesList(name));
+					int starIndex = names.indexOf("*");
+					if(starIndex > -1) {
+						// Everything at and after this point should be a group or
+						//   pseudo-group (e.g. "*/O=SomeOrg")
+						names = names.subList(starIndex, names.size());
+					}
+					return names;
+				} finally {
+					session.recycle();
+				}
+			}).get();
+		} catch (InterruptedException | ExecutionException e) {
+			throw new CustomRegistryException(e);
+		}
 	}
 
 	@Override
@@ -256,8 +316,22 @@ public class DominoUserRegistry implements UserRegistry {
 
 	@Override
 	public boolean isValidGroup(String groupSecurityName) throws CustomRegistryException, RemoteException {
-		// TODO Look up group
-		return false;
+		try {
+			return DominoThreadFactory.executor.submit(() -> {
+				Session session = NotesFactory.createSession();
+				try {
+					Database names = session.getDatabase("", "names.nsf");
+					Document tempDoc = names.createDocument();
+					tempDoc.replaceItemValue("GroupName", groupSecurityName);
+					List<?> result = session.evaluate(" @Trim(@NameLookup([NoCache]:[Exhaustive]; GroupName; 'ListName')) ", tempDoc);
+					return !result.isEmpty();
+				} finally {
+					session.recycle();
+				}
+			}).get();
+		} catch (InterruptedException | ExecutionException e) {
+			throw new CustomRegistryException(e);
+		}
 	}
 
 	@Override
@@ -269,8 +343,30 @@ public class DominoUserRegistry implements UserRegistry {
 	@Override
 	public Result getUsersForGroup(String groupSecurityName, int limit)
 			throws NotImplementedException, EntryNotFoundException, CustomRegistryException, RemoteException {
-		// TODO Look up and expand group
-		return null;
+		try {
+			return DominoThreadFactory.executor.submit(() -> {
+				Session session = NotesFactory.createSession();
+				try {
+					// TODO Look up and expand group
+					// TODO work with multiple group-allowed directories
+					Database names = session.getDatabase("", "names.nsf");
+					Document tempDoc = names.createDocument();
+					tempDoc.replaceItemValue("GroupName", groupSecurityName);
+					List<?> members = session.evaluate(" @Text(@Trim(@Unique(@Sort(@DbLookup(''; '':'names.nsf'; '$VIMGroups'; GroupName; 'Members'))))) ", tempDoc);
+					Result result = new Result();
+					if(limit > members.size()) {
+						members = members.subList(0, limit);
+						result.setHasMore();
+					}
+					result.setList(members);
+					return result;
+				} finally {
+					session.recycle();
+				}
+			}).get();
+		} catch (InterruptedException | ExecutionException e) {
+			throw new CustomRegistryException(e);
+		}
 	}
 
 	@Override
