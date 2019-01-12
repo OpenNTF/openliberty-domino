@@ -12,43 +12,6 @@
 	
 	<build>
 		<plugins>
-
-			<!-- Copy in third-party jar dependencies -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-dependency-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>copy</id>
-						<phase>generate-resources</phase>
-						<goals>
-							<goal>copy</goal>
-						</goals>
-						<configuration>
-							<outputDirectory>runtime</outputDirectory>
-							<artifactItems>
-								<artifactItem>
-									<groupId>io.openliberty</groupId>
-									<artifactId>openliberty-runtime</artifactId>
-									<version>${liberty.version}</version>
-									<type>zip</type>
-								</artifactItem>
-							</artifactItems>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-clean-plugin</artifactId>
-				<configuration>
-					<filesets>
-						<fileset>
-							<directory>runtime</directory>
-						</fileset>
-					</filesets>
-				</configuration>
-			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-resources-plugin</artifactId>

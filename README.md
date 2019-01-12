@@ -49,4 +49,4 @@ Additionally, to compile the Admin NSF via Maven and generate the final distribu
 
 ## License
 
-The code in the project is licensed under the Apache License 2.0. The dependencies in the binary distribution are licensed under compatible licenses - see NOTICE for details.
+The code in the project is licensed under the Apache License 2.0. The runtime may download software licensed under compatible licenses - see NOTICE for details.

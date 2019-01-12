@@ -26,10 +26,6 @@ public enum RuntimeProperties {
 		this.bundle = ResourceBundle.getBundle("runtime");
 	}
 	
-	public String getVersion() {
-		return bundle.getString("version");
-	}
-	
 	public String getPrefix() {
 		return bundle.getString("prefix");
 	}

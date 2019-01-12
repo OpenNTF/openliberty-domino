@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.openntf.openliberty.domino.adminnsf.config.AdminNSFProperties;
+import org.openntf.openliberty.domino.adminnsf.util.AdminNSFUtil;
 import org.openntf.openliberty.domino.log.OpenLibertyLog;
 import org.openntf.openliberty.domino.runtime.OpenLibertyRuntime;
 import org.openntf.openliberty.domino.util.OpenLibertyUtil;
@@ -68,18 +68,7 @@ public class AdminNSFService implements Runnable {
 		try {
 			Session session = NotesFactory.createSession();
 			try {
-				String adminNsfPath = AdminNSFProperties.instance.getNsfPath();
-				String server, filePath;
-				int bangIndex = adminNsfPath.indexOf("!!");
-				if(bangIndex > -1) {
-					server = adminNsfPath.substring(0, bangIndex);
-					filePath = adminNsfPath.substring(bangIndex+2);
-				} else {
-					server = "";
-					filePath = adminNsfPath;
-				}
-				
-				Database adminNsf = session.getDatabase(server, filePath);
+				Database adminNsf = AdminNSFUtil.getAdminDatabase(session);
 				if(!needsUpdate(adminNsf)) {
 					// Then we can end now
 					if(log.isLoggable(Level.FINER)) {

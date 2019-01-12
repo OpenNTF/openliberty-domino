@@ -13,32 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openntf.openliberty.domino.adminnsf.config;
+package org.openntf.openliberty.domino.runtime;
 
-import java.util.ResourceBundle;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.concurrent.Callable;
 
-public enum AdminNSFProperties {
-	instance;
-	
-	private final ResourceBundle bundle;
-	
-	private AdminNSFProperties() {
-		this.bundle = ResourceBundle.getBundle("adminnsf");
-	}
-	
-	public String getNsfPath() {
-		return bundle.getString("defaultAdminNsf");
-	}
-	
-	public String getDefaultVersion() {
-		return bundle.getString("defaultVersion");
-	}
-	
-	public String getDefaultArtifact() {
-		return bundle.getString("defaultArtifact");
-	}
-	
-	public String getDefaultMavenRepo() {
-		return bundle.getString("defaultMavenRepo");
-	}
+public interface RuntimeDeploymentTask extends Callable<Path> {
+	public static final String SERVICE_ID = RuntimeDeploymentTask.class.getName();
+
+	@Override
+	Path call() throws IOException;
 }

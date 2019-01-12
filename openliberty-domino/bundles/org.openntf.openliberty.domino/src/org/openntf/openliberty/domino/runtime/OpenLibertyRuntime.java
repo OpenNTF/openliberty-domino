@@ -49,7 +49,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-import org.openntf.openliberty.domino.config.RuntimeProperties;
 import org.openntf.openliberty.domino.ext.ExtensionDeployer;
 import org.openntf.openliberty.domino.ext.RuntimeService;
 import org.openntf.openliberty.domino.log.OpenLibertyLog;
@@ -82,15 +81,13 @@ public enum OpenLibertyRuntime implements Runnable {
 
 	@Override
 	public void run() {
-		String version = RuntimeProperties.instance.getVersion();
-		
 		if(log.isLoggable(Level.INFO)) {
-			log.info(format("Startup version {0}", version));
+			log.info(format("Startup"));
 		}
 		
 		Path wlp = null;
 		try {
-			wlp = deployRuntime(version);
+			wlp = deployRuntime();
 			if(log.isLoggable(Level.INFO)) {
 				log.info(format("Using runtime deployed to {0}", wlp));
 			}
@@ -217,55 +214,18 @@ public enum OpenLibertyRuntime implements Runnable {
 		}
 	}
 	
-	private Path deployRuntime(String version) throws IOException {
-		if(log.isLoggable(Level.INFO)) {
-			log.info("Checking runtime deployment");
+	private Path deployRuntime() throws IOException {
+		List<RuntimeDeploymentTask> deploymentServices = ExtensionManager.findServices(null, getClass().getClassLoader(), RuntimeDeploymentTask.SERVICE_ID, RuntimeDeploymentTask.class);
+		if(deploymentServices.isEmpty()) {
+			throw new IllegalStateException("Unable to find any services providing " + RuntimeDeploymentTask.SERVICE_ID);
 		}
-		
-		String execDir = Os.OSGetExecutableDirectory();
-		Path wlp = Paths.get(execDir, format("wlp-{0}", RuntimeProperties.instance.getVersion()));
-		
-		if(!Files.isDirectory(wlp)) {
-			// If it doesn't yet exist, deploy from the embedded runtime
-			if(log.isLoggable(Level.INFO)) {
-				log.info("Deploying new runtime");
-			}
-			
-			Files.createDirectories(wlp);
-			
-			try(InputStream is = getClass().getResourceAsStream(format("/runtime/openliberty-runtime-{0}.zip", version))) {
-				try(ZipInputStream zis = new ZipInputStream(is)) {
-					ZipEntry entry = zis.getNextEntry();
-					while(entry != null) {
-						String name = entry.getName();
-						if(name.startsWith("wlp/")) {
-							// Remove the standard prefix
-							name = name.substring(4);
-						}
-						
-						if(StringUtil.isNotEmpty(name)) {
-							if(log.isLoggable(Level.FINE)) {
-								log.fine(format("Deploying file {0}", name));
-							}
-							
-							Path path = wlp.resolve(name);
-							if(entry.isDirectory()) {
-								Files.createDirectories(path);
-							} else {
-								try(OutputStream os = Files.newOutputStream(path, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
-									StreamUtil.copyStream(zis, os);
-								}
-							}
-						}
-						
-						zis.closeEntry();
-						entry = zis.getNextEntry();
-					}
-				}
+		RuntimeDeploymentTask task = deploymentServices.get(0);
+		if(deploymentServices.size() > 1) {
+			if(log.isLoggable(Level.WARNING)) {
+				log.warning(format("Found multiple services providing " + RuntimeDeploymentTask.SERVICE_ID + "; using the first, " + task));
 			}
 		}
-		
-		return wlp;
+		return task.call();
 	}
 	
 	private void deployServerXml(Path path, String serverName, String serverXml) throws IOException {
