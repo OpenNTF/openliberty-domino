@@ -25,7 +25,6 @@ import java.io.PrintStream;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.StandardWatchEventKinds;
@@ -56,6 +55,13 @@ import com.ibm.commons.extension.ExtensionManager;
 import com.ibm.commons.util.StringUtil;
 import com.ibm.commons.util.io.StreamUtil;
 import com.ibm.domino.napi.c.Os;
+
+import lotus.domino.Database;
+import lotus.domino.Document;
+import lotus.domino.NotesException;
+import lotus.domino.NotesFactory;
+import lotus.domino.Session;
+import lotus.domino.View;
 
 import static com.ibm.commons.util.StringUtil.format;
 
@@ -158,7 +164,7 @@ public enum OpenLibertyRuntime implements Runnable {
 				for(String serverName : startedServers) {
 					try {
 						sendCommand(wlp, "stop", serverName);
-					} catch (IOException e) {
+					} catch (IOException | NotesException e) {
 						// Nothing to do here
 					}
 				}
@@ -241,7 +247,7 @@ public enum OpenLibertyRuntime implements Runnable {
 		}
 	}
 
-	private Process sendCommand(Path path, String command, Object... args) throws IOException {
+	private Process sendCommand(Path path, String command, Object... args) throws IOException, NotesException {
 		Path serverScript = path.resolve("bin").resolve(serverFile);
 		
 		List<String> commands = new ArrayList<>();
@@ -258,14 +264,7 @@ public enum OpenLibertyRuntime implements Runnable {
 		String sysPath = System.getenv("PATH");
 		sysPath += File.pathSeparator + Os.OSGetExecutableDirectory();
 		env.put("PATH", sysPath);
-		String classPath = StringUtil.toString(System.getenv("CLASSPATH"));
-		if(StringUtil.isNotEmpty(classPath)) {
-			classPath += ";";
-		}
-		String execDir = Os.OSGetExecutableDirectory();
-		Path notesJar = Paths.get(execDir, "jvm", "lib", "ext", "Notes.jar");
-		classPath += notesJar.toAbsolutePath().toString();
-		env.put("CLASSPATH", classPath);
+		env.put("Domino_HTTP", getServerBase());
 		
 		Process process = pb.start();
 		
@@ -403,6 +402,49 @@ public enum OpenLibertyRuntime implements Runnable {
 					}
 				}
 			}
+		}
+	}
+	
+	/**
+	 * Determines the base URL to use for local requests to the server to pass to the WLP environment
+	 * @throws NotesException 
+	 */
+	private String getServerBase() throws NotesException {
+		Session session = NotesFactory.createSession();
+		try {
+			// HTTP_Port int
+			// HTTP_HostName string
+			// HTTP_NormalMode string 1=on, 2=off, 3=redirect to SSL
+			// HTTP_SSLPort int
+			// HTTP_SSLMode string 1=on, 2=off
+			
+			Database names = session.getDatabase("", "names.nsf");
+			View servers = names.getView("$Servers");
+			Document serverDoc = servers.getDocumentByKey(session.getUserName(), true);
+			
+			int port;
+			String protocol;
+			String host;
+			
+			// Prefer HTTP for simplicity
+			String httpMode = serverDoc.getItemValueString("HTTP_NormalMode");
+			if("1".equals(httpMode)) {
+				port = serverDoc.getItemValueInteger("HTTP_Port");
+				protocol = "http";
+			} else {
+				// Assume SSL is on, since otherwise we don't have a good option
+				port = serverDoc.getItemValueInteger("HTTP_SSLPort");
+				protocol = "https";
+			}
+			
+			host = serverDoc.getItemValueString("HTTP_HostName");
+			if(StringUtil.isEmpty(host)) {
+				host = "localhost";
+			}
+			
+			return protocol + "://" + host + ":" + port;
+		} finally {
+			session.recycle();
 		}
 	}
 	

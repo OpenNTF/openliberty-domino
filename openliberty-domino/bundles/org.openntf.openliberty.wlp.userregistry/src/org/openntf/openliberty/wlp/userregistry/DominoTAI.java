@@ -42,7 +42,7 @@ public class DominoTAI implements TrustAssociationInterceptor {
 		log.setLevel(Level.FINER);
 	}
 	
-	private static final String ENV_PROXY = System.getenv("DominoProxyServlet.targetUri");
+	private static final String ENV_PROXY = System.getenv("Domino_HTTP");
 	private static final boolean enabled = ENV_PROXY != null && !ENV_PROXY.isEmpty();
 	
 	// TODO make this customizable

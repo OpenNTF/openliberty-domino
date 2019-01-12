@@ -275,7 +275,7 @@ public class DominoUserRegistry implements UserRegistry {
 	
 	private List<String> call(String methodName, Map<String, String> param) throws IOException {
 		param.put("method", methodName);
-		String base = System.getenv("DominoProxyServlet.targetUri");
+		String base = System.getenv("Domino_HTTP");
 		if(base == null || base.isEmpty()) {
 			return null;
 		}
