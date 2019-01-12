@@ -105,7 +105,7 @@ public class AdminNSFRuntimeDeployment implements RuntimeDeploymentTask {
 					}
 					try(OutputStream os = Files.newOutputStream(dest, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE)) {
 						// Domino defaults to using old protocols - bump this up for our needs here so the connection succeeds
-						String protocols = System.getProperty("https.protocols");
+						String protocols = StringUtil.toString(System.getProperty("https.protocols"));
 						try {
 							System.setProperty("https.protocols", "TLSv1.2");
 							HttpURLConnection conn = (HttpURLConnection)url.openConnection();
