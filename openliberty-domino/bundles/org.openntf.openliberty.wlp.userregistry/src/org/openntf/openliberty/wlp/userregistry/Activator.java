@@ -18,7 +18,6 @@ package org.openntf.openliberty.wlp.userregistry;
 import java.util.Dictionary;
 import java.util.Hashtable;
 
-import org.openntf.openliberty.wlp.userregistry.util.DominoThreadFactory;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
@@ -31,10 +30,9 @@ import com.ibm.wsspi.security.tai.TrustAssociationInterceptor;
 public class Activator implements BundleActivator, ManagedService {
 	private ServiceRegistration<ManagedService> configRef = null;
 	private ServiceRegistration<UserRegistry> curRef = null;
-	private ServiceRegistration<TrustAssociationInterceptor> taiRef = null;
+//	private ServiceRegistration<TrustAssociationInterceptor> taiRef = null;
 	private static final String CFG_PID = "dominoUserRegistry";
 	
-	private final UserRegistry registry = new DominoUserRegistry();
 	private final TrustAssociationInterceptor tai = new DominoTAI();
 	
 	Hashtable<String, Object> getDefaults() {
@@ -52,11 +50,9 @@ public class Activator implements BundleActivator, ManagedService {
 
 	@Override
 	public void start(BundleContext context) throws Exception {
-		DominoThreadFactory.init();
-		
 		this.configRef = context.registerService(ManagedService.class, this, getDefaults());
-		this.curRef = context.registerService(UserRegistry.class, registry, getDefaults());
-		this.taiRef = context.registerService(TrustAssociationInterceptor.class, tai, getTAIDefaults());
+		this.curRef = context.registerService(UserRegistry.class, new DominoUserRegistry(), getDefaults());
+//		this.taiRef = context.registerService(TrustAssociationInterceptor.class, tai, getTAIDefaults());
 	}
 
 	@Override
@@ -69,12 +65,10 @@ public class Activator implements BundleActivator, ManagedService {
 			this.curRef.unregister();
 			this.curRef = null;
 		}
-		if(this.taiRef != null) {
-			this.taiRef.unregister();
-			this.taiRef = null;
-		}
-		
-		DominoThreadFactory.term();
+//		if(this.taiRef != null) {
+//			this.taiRef.unregister();
+//			this.taiRef = null;
+//		}
 	}
 
 	@Override

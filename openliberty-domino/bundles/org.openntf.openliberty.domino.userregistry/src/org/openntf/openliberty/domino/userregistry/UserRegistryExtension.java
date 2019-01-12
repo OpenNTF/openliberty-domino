@@ -77,8 +77,6 @@ public class UserRegistryExtension implements ExtensionDeployer {
 	public String getSubsystemContent() {
 		String core = symbolicName + ";version=" + bundleVersion;
 		StringBuilder content = new StringBuilder();
-		content.append("org.openntf.notes.java.api; version=0.0.0");
-		content.append(',');
 		content.append(core);
 		return content.toString();
 	}

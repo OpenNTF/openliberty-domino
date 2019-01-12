@@ -8,6 +8,8 @@ Bundle-Version: 1.18004.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: org.eclipse.equinox.http.servlet,
- com.ibm.domino.osgi.core
+ com.ibm.domino.osgi.core,
+ com.ibm.notes.java.api
 Import-Package: javax.servlet,
- javax.servlet.http
+ javax.servlet.http,
+ org.apache.http.client.utils

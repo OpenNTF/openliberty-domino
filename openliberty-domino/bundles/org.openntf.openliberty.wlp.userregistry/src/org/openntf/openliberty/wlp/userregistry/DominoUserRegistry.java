@@ -15,17 +15,24 @@
  */
 package org.openntf.openliberty.wlp.userregistry;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.rmi.RemoteException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
-import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import org.openntf.openliberty.wlp.userregistry.util.DominoThreadFactory;
 
 import com.ibm.websphere.security.CertificateMapFailedException;
 import com.ibm.websphere.security.CertificateMapNotSupportedException;
@@ -36,13 +43,6 @@ import com.ibm.websphere.security.PasswordCheckFailedException;
 import com.ibm.websphere.security.Result;
 import com.ibm.websphere.security.UserRegistry;
 import com.ibm.websphere.security.cred.WSCredential;
-
-import lotus.domino.Database;
-import lotus.domino.Document;
-import lotus.domino.Name;
-import lotus.domino.NotesFactory;
-import lotus.domino.Session;
-import lotus.notes.addins.DominoServer;
 
 /**
  * 
@@ -78,35 +78,13 @@ public class DominoUserRegistry implements UserRegistry {
 		}
 		
 		try {
-			return DominoThreadFactory.executor.submit(() -> {
-				Session session = NotesFactory.createSession();
-				try {
-					Database names = session.getDatabase("", "names.nsf");
-					Document tempDoc = names.createDocument();
-					tempDoc.replaceItemValue("Username", userSecurityName);
-					tempDoc.replaceItemValue("Password", password);
-					session.evaluate(" @SetField('HashPassword'; @NameLookup([NoCache]:[Exhaustive]; Username; 'HTTPPassword')[1]) ", tempDoc);
-					// TODO look up against other password variants, or find real way to do this
-					List<?> result = session.evaluate(" @VerifyPassword(Password; HashPassword) ", tempDoc);
-					if(!result.isEmpty() && Double.valueOf(1).equals(result.get(0))) {
-						// Then it's good! Look up the user's real name
-						String fullName = (String)session.evaluate(" @NameLookup([NoCache]:[Exhaustive]; Username; 'FullName') ", tempDoc).get(0);
-						if(log.isLoggable(Level.FINER)) {
-							log.finer("Successfully logged in for user \"" + userSecurityName + "\"; fullName=\"" + fullName + "\"");
-						}
-						return fullName;
-					} else {
-						return null;
-					}
-				} catch(Throwable t) {
-					t.printStackTrace();
-					throw t;
-				} finally {
-					session.recycle();
-				}
-			}).get();
-		} catch (Throwable e) {
-			e.printStackTrace();
+			List<String> result = call("checkPassword", toMap("userSecurityName", userSecurityName, "password", password));
+			if(isEmpty(result)) {
+				return null;
+			} else {
+				return result.get(0);
+			}
+		} catch (IOException e) {
 			throw new CustomRegistryException(e);
 		}
 	}
@@ -128,25 +106,15 @@ public class DominoUserRegistry implements UserRegistry {
 	@Override
 	public Result getUsers(String pattern, int limit) throws CustomRegistryException, RemoteException {
 		try {
-			return DominoThreadFactory.executor.submit(() -> {
-				Session session = NotesFactory.createSession();
-				try {
-					// TODO change API to avoid 64k trouble
-					Database names = session.getDatabase("", "names.nsf");
-					Document tempDoc = names.createDocument();
-					List<?> users = session.evaluate(" @Trim(@Sort(@Unique(@NameLookup([NoCache]:[Exhaustive]; ''; 'FullName')))) ", tempDoc);
-					Result result = new Result();
-					if(limit > users.size()) {
-						users = users.subList(0, limit);
-						result.setHasMore();
-					}
-					result.setList(users);
-					return result;
-				} finally {
-					session.recycle();
-				}
-			}).get();
-		} catch (InterruptedException | ExecutionException e) {
+			List<String> users = call("getUsers", toMap("pattern", pattern, "limit", String.valueOf(limit)));
+			Result result = new Result();
+			if(limit > users.size()) {
+				users = users.subList(0, limit);
+				result.setHasMore();
+			}
+			result.setList(users);
+			return result;
+		} catch (IOException e) {
 			throw new CustomRegistryException(e);
 		}
 	}
@@ -157,26 +125,14 @@ public class DominoUserRegistry implements UserRegistry {
 		if(log.isLoggable(Level.FINE)) {
 			log.fine(getClass().getSimpleName() + " getting display name user \"" + userSecurityName + "\"");
 		}
-		
 		try {
-			return DominoThreadFactory.executor.submit(() -> {
-				Session session = NotesFactory.createSession();
-				try {
-					Database names = session.getDatabase("", "names.nsf");
-					Document tempDoc = names.createDocument();
-					tempDoc.replaceItemValue("Username", userSecurityName);
-					List<?> result = session.evaluate(" @Trim(@NameLookup([NoCache]:[Exhaustive]; Username; 'FullName')) ", tempDoc);
-					if(!result.isEmpty()) {
-						Name name = session.createName((String)result.get(0));
-						return name.getCommon();
-					} else {
-						return null;
-					}
-				} finally {
-					session.recycle();
-				}
-			}).get();
-		} catch (InterruptedException | ExecutionException e) {
+			List<String> result = call("getUserDisplayName", toMap("userSecurityName", userSecurityName));
+			if(result == null || result.isEmpty()) {
+				return null;
+			} else {
+				return result.get(0);
+			}
+		} catch (IOException e) {
 			throw new CustomRegistryException(e);
 		}
 	}
@@ -184,23 +140,13 @@ public class DominoUserRegistry implements UserRegistry {
 	@Override
 	public String getUniqueUserId(String userSecurityName) throws EntryNotFoundException, CustomRegistryException, RemoteException {
 		try {
-			return DominoThreadFactory.executor.submit(() -> {
-				Session session = NotesFactory.createSession();
-				try {
-					Database names = session.getDatabase("", "names.nsf");
-					Document tempDoc = names.createDocument();
-					tempDoc.replaceItemValue("Username", userSecurityName);
-					List<?> result = session.evaluate(" @Trim(@NameLookup([NoCache]:[Exhaustive]; Username; 'ShortName')) ", tempDoc);
-					if(!result.isEmpty()) {
-						return (String)result.get(0);
-					} else {
-						return null;
-					}
-				} finally {
-					session.recycle();
-				}
-			}).get();
-		} catch (InterruptedException | ExecutionException e) {
+			List<String> result = call("getUniqueUserId", toMap("userSecurityName", userSecurityName));
+			if(result == null || result.isEmpty()) {
+				return null;
+			} else {
+				return result.get(0);
+			}
+		} catch (IOException e) {
 			throw new CustomRegistryException(e);
 		}
 	}
@@ -209,25 +155,16 @@ public class DominoUserRegistry implements UserRegistry {
 	public String getUserSecurityName(String uniqueUserId)
 			throws EntryNotFoundException, CustomRegistryException, RemoteException {
 		try {
-			return DominoThreadFactory.executor.submit(() -> {
-				Session session = NotesFactory.createSession();
-				try {
-					Database names = session.getDatabase("", "names.nsf");
-					Document tempDoc = names.createDocument();
-					tempDoc.replaceItemValue("Username", uniqueUserId);
-					List<?> result = session.evaluate(" @Trim(@NameLookup([NoCache]:[Exhaustive]; Username; 'FullName')) ", tempDoc);
-					if(!result.isEmpty()) {
-						return (String)result.get(0);
-					} else {
-						return null;
-					}
-				} finally {
-					session.recycle();
-				}
-			}).get();
-		} catch (InterruptedException | ExecutionException e) {
+			List<String> result = call("getUserSecurityName", toMap("uniqueUserId", uniqueUserId));
+			if(result == null || result.isEmpty()) {
+				return null;
+			} else {
+				return result.get(0);
+			}
+		} catch (IOException e) {
 			throw new CustomRegistryException(e);
 		}
+		
 	}
 
 	@Override
@@ -244,24 +181,15 @@ public class DominoUserRegistry implements UserRegistry {
 	@Override
 	public Result getGroups(String pattern, int limit) throws CustomRegistryException, RemoteException {
 		try {
-			return DominoThreadFactory.executor.submit(() -> {
-				Session session = NotesFactory.createSession();
-				try {
-					Database names = session.getDatabase("", "names.nsf");
-					Document tempDoc = names.createDocument();
-					List<?> groups = session.evaluate(" @Trim(@Sort(@Unique(@NameLookup([NoCache]:[Exhaustive]; ''; 'ListName')))) ", tempDoc);
-					Result result = new Result();
-					if(limit > groups.size()) {
-						groups = groups.subList(0, limit);
-						result.setHasMore();
-					}
-					result.setList(groups);
-					return result;
-				} finally {
-					session.recycle();
-				}
-			}).get();
-		} catch (InterruptedException | ExecutionException e) {
+			List<String> users = call("getGroups", toMap("pattern", pattern, "limit", String.valueOf(limit)));
+			Result result = new Result();
+			if(limit > users.size()) {
+				users = users.subList(0, limit);
+				result.setHasMore();
+			}
+			result.setList(users);
+			return result;
+		} catch (IOException e) {
 			throw new CustomRegistryException(e);
 		}
 	}
@@ -280,29 +208,12 @@ public class DominoUserRegistry implements UserRegistry {
 		return groupSecurityName;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public List<String> getUniqueGroupIds(String uniqueUserId)
 			throws EntryNotFoundException, CustomRegistryException, RemoteException {
 		try {
-			return DominoThreadFactory.executor.submit(() -> {
-				Session session = NotesFactory.createSession();
-				try {
-					DominoServer server = new DominoServer(session.getUserName());
-					String name = getUserSecurityName(uniqueUserId);
-					List<String> names = new ArrayList<>((Collection<String>)server.getNamesList(name));
-					int starIndex = names.indexOf("*");
-					if(starIndex > -1) {
-						// Everything at and after this point should be a group or
-						//   pseudo-group (e.g. "*/O=SomeOrg")
-						names = names.subList(starIndex, names.size());
-					}
-					return names;
-				} finally {
-					session.recycle();
-				}
-			}).get();
-		} catch (InterruptedException | ExecutionException e) {
+			return call("getUniqueGroupIds", toMap("uniqueUserId", uniqueUserId));
+		} catch (IOException e) {
 			throw new CustomRegistryException(e);
 		}
 	}
@@ -317,19 +228,13 @@ public class DominoUserRegistry implements UserRegistry {
 	@Override
 	public boolean isValidGroup(String groupSecurityName) throws CustomRegistryException, RemoteException {
 		try {
-			return DominoThreadFactory.executor.submit(() -> {
-				Session session = NotesFactory.createSession();
-				try {
-					Database names = session.getDatabase("", "names.nsf");
-					Document tempDoc = names.createDocument();
-					tempDoc.replaceItemValue("GroupName", groupSecurityName);
-					List<?> result = session.evaluate(" @Trim(@NameLookup([NoCache]:[Exhaustive]; GroupName; 'ListName')) ", tempDoc);
-					return !result.isEmpty();
-				} finally {
-					session.recycle();
-				}
-			}).get();
-		} catch (InterruptedException | ExecutionException e) {
+			List<String> result = call("isValidGroup", toMap("groupSecurityName", groupSecurityName));
+			if(isEmpty(result)) {
+				return false;
+			} else {
+				return Boolean.valueOf(result.get(0));
+			}
+		} catch (IOException e) {
 			throw new CustomRegistryException(e);
 		}
 	}
@@ -344,27 +249,15 @@ public class DominoUserRegistry implements UserRegistry {
 	public Result getUsersForGroup(String groupSecurityName, int limit)
 			throws NotImplementedException, EntryNotFoundException, CustomRegistryException, RemoteException {
 		try {
-			return DominoThreadFactory.executor.submit(() -> {
-				Session session = NotesFactory.createSession();
-				try {
-					// TODO Look up and expand group
-					// TODO work with multiple group-allowed directories
-					Database names = session.getDatabase("", "names.nsf");
-					Document tempDoc = names.createDocument();
-					tempDoc.replaceItemValue("GroupName", groupSecurityName);
-					List<?> members = session.evaluate(" @Text(@Trim(@Unique(@Sort(@DbLookup(''; '':'names.nsf'; '$VIMGroups'; GroupName; 'Members'))))) ", tempDoc);
-					Result result = new Result();
-					if(limit > members.size()) {
-						members = members.subList(0, limit);
-						result.setHasMore();
-					}
-					result.setList(members);
-					return result;
-				} finally {
-					session.recycle();
-				}
-			}).get();
-		} catch (InterruptedException | ExecutionException e) {
+			List<String> users = call("getUsersForGroup", toMap("groupSecurityName", groupSecurityName, "limit", String.valueOf(limit)));
+			Result result = new Result();
+			if(limit > users.size()) {
+				users = users.subList(0, limit);
+				result.setHasMore();
+			}
+			result.setList(users);
+			return result;
+		} catch (IOException e) {
 			throw new CustomRegistryException(e);
 		}
 	}
@@ -374,6 +267,65 @@ public class DominoUserRegistry implements UserRegistry {
 			throws NotImplementedException, EntryNotFoundException, CustomRegistryException, RemoteException {
 		// This is not yet implemented on the WLP side
 		return null;
+	}
+	
+	// *******************************************************************************
+	// * HTTP method
+	// *******************************************************************************
+	
+	private List<String> call(String methodName, Map<String, String> param) throws IOException {
+		param.put("method", methodName);
+		String base = System.getenv("DominoProxyServlet.targetUri");
+		if(base == null || base.isEmpty()) {
+			return null;
+		}
+		if(!base.endsWith("/")) {
+			base += "/";
+		}
+		URL url = new URL(base);
+		url = new URL(url, "/org.openntf.openliberty.domino/whoami");
+		
+		StringBuilder payload = new StringBuilder();
+		for(Map.Entry<String, String> entry : param.entrySet()) {
+			if(payload.length() > 0) {
+				payload.append('&');
+			}
+			payload.append(entry.getKey());
+			payload.append('=');
+			payload.append(URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8.name()));
+		}
+		
+		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+		conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+		conn.setRequestProperty("Accept", "*/*");
+		conn.setDoOutput(true);
+		try(OutputStream os = conn.getOutputStream()) {
+			os.write(payload.toString().getBytes());
+		}
+		
+		List<String> result = new ArrayList<>();
+		try(InputStream is = conn.getInputStream()) {
+			BufferedReader r = new BufferedReader(new InputStreamReader(is));
+			String line;
+			while((line = r.readLine()) != null) {
+				if(!line.isEmpty()) {
+					result.add(line);
+				}
+			}
+		}
+		return result;
+	}
+	
+	private Map<String, String> toMap(String... components) {
+		Map<String, String> result = new LinkedHashMap<>();
+		for(int i = 0; i < components.length; i += 2) { 
+			result.put(components[i], components[i+1]);
+		}
+		return result;
+	}
+	
+	private boolean isEmpty(List<String> result) {
+		return result == null || result.isEmpty() || (result.size() == 1 && "".equals(result.get(0)));
 	}
 
 }

@@ -263,6 +263,14 @@ public enum OpenLibertyRuntime implements Runnable {
 		String sysPath = System.getenv("PATH");
 		sysPath += File.pathSeparator + Os.OSGetExecutableDirectory();
 		env.put("PATH", sysPath);
+		String classPath = StringUtil.toString(System.getenv("CLASSPATH"));
+		if(StringUtil.isNotEmpty(classPath)) {
+			classPath += ";";
+		}
+		String execDir = Os.OSGetExecutableDirectory();
+		Path notesJar = Paths.get(execDir, "jvm", "lib", "ext", "Notes.jar");
+		classPath += notesJar.toAbsolutePath().toString();
+		env.put("CLASSPATH", classPath);
 		
 		Process process = pb.start();
 		
@@ -374,9 +382,6 @@ public enum OpenLibertyRuntime implements Runnable {
 						while(entry != null) {
 							if(!entry.getName().startsWith("META-INF")) {
 								if(!entry.isDirectory()) {
-									zos.putNextEntry(entry);
-									StreamUtil.copyStream(zis, zos);
-									zos.closeEntry();
 									
 									int slashIndex = entry.getName().lastIndexOf('/');
 									if(slashIndex > 0) {
@@ -399,6 +404,7 @@ public enum OpenLibertyRuntime implements Runnable {
 						mf.getMainAttributes().putValue("Bundle-Version", "10.0.1");
 						mf.getMainAttributes().putValue("Bundle-ManifestVersion", "2");
 						mf.getMainAttributes().putValue("DynamicImport-Package", "org.omg.CORBA");
+						mf.getMainAttributes().putValue("Bundle-Classpath", notesJar.toAbsolutePath().toString());
 						mf.write(zos);
 					}
 				}
