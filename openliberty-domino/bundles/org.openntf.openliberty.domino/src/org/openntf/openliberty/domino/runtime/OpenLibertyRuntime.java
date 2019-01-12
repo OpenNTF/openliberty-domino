@@ -16,6 +16,7 @@
 package org.openntf.openliberty.domino.runtime;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -259,6 +260,9 @@ public enum OpenLibertyRuntime implements Runnable {
 		
 		Map<String, String> env = pb.environment();
 		env.put("JAVA_HOME", System.getProperty("java.home"));
+		String sysPath = System.getenv("PATH");
+		sysPath += File.pathSeparator + Os.OSGetExecutableDirectory();
+		env.put("PATH", sysPath);
 		
 		Process process = pb.start();
 		
