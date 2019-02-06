@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Domino Open Liberty WLP User Registry
 Bundle-SymbolicName: org.openntf.openliberty.wlp.userregistry
 Automatic-Module-Name: org.openntf.openliberty.wlp.userregistry
-Bundle-Version: 1.18004.0.qualifier
+Bundle-Version: 1.19001.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: com.ibm.websphere.security;version="1.0.0",

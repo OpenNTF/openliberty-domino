@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.openntf</groupId>
 		<artifactId>openliberty-domino</artifactId>
-		<version>1.18004.0-SNAPSHOT</version>
+		<version>1.19001.0-SNAPSHOT</version>
 		<relativePath>../..</relativePath>
 	</parent>
 	<artifactId>org.openntf.openliberty.domino.source.updatesite</artifactId>

@@ -17,7 +17,7 @@
 
 -->
 <site>
-	<feature id="org.openntf.openliberty.domino.feature.source" version="1.18004.0.qualifier">
+	<feature id="org.openntf.openliberty.domino.feature.source" version="1.19001.0.qualifier">
 		<category name="Domino OpenLiberty Runtime"/>
 	</feature>
    
