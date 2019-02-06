@@ -70,10 +70,6 @@
 		<!-- This will be re-computed per-project, hence the extra two layers -->
 		<osgi-deps-path>${project.baseUri}../../../osgi-deps/target/repository</osgi-deps-path>
 	</properties>
-	
-	<prerequisites>
-		<maven>3.0.1</maven>
-	</prerequisites>
 
 	<repositories>
 		<repository>
