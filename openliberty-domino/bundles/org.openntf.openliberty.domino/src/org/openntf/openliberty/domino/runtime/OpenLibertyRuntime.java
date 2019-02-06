@@ -31,9 +31,11 @@ import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
+import java.nio.file.attribute.PosixFilePermission;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -94,6 +96,7 @@ public enum OpenLibertyRuntime implements Runnable {
 			if(log.isLoggable(Level.INFO)) {
 				log.info(format("Using runtime deployed to {0}", wlp));
 			}
+			verifyRuntime(wlp);
 			deployExtensions(wlp);
 			
 			List<RuntimeService> runtimeServices = ExtensionManager.findServices(null, getClass().getClassLoader(), RuntimeService.SERVICE_ID, RuntimeService.class);
@@ -228,6 +231,18 @@ public enum OpenLibertyRuntime implements Runnable {
 			}
 		}
 		return task.call();
+	}
+	
+	private void verifyRuntime(Path wlp) throws IOException {
+		// TODO handle more than execution bits
+		if(!OpenLibertyUtil.IS_WINDOWS) {
+			Path exec = wlp.resolve("bin").resolve("server");
+			if(!Files.isExecutable(exec)) {
+				Set<PosixFilePermission> perm = EnumSet.copyOf(Files.getPosixFilePermissions(exec));
+				perm.add(PosixFilePermission.OWNER_EXECUTE);
+				Files.setPosixFilePermissions(exec, perm);
+			}
+		}
 	}
 	
 	private void deployServerXml(Path path, String serverName, String serverXml) throws IOException {
