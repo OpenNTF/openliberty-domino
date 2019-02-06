@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.net.URI;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -36,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -46,6 +48,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.jar.Manifest;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javax.management.remote.JMXConnector;
+import javax.management.remote.JMXConnectorFactory;
+import javax.management.remote.JMXServiceURL;
 
 import org.openntf.openliberty.domino.ext.ExtensionDeployer;
 import org.openntf.openliberty.domino.ext.RuntimeService;
@@ -83,6 +89,7 @@ public enum OpenLibertyRuntime implements Runnable {
 	private final BlockingQueue<RuntimeTask> taskQueue = new LinkedBlockingDeque<RuntimeTask>();
 	
 	private Set<String> startedServers = Collections.synchronizedSet(new HashSet<>());
+	private Map<String, JMXConnector> jmxConnections = Collections.synchronizedMap(new HashMap<>());
 
 	@Override
 	public void run() {
@@ -116,6 +123,7 @@ public enum OpenLibertyRuntime implements Runnable {
 					case START:
 						sendCommand(wlp, "start", command.args).waitFor();
 						watchLog(wlp, (String)command.args[0]);
+						watchJmxConnector(wlp, (String)command.args[0]);
 						break;
 					case STOP:
 						sendCommand(wlp, "stop", command.args);
@@ -171,6 +179,14 @@ public enum OpenLibertyRuntime implements Runnable {
 						// Nothing to do here
 					}
 				}
+				
+				jmxConnections.values().forEach(t -> {
+					try {
+						t.close();
+					} catch (IOException e) {
+						// Nothing to do
+					}
+				});
 			}
 			
 			if(log.isLoggable(Level.INFO)) {
@@ -346,6 +362,38 @@ public enum OpenLibertyRuntime implements Runnable {
 				}
 			}
 		});
+	}
+	
+	private void watchJmxConnector(Path wlp, String serverName) throws IOException {
+		Path state = wlp.resolve("usr").resolve("servers").resolve(serverName).resolve("logs").resolve("state");
+		Path localAddress = state.resolve("com.ibm.ws.jmx.local.address");
+		// Start a manual poll, since filesystem polling on Windows is subject to significant delays
+		DominoThreadFactory.scheduler.schedule(() -> {
+			try {
+				if(Files.isRegularFile(localAddress) && Files.isReadable(localAddress)) {
+					List<String> lines = Files.readAllLines(localAddress);
+					if(!lines.isEmpty() && !StringUtil.isEmpty(lines.get(0))) {
+						JMXConnector conn = jmxConnections.remove(serverName);
+						if(conn != null) {
+							conn.close();
+						}
+
+						JMXServiceURL jmxUri = new JMXServiceURL(lines.get(0));
+						conn = JMXConnectorFactory.connect(jmxUri);
+						jmxConnections.put(serverName, conn);
+						OpenLibertyLog.out.println("Made JMX connection: " + conn);
+					}
+				} else {
+					// Otherwise, shut down any existing connection
+					JMXConnector conn = jmxConnections.get(serverName);
+					if(conn != null) {
+						conn.close();
+					}
+				}
+			} catch(IOException e) {
+				e.printStackTrace(OpenLibertyLog.out);
+			}
+		}, 1, TimeUnit.SECONDS);
 	}
 	
 	private boolean serverExists(Path path, String serverName) {
