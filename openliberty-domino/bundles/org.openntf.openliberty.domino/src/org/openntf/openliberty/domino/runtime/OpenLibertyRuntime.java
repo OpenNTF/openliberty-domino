@@ -46,6 +46,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.jar.Manifest;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import org.openntf.openliberty.domino.ext.ExtensionDeployer;
 import org.openntf.openliberty.domino.ext.RuntimeService;
@@ -124,6 +126,8 @@ public enum OpenLibertyRuntime implements Runnable {
 						String serverName = (String)command.args[0];
 						String serverXml = (String)command.args[1];
 						String serverEnv = (String)command.args[2];
+						@SuppressWarnings("unchecked")
+						List<Path> additionalZips = (List<Path>)command.args[3];
 						
 						if(!serverExists(wlp, serverName)) {
 							sendCommand(wlp, "create", serverName).waitFor();
@@ -133,6 +137,9 @@ public enum OpenLibertyRuntime implements Runnable {
 						}
 						if(StringUtil.isNotEmpty(serverEnv)) {
 							deployServerEnv(wlp, serverName, serverEnv);
+						}
+						for(Path zip : additionalZips) {
+							deployAdditionalZip(wlp, serverName, zip);
 						}
 						break;
 					}
@@ -189,8 +196,8 @@ public enum OpenLibertyRuntime implements Runnable {
 		startedServers.remove(serverName);
 	}
 	
-	public void createServer(String serverName, String serverXml, String serverEnv) {
-		taskQueue.add(new RuntimeTask(RuntimeTask.Type.CREATE_SERVER, serverName, serverXml, serverEnv));
+	public void createServer(String serverName, String serverXml, String serverEnv, List<Path> additionalZips) {
+		taskQueue.add(new RuntimeTask(RuntimeTask.Type.CREATE_SERVER, serverName, serverXml, serverEnv, additionalZips));
 	}
 	
 	public void deployDropin(String serverName, String warName, Path warFile, boolean deleteAfterDeploy) {
@@ -260,6 +267,36 @@ public enum OpenLibertyRuntime implements Runnable {
 				ps.print(serverXml);
 			}
 		}
+	}
+	private void deployAdditionalZip(Path path, String serverName, Path zip) throws IOException {
+		Path serverBase = path.resolve("usr").resolve("servers").resolve(serverName);
+		try(InputStream is = Files.newInputStream(zip)) {
+			try(ZipInputStream zis = new ZipInputStream(is)) {
+				ZipEntry entry = zis.getNextEntry();
+				while(entry != null) {
+					String name = entry.getName();
+					
+					if(StringUtil.isNotEmpty(name)) {
+						if(log.isLoggable(Level.FINE)) {
+							log.fine(format("Deploying file {0}", name));
+						}
+						
+						Path outputPath = serverBase.resolve(name);
+						if(entry.isDirectory()) {
+							Files.createDirectories(outputPath);
+						} else {
+							try(OutputStream os = Files.newOutputStream(outputPath, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
+								StreamUtil.copyStream(zis, os);
+							}
+						}
+					}
+					
+					zis.closeEntry();
+					entry = zis.getNextEntry();
+				}
+			}
+		}
+		Files.deleteIfExists(zip);
 	}
 
 	private Process sendCommand(Path path, String command, Object... args) throws IOException, NotesException {

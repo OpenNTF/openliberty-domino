@@ -15,8 +15,10 @@
  */
 package org.openntf.openliberty.domino.adminnsf;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -56,6 +58,7 @@ public class AdminNSFService implements Runnable {
 	public static final String ITEM_SERVERNAME = "Name";
 	public static final String ITEM_SERVERENV = "ServerEnv";
 	public static final String ITEM_SERVERXML = "ServerXML";
+	public static final String ITEM_DEPLOYMENTZIPS = "DeploymentZIPs";
 	public static final String ITEM_APPNAME = "AppName";
 	public static final String ITEM_WAR = "WarFile";
 	
@@ -94,8 +97,22 @@ public class AdminNSFService implements Runnable {
 								}
 								String serverXml = serverDoc.getItemValueString(ITEM_SERVERXML);
 								String serverEnv = serverDoc.getItemValueString(ITEM_SERVERENV);
+								List<Path> additionalZips = new ArrayList<>();
+								if(serverDoc.hasItem(ITEM_DEPLOYMENTZIPS)) {
+									RichTextItem deploymentItem = (RichTextItem)serverDoc.getFirstItem(ITEM_DEPLOYMENTZIPS);
+									@SuppressWarnings("unchecked")
+									List<EmbeddedObject> objects = deploymentItem.getEmbeddedObjects();
+									for(EmbeddedObject eo : objects) {
+										if(eo.getType() == EmbeddedObject.EMBED_ATTACHMENT) {
+											Path zip = Files.createTempFile(TEMP_DIR, "nsfdeployment", ".zip");
+											Files.deleteIfExists(zip);
+											eo.extractFile(zip.toString());
+											additionalZips.add(zip);
+										}
+									}
+								}
 								
-								OpenLibertyRuntime.instance.createServer(serverName, serverXml, serverEnv);
+								OpenLibertyRuntime.instance.createServer(serverName, serverXml, serverEnv, additionalZips);
 								OpenLibertyRuntime.instance.startServer(serverName);
 							} else {
 								if(log.isLoggable(Level.FINER)) {
