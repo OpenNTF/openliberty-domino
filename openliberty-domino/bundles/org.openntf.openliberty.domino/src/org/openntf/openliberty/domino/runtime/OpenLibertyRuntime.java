@@ -420,37 +420,37 @@ public enum OpenLibertyRuntime implements Runnable {
 		List<ExtensionDeployer> extensions = ExtensionManager.findServices(null, getClass().getClassLoader(), ExtensionDeployer.SERVICE_ID, ExtensionDeployer.class);
 		if(extensions != null) {
 			for(ExtensionDeployer ext : extensions) {
-				List<String> fileNames = ext.getBundleFileNames();
-				List<InputStream> fileData = ext.getBundleData();
-				try {
-					for(int i = 0; i < fileData.size(); i++) {
-						InputStream is = fileData.get(i);
-						String name = fileNames.get(i);
-						
-						Path dest = lib.resolve(name);
-						try(OutputStream os = Files.newOutputStream(dest, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
-							StreamUtil.copyStream(is, os);
+				try(InputStream is = ext.getEsaData()) {
+					try(ZipInputStream zis = new ZipInputStream(is)) {
+						ZipEntry entry = zis.getNextEntry();
+						while(entry != null) {
+							String entryName = entry.getName();
+							
+							// Deploy .jar entries to the lib folder
+							if(entryName.toLowerCase().endsWith(".jar") && !entryName.contains("/")) {
+								Path dest = lib.resolve(entryName);
+								try(OutputStream os = Files.newOutputStream(dest, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
+									StreamUtil.copyStream(zis, os);
+								}
+							}
+							
+							// Look for SUBSYSTEM.MF, parse its info, and deploy to the features directory
+							if("OSGI-INF/SUBSYSTEM.MF".equalsIgnoreCase(entryName)) {
+								Manifest mf = new Manifest(zis);
+								String shortName = mf.getMainAttributes().getValue("IBM-ShortName");
+								if(StringUtil.isEmpty(shortName)) {
+									throw new IllegalArgumentException("ESA subsystem manifest provided by " + ext + " doesn't contain an IBM-ShortName");
+								}
+								Path mfDest = features.resolve(shortName + ".mf");
+								try(OutputStream os = Files.newOutputStream(mfDest, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
+									mf.write(os);
+								}
+							}
+
+							zis.closeEntry();
+							entry = zis.getNextEntry();
 						}
-					}
-					
-					// Build the feature manifest
-					Manifest mf = new Manifest();
-					mf.getMainAttributes().putValue("Manifest-Version", "1.0");
-					mf.getMainAttributes().putValue("IBM-Feature-Version", "2");
-					mf.getMainAttributes().putValue("Subsystem-Type", "osgi.subsystem.feature");
-					mf.getMainAttributes().putValue("Subsystem-Version", ext.getSubsystemVersion());
-					mf.getMainAttributes().putValue("Subsystem-ManifestVersion", "1.0");
-					mf.getMainAttributes().putValue("Subsystem-SymbolicName", ext.getFeatureId() + ";visibility:=public");
-					mf.getMainAttributes().putValue("Subsystem-Content", ext.getSubsystemContent());
-					mf.getMainAttributes().putValue("IBM-ShortName", ext.getFeatureId());
-					Path mfDest = features.resolve(ext.getFeatureId() + ".mf");
-					try(OutputStream os = Files.newOutputStream(mfDest, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
-						mf.write(os);
-					}
-					
-				} finally {
-					for(InputStream is : fileData) {
-						StreamUtil.close(is);
+						
 					}
 				}
 			}

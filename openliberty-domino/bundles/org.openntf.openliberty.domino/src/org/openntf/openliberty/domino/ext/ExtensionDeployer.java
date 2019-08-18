@@ -16,10 +16,9 @@
 package org.openntf.openliberty.domino.ext;
 
 import java.io.InputStream;
-import java.util.List;
 
 /**
- * Defines a service that provides one or more OSGi bundles and a feature manifest
+ * Defines a service that provides an ESA-packaged Liberty feature file
  * to be deployed alongside the servers.
  * 
  * <p>These services should be registered as an IBM Commons extension using the
@@ -31,9 +30,8 @@ import java.util.List;
 public interface ExtensionDeployer {
 	public static String SERVICE_ID = ExtensionDeployer.class.getName();
 	
-	List<InputStream> getBundleData();
-	List<String> getBundleFileNames();
-	String getSubsystemContent();
-	String getFeatureId();
-	String getSubsystemVersion();
+	/**
+	 * @return an {@link InputStream} for the ESA bundle file data
+	 */
+	InputStream getEsaData();
 }

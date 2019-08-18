@@ -44,6 +44,7 @@
 			Open Liberty Extensions 
 		-->
 		<module>bundles/org.openntf.openliberty.wlp.userregistry</module>
+		<module>subsystems/dominoUserRegistry</module>
 		
 		<!--
 			Domino Runtime 
@@ -437,6 +438,13 @@
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-resources-plugin</artifactId>
 					<version>3.0.2</version>
+				</plugin>
+				
+				<plugin>
+					<groupId>org.apache.aries</groupId>
+					<artifactId>esa-maven-plugin</artifactId>
+					<version>1.0.2</version>
+					<extensions>true</extensions>
 				</plugin>
 				
 				<plugin>

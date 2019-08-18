@@ -10,10 +10,6 @@
 	<artifactId>org.openntf.openliberty.domino.userregistry</artifactId>
 	<packaging>eclipse-plugin</packaging>
 	
-	<properties>
-		<pluginName>org.openntf.openliberty.wlp.userregistry</pluginName>
-	</properties>
-	
 	<build>
 		<plugins>
 
@@ -33,10 +29,11 @@
 							<artifactItems>
 								<artifactItem>
 									<groupId>${project.groupId}</groupId>
-									<artifactId>${pluginName}</artifactId>
+									<artifactId>dominoUserRegistry</artifactId>
 									<version>${project.version}</version>
+									<type>esa</type>
 									
-									<destFileName>plugin.jar</destFileName>
+									<destFileName>dominoUserRegistry-1.0.esa</destFileName>
 								</artifactItem>
 							</artifactItems>
 						</configuration>
