@@ -32,6 +32,7 @@ public interface ExtensionDeployer {
 	
 	/**
 	 * @return an {@link InputStream} for the ESA bundle file data
+	 * @since 1.2.0
 	 */
 	InputStream getEsaData();
 }
