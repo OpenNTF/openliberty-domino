@@ -31,17 +31,35 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.osgi.service.component.annotations.Component;
+
 import com.ibm.websphere.security.WebTrustAssociationException;
 import com.ibm.websphere.security.WebTrustAssociationFailedException;
 import com.ibm.wsspi.security.tai.TAIResult;
 import com.ibm.wsspi.security.tai.TrustAssociationInterceptor;
 
+/**
+ * This class provides one-way single-sign-on based on an active Domino session with
+ * the backing server.
+ * 
+ * @author Jesse Gallagher
+ * @since 1.18004.0
+ */
+@Component(
+	service=TrustAssociationInterceptor.class,
+	configurationPid=DominoTAI.CONFIG_PID,
+	property={
+		"invokeBeforeSSO:Boolean=true",
+		"id=" + DominoTAI.CONFIG_PID
+	}
+)
 public class DominoTAI implements TrustAssociationInterceptor {
 	private static final Logger log = Logger.getLogger(DominoTAI.class.getPackage().getName());
 	static {
 		log.setLevel(Level.FINER);
 	}
 	
+	public static final String CONFIG_PID = "org.openntf.openliberty.wlp.userregistry.DominoTAI";
 	private static final String ENV_PROXY = System.getenv("Domino_HTTP");
 	private static final boolean enabled = ENV_PROXY != null && !ENV_PROXY.isEmpty();
 	
@@ -66,7 +84,7 @@ public class DominoTAI implements TrustAssociationInterceptor {
 
 	@Override
 	public String getType() {
-		return getClass().getName();
+		return CONFIG_PID;
 	}
 
 	@Override
