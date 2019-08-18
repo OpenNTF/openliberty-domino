@@ -78,56 +78,59 @@ public class AdminNSFRuntimeDeployment implements RuntimeDeploymentTask {
 				Path wlp = execDir.resolve(format("wlp-{0}", version));
 				
 				if(!Files.isDirectory(wlp)) {
-					// If it doesn't yet exist, deploy from the embedded runtime
+					// If it doesn't yet exist, download and deploy a new runtime
 					if(log.isLoggable(Level.INFO)) {
 						log.info("Deploying new runtime");
 					}
 					
-					Path downloadDir = execDir.resolve("download");
-					Files.createDirectories(downloadDir);
 					String artifact = config.getItemValueString(ITEM_ARTIFACT);
 					if(StringUtil.isEmpty(artifact)) {
 						artifact = AdminNSFProperties.instance.getDefaultArtifact();
 					}
-					String mavenRepo = config.getItemValueString(ITEM_MAVENREPO);
-					if(StringUtil.isEmpty(mavenRepo)) {
-						mavenRepo = AdminNSFProperties.instance.getDefaultMavenRepo();
-					}
 					
-					// Download from Maven
-					URL url = buildDownloadURL(mavenRepo, artifact, version);
-					if(log.isLoggable(Level.INFO)) {
-						log.info("Downloading runtime from " + url);
-					}
-					Path dest = downloadDir.resolve(buildZipName(artifact, version));
-					if(log.isLoggable(Level.INFO)) {
-						log.info("Storing runtime download at " + dest);
-					}
-					try(OutputStream os = Files.newOutputStream(dest, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE)) {
-						// Domino defaults to using old protocols - bump this up for our needs here so the connection succeeds
-						String protocols = StringUtil.toString(System.getProperty("https.protocols"));
-						try {
-							System.setProperty("https.protocols", "TLSv1.2");
-							HttpURLConnection conn = (HttpURLConnection)url.openConnection();
-							int responseCode = conn.getResponseCode();
+					Path downloadDir = execDir.resolve("download");
+					Path wlpPackage = downloadDir.resolve(buildZipName(artifact, version));
+					if(!Files.exists(wlpPackage)) {
+						Files.createDirectories(downloadDir);
+						
+						// Download from Maven
+						String mavenRepo = config.getItemValueString(ITEM_MAVENREPO);
+						if(StringUtil.isEmpty(mavenRepo)) {
+							mavenRepo = AdminNSFProperties.instance.getDefaultMavenRepo();
+						}
+						URL url = buildDownloadURL(mavenRepo, artifact, version);
+						if(log.isLoggable(Level.INFO)) {
+							log.info("Downloading runtime from " + url);
+						}
+						if(log.isLoggable(Level.INFO)) {
+							log.info("Storing runtime download at " + wlpPackage);
+						}
+						try(OutputStream os = Files.newOutputStream(wlpPackage, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE)) {
+							// Domino defaults to using old protocols - bump this up for our needs here so the connection succeeds
+							String protocols = StringUtil.toString(System.getProperty("https.protocols"));
 							try {
-								if(responseCode != HttpURLConnection.HTTP_OK) {
-									throw new IOException("Received unexpected response code " + responseCode + " from URL " + url);
-								}
-								try(InputStream is = conn.getInputStream()) {
-									StreamUtil.copyStream(is, os);
+								System.setProperty("https.protocols", "TLSv1.2");
+								HttpURLConnection conn = (HttpURLConnection)url.openConnection();
+								int responseCode = conn.getResponseCode();
+								try {
+									if(responseCode != HttpURLConnection.HTTP_OK) {
+										throw new IOException("Received unexpected response code " + responseCode + " from URL " + url);
+									}
+									try(InputStream is = conn.getInputStream()) {
+										StreamUtil.copyStream(is, os);
+									}
+								} finally {
+									conn.disconnect();
 								}
 							} finally {
-								conn.disconnect();
+								System.setProperty("https.protocols", protocols);
 							}
-						} finally {
-							System.setProperty("https.protocols", protocols);
 						}
 					}
-					
+						
 					// Now extract the ZIP
 					Files.createDirectories(wlp);
-					try(InputStream is = Files.newInputStream(dest)) {
+					try(InputStream is = Files.newInputStream(wlpPackage)) {
 						try(ZipInputStream zis = new ZipInputStream(is)) {
 							ZipEntry entry = zis.getNextEntry();
 							while(entry != null) {
