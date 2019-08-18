@@ -46,6 +46,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.jar.Manifest;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import org.openntf.openliberty.domino.ext.ExtensionDeployer;
 import org.openntf.openliberty.domino.ext.RuntimeService;
@@ -81,6 +83,7 @@ public enum OpenLibertyRuntime implements Runnable {
 	}
 	
 	private final BlockingQueue<RuntimeTask> taskQueue = new LinkedBlockingDeque<RuntimeTask>();
+	private List<RuntimeService> runtimeServices = ExtensionManager.findServices(null, getClass().getClassLoader(), RuntimeService.SERVICE_ID, RuntimeService.class);
 	
 	private Set<String> startedServers = Collections.synchronizedSet(new HashSet<>());
 
@@ -99,7 +102,6 @@ public enum OpenLibertyRuntime implements Runnable {
 			verifyRuntime(wlp);
 			deployExtensions(wlp);
 			
-			List<RuntimeService> runtimeServices = ExtensionManager.findServices(null, getClass().getClassLoader(), RuntimeService.SERVICE_ID, RuntimeService.class);
 			if(runtimeServices != null) {
 				for(RuntimeService service : runtimeServices) {
 					DominoThreadFactory.executor.submit(service);
@@ -124,6 +126,8 @@ public enum OpenLibertyRuntime implements Runnable {
 						String serverName = (String)command.args[0];
 						String serverXml = (String)command.args[1];
 						String serverEnv = (String)command.args[2];
+						@SuppressWarnings("unchecked")
+						List<Path> additionalZips = (List<Path>)command.args[3];
 						
 						if(!serverExists(wlp, serverName)) {
 							sendCommand(wlp, "create", serverName).waitFor();
@@ -133,6 +137,9 @@ public enum OpenLibertyRuntime implements Runnable {
 						}
 						if(StringUtil.isNotEmpty(serverEnv)) {
 							deployServerEnv(wlp, serverName, serverEnv);
+						}
+						for(Path zip : additionalZips) {
+							deployAdditionalZip(wlp, serverName, zip);
 						}
 						break;
 					}
@@ -149,6 +156,12 @@ public enum OpenLibertyRuntime implements Runnable {
 							Files.deleteIfExists(warFile);
 						}
 						
+						break;
+					}
+					case STATUS: {
+						for(String serverName : startedServers) {
+							sendCommand(wlp, "status", serverName);
+						}
 						break;
 					}
 					}
@@ -189,12 +202,20 @@ public enum OpenLibertyRuntime implements Runnable {
 		startedServers.remove(serverName);
 	}
 	
-	public void createServer(String serverName, String serverXml, String serverEnv) {
-		taskQueue.add(new RuntimeTask(RuntimeTask.Type.CREATE_SERVER, serverName, serverXml, serverEnv));
+	public void createServer(String serverName, String serverXml, String serverEnv, List<Path> additionalZips) {
+		taskQueue.add(new RuntimeTask(RuntimeTask.Type.CREATE_SERVER, serverName, serverXml, serverEnv, additionalZips));
 	}
 	
 	public void deployDropin(String serverName, String warName, Path warFile, boolean deleteAfterDeploy) {
 		taskQueue.add(new RuntimeTask(RuntimeTask.Type.DEPLOY_DROPIN, serverName, warName, warFile, deleteAfterDeploy));
+	}
+	
+	/**
+	 * Outputs the server status to the Domino console.
+	 * @since 1.2.0
+	 */
+	public void showStatus() {
+		taskQueue.add(new RuntimeTask(RuntimeTask.Type.STATUS));
 	}
 	
 	// *******************************************************************************
@@ -203,7 +224,7 @@ public enum OpenLibertyRuntime implements Runnable {
 	
 	private static class RuntimeTask {
 		enum Type {
-			START, STOP, CREATE_SERVER, DEPLOY_DROPIN
+			START, STOP, CREATE_SERVER, DEPLOY_DROPIN, STATUS
 		}
 		private final Type type;
 		private final Object[] args;
@@ -260,6 +281,36 @@ public enum OpenLibertyRuntime implements Runnable {
 				ps.print(serverXml);
 			}
 		}
+	}
+	private void deployAdditionalZip(Path path, String serverName, Path zip) throws IOException {
+		Path serverBase = path.resolve("usr").resolve("servers").resolve(serverName);
+		try(InputStream is = Files.newInputStream(zip)) {
+			try(ZipInputStream zis = new ZipInputStream(is)) {
+				ZipEntry entry = zis.getNextEntry();
+				while(entry != null) {
+					String name = entry.getName();
+					
+					if(StringUtil.isNotEmpty(name)) {
+						if(log.isLoggable(Level.FINE)) {
+							log.fine(format("Deploying file {0}", name));
+						}
+						
+						Path outputPath = serverBase.resolve(name);
+						if(entry.isDirectory()) {
+							Files.createDirectories(outputPath);
+						} else {
+							try(OutputStream os = Files.newOutputStream(outputPath, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
+								StreamUtil.copyStream(zis, os);
+							}
+						}
+					}
+					
+					zis.closeEntry();
+					entry = zis.getNextEntry();
+				}
+			}
+		}
+		Files.deleteIfExists(zip);
 	}
 
 	private Process sendCommand(Path path, String command, Object... args) throws IOException, NotesException {
@@ -383,37 +434,37 @@ public enum OpenLibertyRuntime implements Runnable {
 		List<ExtensionDeployer> extensions = ExtensionManager.findServices(null, getClass().getClassLoader(), ExtensionDeployer.SERVICE_ID, ExtensionDeployer.class);
 		if(extensions != null) {
 			for(ExtensionDeployer ext : extensions) {
-				List<String> fileNames = ext.getBundleFileNames();
-				List<InputStream> fileData = ext.getBundleData();
-				try {
-					for(int i = 0; i < fileData.size(); i++) {
-						InputStream is = fileData.get(i);
-						String name = fileNames.get(i);
-						
-						Path dest = lib.resolve(name);
-						try(OutputStream os = Files.newOutputStream(dest, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
-							StreamUtil.copyStream(is, os);
+				try(InputStream is = ext.getEsaData()) {
+					try(ZipInputStream zis = new ZipInputStream(is)) {
+						ZipEntry entry = zis.getNextEntry();
+						while(entry != null) {
+							String entryName = entry.getName();
+							
+							// Deploy .jar entries to the lib folder
+							if(entryName.toLowerCase().endsWith(".jar") && !entryName.contains("/")) {
+								Path dest = lib.resolve(entryName);
+								try(OutputStream os = Files.newOutputStream(dest, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
+									StreamUtil.copyStream(zis, os);
+								}
+							}
+							
+							// Look for SUBSYSTEM.MF, parse its info, and deploy to the features directory
+							if("OSGI-INF/SUBSYSTEM.MF".equalsIgnoreCase(entryName)) {
+								Manifest mf = new Manifest(zis);
+								String shortName = mf.getMainAttributes().getValue("IBM-ShortName");
+								if(StringUtil.isEmpty(shortName)) {
+									throw new IllegalArgumentException("ESA subsystem manifest provided by " + ext + " doesn't contain an IBM-ShortName");
+								}
+								Path mfDest = features.resolve(shortName + ".mf");
+								try(OutputStream os = Files.newOutputStream(mfDest, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
+									mf.write(os);
+								}
+							}
+
+							zis.closeEntry();
+							entry = zis.getNextEntry();
 						}
-					}
-					
-					// Build the feature manifest
-					Manifest mf = new Manifest();
-					mf.getMainAttributes().putValue("Manifest-Version", "1.0");
-					mf.getMainAttributes().putValue("IBM-Feature-Version", "2");
-					mf.getMainAttributes().putValue("Subsystem-Type", "osgi.subsystem.feature");
-					mf.getMainAttributes().putValue("Subsystem-Version", ext.getSubsystemVersion());
-					mf.getMainAttributes().putValue("Subsystem-ManifestVersion", "1.0");
-					mf.getMainAttributes().putValue("Subsystem-SymbolicName", ext.getFeatureId() + ";visibility:=public");
-					mf.getMainAttributes().putValue("Subsystem-Content", ext.getSubsystemContent());
-					mf.getMainAttributes().putValue("IBM-ShortName", ext.getFeatureId());
-					Path mfDest = features.resolve(ext.getFeatureId() + ".mf");
-					try(OutputStream os = Files.newOutputStream(mfDest, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
-						mf.write(os);
-					}
-					
-				} finally {
-					for(InputStream is : fileData) {
-						StreamUtil.close(is);
+						
 					}
 				}
 			}

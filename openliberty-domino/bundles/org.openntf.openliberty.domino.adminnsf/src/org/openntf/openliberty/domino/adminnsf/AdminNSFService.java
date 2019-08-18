@@ -15,8 +15,10 @@
  */
 package org.openntf.openliberty.domino.adminnsf;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -56,10 +58,11 @@ public class AdminNSFService implements Runnable {
 	public static final String ITEM_SERVERNAME = "Name";
 	public static final String ITEM_SERVERENV = "ServerEnv";
 	public static final String ITEM_SERVERXML = "ServerXML";
+	public static final String ITEM_DEPLOYMENTZIPS = "DeploymentZIPs";
 	public static final String ITEM_APPNAME = "AppName";
 	public static final String ITEM_WAR = "WarFile";
 	
-	private static long lastRun = -1;
+	private long lastRun = -1;
 	
 	private static final Path TEMP_DIR = Paths.get(OpenLibertyUtil.getTempDirectory());
 
@@ -76,6 +79,9 @@ public class AdminNSFService implements Runnable {
 					}
 					lastRun = System.currentTimeMillis();
 					return;
+				}
+				if(log.isLoggable(Level.FINE)) {
+					log.fine(format("{0}: Admin NSF has changed - looking for updates", getClass().getSimpleName()));
 				}
 				
 				View servers = adminNsf.getView(VIEW_SERVERS);
@@ -94,8 +100,22 @@ public class AdminNSFService implements Runnable {
 								}
 								String serverXml = serverDoc.getItemValueString(ITEM_SERVERXML);
 								String serverEnv = serverDoc.getItemValueString(ITEM_SERVERENV);
+								List<Path> additionalZips = new ArrayList<>();
+								if(serverDoc.hasItem(ITEM_DEPLOYMENTZIPS)) {
+									RichTextItem deploymentItem = (RichTextItem)serverDoc.getFirstItem(ITEM_DEPLOYMENTZIPS);
+									@SuppressWarnings("unchecked")
+									List<EmbeddedObject> objects = deploymentItem.getEmbeddedObjects();
+									for(EmbeddedObject eo : objects) {
+										if(eo.getType() == EmbeddedObject.EMBED_ATTACHMENT) {
+											Path zip = Files.createTempFile(TEMP_DIR, "nsfdeployment", ".zip");
+											Files.deleteIfExists(zip);
+											eo.extractFile(zip.toString());
+											additionalZips.add(zip);
+										}
+									}
+								}
 								
-								OpenLibertyRuntime.instance.createServer(serverName, serverXml, serverEnv);
+								OpenLibertyRuntime.instance.createServer(serverName, serverXml, serverEnv, additionalZips);
 								OpenLibertyRuntime.instance.startServer(serverName);
 							} else {
 								if(log.isLoggable(Level.FINER)) {
@@ -108,8 +128,8 @@ public class AdminNSFService implements Runnable {
 							while(dropinEntry != null) {
 								Document dropinDoc = dropinEntry.getDocument();
 								try {
+									String appName = dropinDoc.getItemValueString(ITEM_APPNAME);
 									if(needsUpdate(dropinDoc)) {
-										String appName = dropinDoc.getItemValueString(ITEM_APPNAME);
 										if(log.isLoggable(Level.INFO)) {
 											log.info(format("{0}: Deploying NSF-defined app \"{1}\"", getClass().getSimpleName(), appName));
 										}
@@ -129,6 +149,10 @@ public class AdminNSFService implements Runnable {
 													}
 												}
 											}
+										}
+									} else {
+										if(log.isLoggable(Level.FINER)) {
+											log.finer(format("{0}: Skipping unchanged dropin app \"{1}\"", getClass().getSimpleName(), appName));
 										}
 									}
 								} finally {
@@ -186,8 +210,6 @@ public class AdminNSFService implements Runnable {
 			try {
 				long modTime = mod.toJavaDate().getTime();
 				if(modTime < lastRun) {
-					// Then we can end now
-					lastRun = System.currentTimeMillis();
 					return false;
 				}
 			} finally {

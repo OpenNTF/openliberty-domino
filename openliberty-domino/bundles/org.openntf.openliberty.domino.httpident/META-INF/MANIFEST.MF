@@ -4,7 +4,7 @@ Bundle-Name: Domino Open Liberty Runtime HTTP Identity Service
 Bundle-SymbolicName: org.openntf.openliberty.domino.httpident;singleton:=true
 Automatic-Module-Name: org.openntf.openliberty.domino.httpservice
 Fragment-Host: org.openntf.openliberty.domino
-Bundle-Version: 1.19001.0.qualifier
+Bundle-Version: 1.2.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: org.eclipse.equinox.http.servlet,

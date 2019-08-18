@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.2.0" configuration-pid="dominoUserRegistry" name="org.openntf.openliberty.wlp.userregistry.DominoUserRegistry">
+   <service>
+      <provide interface="com.ibm.websphere.security.UserRegistry"/>
+   </service>
+   <implementation class="org.openntf.openliberty.wlp.userregistry.DominoUserRegistry"/>
+</scr:component>

@@ -34,6 +34,8 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.osgi.service.component.annotations.Component;
+
 import com.ibm.websphere.security.CertificateMapFailedException;
 import com.ibm.websphere.security.CertificateMapNotSupportedException;
 import com.ibm.websphere.security.CustomRegistryException;
@@ -45,16 +47,20 @@ import com.ibm.websphere.security.UserRegistry;
 import com.ibm.websphere.security.cred.WSCredential;
 
 /**
+ * This class provides a Liberty {@link UserRegistry} based on the effective directory
+ * of the backing Domino server.
  * 
  * @author Jesse Gallagher
  * @since 1.18004.0
  * @see <a href="https://www.ibm.com/support/knowledgecenter/SSAW57_9.0.0/com.ibm.websphere.nd.multiplatform.doc/ae/tsec_users.html?view=kc">Developing the UserRegistry interface for using custom registries</a>
  */
+@Component(service=UserRegistry.class, configurationPid=DominoUserRegistry.CONFIG_PID)
 public class DominoUserRegistry implements UserRegistry {
 	private static final Logger log = Logger.getLogger(DominoUserRegistry.class.getPackage().getName());
 	static {
 		log.setLevel(Level.FINER);
 	}
+	public static final String CONFIG_PID = "dominoUserRegistry";
 
 	public DominoUserRegistry() {
 		if(log.isLoggable(Level.FINER)) {

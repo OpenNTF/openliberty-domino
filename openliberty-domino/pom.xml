@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.openntf</groupId>
 	<artifactId>openliberty-domino</artifactId>
-	<version>1.19001.0-SNAPSHOT</version>
+	<version>1.2.0</version>
 	<packaging>pom</packaging>
 
 	<name>Domino OpenLiberty Runtime</name>
@@ -44,6 +44,7 @@
 			Open Liberty Extensions 
 		-->
 		<module>bundles/org.openntf.openliberty.wlp.userregistry</module>
+		<module>subsystems/dominoUserRegistry</module>
 		
 		<!--
 			Domino Runtime 
@@ -61,7 +62,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<tycho-version>1.1.0</tycho-version>
+		<tycho-version>1.4.0</tycho-version>
 		<compiler>1.8</compiler>
 		
 		<!-- Maven API version. This version should be supported by m2e -->
@@ -205,7 +206,7 @@
 							<requirement>
 								<type>eclipse-plugin</type>
 								<id>com.ibm.notes.java.api.win32.linux</id>
-								<versionRange>[9.0.1,9.0.2)</versionRange>
+								<versionRange>9.0.1</versionRange>
 							</requirement>
 						</extraRequirements>
 						<optionalDependencies>ignore</optionalDependencies>
@@ -277,6 +278,7 @@
 			            <exclude>src/main/resources/**</exclude>
 						<exclude>**/build.properties</exclude>
 						<exclude>**/odp/AppProperties/database.properties</exclude>
+						<exclude>**/OSGI-INF/org.openntf.openliberty.wlp.*.xml</exclude>
 					</excludes>
 					<properties>
 						<owner>Jesse Gallagher</owner>
@@ -437,6 +439,13 @@
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-resources-plugin</artifactId>
 					<version>3.0.2</version>
+				</plugin>
+				
+				<plugin>
+					<groupId>org.apache.aries</groupId>
+					<artifactId>esa-maven-plugin</artifactId>
+					<version>1.0.2</version>
+					<extensions>true</extensions>
 				</plugin>
 				
 				<plugin>
