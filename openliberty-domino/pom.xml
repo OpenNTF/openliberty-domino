@@ -278,6 +278,7 @@
 			            <exclude>src/main/resources/**</exclude>
 						<exclude>**/build.properties</exclude>
 						<exclude>**/odp/AppProperties/database.properties</exclude>
+						<exclude>**/OSGI-INF/org.openntf.openliberty.wlp.*.xml</exclude>
 					</excludes>
 					<properties>
 						<owner>Jesse Gallagher</owner>
