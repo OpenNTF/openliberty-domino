@@ -80,6 +80,9 @@ public class AdminNSFService implements Runnable {
 					lastRun = System.currentTimeMillis();
 					return;
 				}
+				if(log.isLoggable(Level.FINE)) {
+					log.fine(format("{0}: Admin NSF has changed - looking for updates", getClass().getSimpleName()));
+				}
 				
 				View servers = adminNsf.getView(VIEW_SERVERS);
 				servers.setAutoUpdate(false);
@@ -125,8 +128,8 @@ public class AdminNSFService implements Runnable {
 							while(dropinEntry != null) {
 								Document dropinDoc = dropinEntry.getDocument();
 								try {
+									String appName = dropinDoc.getItemValueString(ITEM_APPNAME);
 									if(needsUpdate(dropinDoc)) {
-										String appName = dropinDoc.getItemValueString(ITEM_APPNAME);
 										if(log.isLoggable(Level.INFO)) {
 											log.info(format("{0}: Deploying NSF-defined app \"{1}\"", getClass().getSimpleName(), appName));
 										}
@@ -146,6 +149,10 @@ public class AdminNSFService implements Runnable {
 													}
 												}
 											}
+										}
+									} else {
+										if(log.isLoggable(Level.FINER)) {
+											log.finer(format("{0}: Skipping unchanged dropin app \"{1}\"", getClass().getSimpleName(), appName));
 										}
 									}
 								} finally {
@@ -203,8 +210,6 @@ public class AdminNSFService implements Runnable {
 			try {
 				long modTime = mod.toJavaDate().getTime();
 				if(modTime < lastRun) {
-					// Then we can end now
-					lastRun = System.currentTimeMillis();
 					return false;
 				}
 			} finally {
