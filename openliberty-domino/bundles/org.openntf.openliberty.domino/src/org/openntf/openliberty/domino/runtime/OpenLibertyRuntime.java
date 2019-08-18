@@ -83,6 +83,7 @@ public enum OpenLibertyRuntime implements Runnable {
 	}
 	
 	private final BlockingQueue<RuntimeTask> taskQueue = new LinkedBlockingDeque<RuntimeTask>();
+	private List<RuntimeService> runtimeServices = ExtensionManager.findServices(null, getClass().getClassLoader(), RuntimeService.SERVICE_ID, RuntimeService.class);
 	
 	private Set<String> startedServers = Collections.synchronizedSet(new HashSet<>());
 
@@ -101,7 +102,6 @@ public enum OpenLibertyRuntime implements Runnable {
 			verifyRuntime(wlp);
 			deployExtensions(wlp);
 			
-			List<RuntimeService> runtimeServices = ExtensionManager.findServices(null, getClass().getClassLoader(), RuntimeService.SERVICE_ID, RuntimeService.class);
 			if(runtimeServices != null) {
 				for(RuntimeService service : runtimeServices) {
 					DominoThreadFactory.executor.submit(service);
@@ -158,6 +158,12 @@ public enum OpenLibertyRuntime implements Runnable {
 						
 						break;
 					}
+					case STATUS: {
+						for(String serverName : startedServers) {
+							sendCommand(wlp, "status", serverName);
+						}
+						break;
+					}
 					}
 					
 				}
@@ -204,13 +210,21 @@ public enum OpenLibertyRuntime implements Runnable {
 		taskQueue.add(new RuntimeTask(RuntimeTask.Type.DEPLOY_DROPIN, serverName, warName, warFile, deleteAfterDeploy));
 	}
 	
+	/**
+	 * Outputs the server status to the Domino console.
+	 * @since 1.2.0
+	 */
+	public void showStatus() {
+		taskQueue.add(new RuntimeTask(RuntimeTask.Type.STATUS));
+	}
+	
 	// *******************************************************************************
 	// * Internal utility methods
 	// *******************************************************************************
 	
 	private static class RuntimeTask {
 		enum Type {
-			START, STOP, CREATE_SERVER, DEPLOY_DROPIN
+			START, STOP, CREATE_SERVER, DEPLOY_DROPIN, STATUS
 		}
 		private final Type type;
 		private final Object[] args;

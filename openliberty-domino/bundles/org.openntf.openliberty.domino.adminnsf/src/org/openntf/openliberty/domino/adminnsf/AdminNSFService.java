@@ -62,7 +62,7 @@ public class AdminNSFService implements Runnable {
 	public static final String ITEM_APPNAME = "AppName";
 	public static final String ITEM_WAR = "WarFile";
 	
-	private static long lastRun = -1;
+	private long lastRun = -1;
 	
 	private static final Path TEMP_DIR = Paths.get(OpenLibertyUtil.getTempDirectory());
 

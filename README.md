@@ -22,6 +22,15 @@ To set up the Open Liberty runtime, install the contents of the `UpdateSite` dir
 
 After it is installed, open the admin NSF and add at least one server document. When HTTP is (re-)started on the server, servers configured here will be automatically deployed and launched. Additionally, if you create a "Dropin App" response document, you can attach .war files that will be automatically deposited in the "dropins" folder in the server. These applications can also be manually deployed there or added in the server.xml, as with a normal Open Liberty runtime.
 
+### Console Commands
+
+The runtime supports several Domino console commands, all of which are prefixed by `tell http osgi wlp`:
+
+* `status`: Displays the status of all running Liberty servers. This is equivalent to the `server status $name` command in the Liberty package
+* `stop`: Stops all running Liberty servers
+* `start`: Starts all configured Liberty servers
+* `restart`: Equivalent to `stop` followed by `start`
+
 ### Domino Proxy Application
 
 The distribution also comes with a proxy application, `openliberty-domino-proxy.war`, that can be used to cause any unmatched requests to the Liberty server to proxy to the equivalent URL on Domino, allowing it to serve as the main front-end HTTP server.
