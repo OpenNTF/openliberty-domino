@@ -13,5 +13,6 @@ Bundle-ActivationPolicy: lazy
 Bundle-Activator: org.openntf.openliberty.domino.Activator
 Import-Package: lotus.domino
 Export-Package: org.openntf.openliberty.domino.ext,
+ org.openntf.openliberty.domino.log,
  org.openntf.openliberty.domino.runtime,
  org.openntf.openliberty.domino.util

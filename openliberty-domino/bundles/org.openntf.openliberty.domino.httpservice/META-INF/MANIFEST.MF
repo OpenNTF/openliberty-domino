@@ -3,12 +3,15 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Domino Open Liberty Runtime nHTTP Service
 Bundle-SymbolicName: org.openntf.openliberty.domino.httpservice;singleton:=true
 Automatic-Module-Name: org.openntf.openliberty.domino.httpservice
-Fragment-Host: org.openntf.openliberty.domino
 Bundle-Version: 1.3.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Require-Bundle: org.eclipse.equinox.http.servlet,
- com.ibm.domino.xsp.bootstrap;bundle-version="9.0.1",
- com.ibm.domino.xsp.adapter;bundle-version="9.0.1"
-Import-Package: javax.servlet,
- javax.servlet.http
+Require-Bundle: org.eclipse.equinox.http.servlet
+Import-Package: com.ibm.commons.util,
+ com.ibm.designer.runtime.domino.adapter,
+ com.ibm.designer.runtime.domino.bootstrap.adapter,
+ javax.servlet,
+ javax.servlet.http,
+ org.openntf.openliberty.domino.log,
+ org.openntf.openliberty.domino.runtime,
+ org.openntf.openliberty.domino.util
