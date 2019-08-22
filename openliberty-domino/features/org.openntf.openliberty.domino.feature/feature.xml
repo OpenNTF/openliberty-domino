@@ -18,7 +18,7 @@
 -->
 <feature
       id="org.openntf.openliberty.domino.feature"
-      label="Domino OpenLiberty Runtime Feature"
+      label="Domino Open Liberty Runtime Feature"
       version="1.3.0.qualifier">
 
    <description url="https://github.com/OpenNTF/org.openntf.xsp.jakartaee">
@@ -243,28 +243,24 @@
          id="org.openntf.openliberty.domino.httpservice"
          download-size="0"
          install-size="0"
-         version="0.0.0"
-         fragment="true"/>
+         version="0.0.0"/>
 
    <plugin
          id="org.openntf.openliberty.domino.adminnsf"
          download-size="0"
          install-size="0"
-         version="0.0.0"
-         fragment="true"/>
+         version="0.0.0"/>
 
    <plugin
          id="org.openntf.openliberty.domino.userregistry"
          download-size="0"
          install-size="0"
-         version="0.0.0"
-         fragment="true"/>
+         version="0.0.0"/>
 
    <plugin
          id="org.openntf.openliberty.domino.httpident"
          download-size="0"
          install-size="0"
-         version="0.0.0"
-         fragment="true"/>
+         version="0.0.0"/>
 
 </feature>
