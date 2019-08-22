@@ -1,9 +1,0 @@
-Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Name: Domino Open Liberty Runtime User Registry Deployment
-Bundle-SymbolicName: org.openntf.openliberty.domino.userregistry;singleton:=true
-Automatic-Module-Name: org.openntf.openliberty.domino.userregistry
-Bundle-Version: 1.3.0.qualifier
-Bundle-Vendor: OpenNTF
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Import-Package: org.openntf.openliberty.domino.ext

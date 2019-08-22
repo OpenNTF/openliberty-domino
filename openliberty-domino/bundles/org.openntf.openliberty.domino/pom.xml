@@ -8,49 +8,48 @@
 		<relativePath>../..</relativePath>
 	</parent>
 	<artifactId>org.openntf.openliberty.domino</artifactId>
-	<packaging>eclipse-plugin</packaging>
+	
+	<dependencies>
+		<dependency>
+			<groupId>com.ibm.xsp</groupId>
+			<artifactId>com.ibm.commons</artifactId>
+			<version>[10.0.0,)</version>
+			<classifier>lwpd.commons</classifier>
+		</dependency>
+		<dependency>
+			<groupId>com.ibm.xsp</groupId>
+			<artifactId>com.ibm.domino.napi</artifactId>
+			<version>[10.0.0,)</version>
+			<classifier>lwpd.domino.napi</classifier>
+		</dependency>
+		<dependency>
+			<groupId>com.ibm.xsp</groupId>
+			<artifactId>com.ibm.notes.java.api.win32.linux</artifactId>
+			<version>[10.0.0,)</version>
+			<classifier>Notes</classifier>
+		</dependency>
+		<dependency>
+			<groupId>com.ibm.xsp</groupId>
+			<artifactId>org.eclipse.osgi</artifactId>
+			<version>[3.11.0,)</version>
+		</dependency>
+	</dependencies>
 	
 	<build>
 		<plugins>
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-resources-plugin</artifactId>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+
 				<executions>
 					<execution>
-						<id>process-about.mappings</id>
-						<phase>prepare-package</phase>
-						<configuration>
-							<outputDirectory>${project.build.directory}</outputDirectory>
-							<overwrite>true</overwrite>
-							<resources>
-								<resource>
-									<directory>${basedir}</directory>
-									<includes>
-										<include>runtime.properties</include>
-									</includes>
-									<filtering>true</filtering>
-								</resource>
-							</resources>
-						</configuration>
+						<id>bundle-manifest</id>
+						<phase>process-classes</phase>
 						<goals>
-							<goal>copy-resources</goal>
+							<goal>manifest</goal>
 						</goals>
 					</execution>
 				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.eclipse.tycho</groupId>
-				<artifactId>tycho-packaging-plugin</artifactId>
-				<configuration>
-					<additionalFileSets>
-						<additionalFileSet>
-							<directory>${project.build.directory}</directory>
-							<includes>
-								<include>runtime.properties</include>
-							</includes>
-						</additionalFileSet>
-					</additionalFileSets>
-				</configuration>
 			</plugin>
 		</plugins>
 	</build>
