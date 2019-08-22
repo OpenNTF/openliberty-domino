@@ -8,9 +8,27 @@
 		<relativePath>../..</relativePath>
 	</parent>
 	<artifactId>org.openntf.openliberty.domino.userregistry</artifactId>
-	<packaging>eclipse-plugin</packaging>
+	
+	<dependencies>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>org.openntf.openliberty.domino</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+	</dependencies>
 	
 	<build>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+			</resource>
+			<resource>
+				<directory>.</directory>
+				<includes>
+					<include>plugin.xml</include>
+				</includes>
+			</resource>
+		</resources>
 		<plugins>
 
 			<!-- Copy in third-party jar dependencies -->
@@ -51,19 +69,27 @@
 					</filesets>
 				</configuration>
 			</plugin>
+			
 			<plugin>
-				<groupId>org.eclipse.tycho</groupId>
-				<artifactId>tycho-packaging-plugin</artifactId>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				
 				<configuration>
-					<additionalFileSets>
-						<additionalFileSet>
-							<directory>${project.basedir}</directory>
-							<includes>
-								<include>ext/**</include>
-							</includes>
-						</additionalFileSet>
-					</additionalFileSets>
+					<instructions>
+						<Bundle-SymbolicName>${project.artifactId};singleton:=true</Bundle-SymbolicName>
+						<Export-Package/>
+					</instructions>
 				</configuration>
+
+				<executions>
+					<execution>
+						<id>bundle-manifest</id>
+						<phase>process-classes</phase>
+						<goals>
+							<goal>manifest</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>

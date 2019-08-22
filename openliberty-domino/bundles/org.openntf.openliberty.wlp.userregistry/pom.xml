@@ -8,23 +8,74 @@
 		<relativePath>../..</relativePath>
 	</parent>
 	<artifactId>org.openntf.openliberty.wlp.userregistry</artifactId>
-	<packaging>eclipse-plugin</packaging>
 	
 	<dependencies>
 		<dependency>
 			<groupId>com.ibm.websphere.appserver.api</groupId>
 			<artifactId>com.ibm.websphere.appserver.api.securityClient</artifactId>
 			<version>1.1.23</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.ibm.websphere.appserver.api</groupId>
 			<artifactId>com.ibm.websphere.appserver.api.security</artifactId>
 			<version>1.2.23</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.ibm.websphere.appserver.api</groupId>
 			<artifactId>com.ibm.websphere.appserver.api.basics</artifactId>
 			<version>1.3.23</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>javax.servlet-api</artifactId>
+			<version>4.0.0</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.osgi</groupId>
+			<artifactId>org.osgi.service.component.annotations</artifactId>
+			<version>1.3.0</version>
+			<scope>provided</scope>
 		</dependency>
 	</dependencies>
+	
+	<build>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+			</resource>
+			<resource>
+				<directory>.</directory>
+				<includes>
+					<include>OSGI-INF/**</include>
+				</includes>
+			</resource>
+		</resources>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				
+				<configuration>
+					<instructions>
+						<Export-Package/>
+						<Bundle-ActivationPolicy>lazy</Bundle-ActivationPolicy>
+					</instructions>
+				</configuration>
+
+				<executions>
+					<execution>
+						<id>bundle-manifest</id>
+						<phase>process-classes</phase>
+						<goals>
+							<goal>manifest</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
 </project>

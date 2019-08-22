@@ -17,7 +17,15 @@
 			<groupId>${project.groupId}</groupId>
 			<artifactId>org.openntf.openliberty.domino.updatesite</artifactId>
 			<version>${project.version}</version>
-			<type>eclipse-update-site</type>
+			<classifier>site</classifier>
+			<type>jar</type>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>org.openntf.openliberty.domino.source.updatesite</artifactId>
+			<version>${project.version}</version>
+			<classifier>site</classifier>
+			<type>jar</type>
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
