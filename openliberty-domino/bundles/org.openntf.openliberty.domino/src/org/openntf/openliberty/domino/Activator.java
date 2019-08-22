@@ -15,11 +15,11 @@
  */
 package org.openntf.openliberty.domino;
 
-import org.eclipse.core.runtime.Plugin;
 import org.openntf.openliberty.domino.util.DominoThreadFactory;
+import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
-public class Activator extends Plugin {
+public class Activator implements BundleActivator {
 	private static Activator instance;
 	
 	public static Activator getDefault() {
@@ -32,15 +32,11 @@ public class Activator extends Plugin {
 	
 	@Override
 	public void start(BundleContext context) throws Exception {
-		super.start(context);
-		
 		DominoThreadFactory.init();
 	}
 	
 	@Override
 	public void stop(BundleContext context) throws Exception {
-		super.stop(context);
-
 		DominoThreadFactory.term();
 	}
 
