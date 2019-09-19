@@ -26,6 +26,7 @@
 				<directory>.</directory>
 				<includes>
 					<include>plugin.xml</include>
+					<include>ext/**</include>
 				</includes>
 			</resource>
 		</resources>
