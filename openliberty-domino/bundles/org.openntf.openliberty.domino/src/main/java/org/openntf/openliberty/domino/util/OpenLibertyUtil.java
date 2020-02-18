@@ -20,8 +20,8 @@ public enum OpenLibertyUtil {
 	
 	public static final boolean IS_WINDOWS;
 	static {
-		String os = System.getProperty("os.name");
-		IS_WINDOWS = os.toLowerCase().contains("windows");
+		String os = System.getProperty("os.name"); //$NON-NLS-1$
+		IS_WINDOWS = os.toLowerCase().contains("windows"); //$NON-NLS-1$
 	}
 	
 	/**
