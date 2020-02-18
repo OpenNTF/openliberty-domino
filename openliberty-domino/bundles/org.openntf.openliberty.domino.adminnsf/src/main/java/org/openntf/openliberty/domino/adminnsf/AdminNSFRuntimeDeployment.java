@@ -20,12 +20,12 @@ import static com.ibm.commons.util.StringUtil.format;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -36,6 +36,7 @@ import org.openntf.openliberty.domino.adminnsf.config.AdminNSFProperties;
 import org.openntf.openliberty.domino.adminnsf.util.AdminNSFUtil;
 import org.openntf.openliberty.domino.log.OpenLibertyLog;
 import org.openntf.openliberty.domino.runtime.RuntimeDeploymentTask;
+import org.openntf.openliberty.domino.util.OpenLibertyUtil;
 
 import com.ibm.commons.util.StringUtil;
 import com.ibm.commons.util.io.StreamUtil;
@@ -54,6 +55,8 @@ public class AdminNSFRuntimeDeployment implements RuntimeDeploymentTask {
 	public static final String ITEM_VERSION = "Version"; //$NON-NLS-1$
 	public static final String ITEM_ARTIFACT = "Artfiact"; //$NON-NLS-1$
 	public static final String ITEM_MAVENREPO = "MavenRepo"; //$NON-NLS-1$
+	
+	public static final String URL_CORBA = "https://repo1.maven.org/maven2/org/glassfish/corba/glassfish-corba-omgapi/4.2.1/glassfish-corba-omgapi-4.2.1.jar"; //$NON-NLS-1$
 
 	@Override
 	public Path call() throws IOException {
@@ -106,26 +109,10 @@ public class AdminNSFRuntimeDeployment implements RuntimeDeploymentTask {
 							log.info(format("Storing runtime download at {0}", wlpPackage));
 						}
 						try(OutputStream os = Files.newOutputStream(wlpPackage, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE)) {
-							// Domino defaults to using old protocols - bump this up for our needs here so the connection succeeds
-							String protocols = StringUtil.toString(System.getProperty("https.protocols")); //$NON-NLS-1$
-							try {
-								System.setProperty("https.protocols", "TLSv1.2"); //$NON-NLS-1$ //$NON-NLS-2$
-								HttpURLConnection conn = (HttpURLConnection)url.openConnection();
-								int responseCode = conn.getResponseCode();
-								try {
-									if(responseCode != HttpURLConnection.HTTP_OK) {
-										throw new IOException(format("Received unexpected response code {0} from URL {1}",
-												responseCode, url));
-									}
-									try(InputStream is = conn.getInputStream()) {
-										StreamUtil.copyStream(is, os);
-									}
-								} finally {
-									conn.disconnect();
-								}
-							} finally {
-								System.setProperty("https.protocols", protocols); //$NON-NLS-1$
-							}
+							OpenLibertyUtil.download(url, is -> {
+								StreamUtil.copyStream(is, os);
+								return null;
+							});
 						}
 					}
 						
@@ -142,8 +129,8 @@ public class AdminNSFRuntimeDeployment implements RuntimeDeploymentTask {
 								}
 								
 								if(StringUtil.isNotEmpty(name)) {
-									if(log.isLoggable(Level.FINE)) {
-										log.fine(format("Deploying file {0}", name));
+									if(log.isLoggable(Level.FINER)) {
+										log.finer(format("Deploying file {0}", name));
 									}
 									
 									Path path = wlp.resolve(name);
@@ -161,6 +148,21 @@ public class AdminNSFRuntimeDeployment implements RuntimeDeploymentTask {
 							}
 						}
 					}
+					
+
+					Path sharedLib = wlp.resolve("usr").resolve("shared").resolve("config").resolve("lib").resolve("global"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+					Files.createDirectories(sharedLib);
+					// Copy in Notes.jar in case we're not using the Domino JVM
+					Path runningJava = Paths.get(System.getProperty("java.home")); //$NON-NLS-1$
+					Path notesJar = runningJava.resolve("lib").resolve("ext").resolve("Notes.jar"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					Files.copy(notesJar, sharedLib.resolve("Notes.jar")); //$NON-NLS-1$
+					
+					// Also download an implementation of the org.omg CORBA API for JVM >= 9
+					OpenLibertyUtil.download(new URL(URL_CORBA), is -> {
+						Path corbaOut = sharedLib.resolve("corba.jar"); //$NON-NLS-1$
+						Files.copy(is, corbaOut, StandardCopyOption.REPLACE_EXISTING);
+						return null;
+					});
 				}
 				
 				return wlp;

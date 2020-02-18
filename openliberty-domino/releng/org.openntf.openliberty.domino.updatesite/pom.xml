@@ -226,7 +226,7 @@
       same &quot;printed page&quot; as the copyright notice for easier
       identification within third-party archives.
 
-   Copyright 2019-2019 Jesse Gallagher
+   Copyright 2018-2020 Jesse Gallagher
 
    Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
    you may not use this file except in compliance with the License.
@@ -264,6 +264,11 @@
 										</artifact>
 										<artifact>
 											<id>${project.groupId}:org.openntf.openliberty.domino.httpident:${project.version}</id>
+											<transitive>false</transitive>
+											<source>false</source>
+										</artifact>
+										<artifact>
+											<id>org.apache.commons:commons-compress:1.20</id>
 											<transitive>false</transitive>
 											<source>false</source>
 										</artifact>

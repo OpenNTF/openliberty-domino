@@ -87,11 +87,22 @@ public enum OpenLibertyRuntime implements Runnable {
 	private List<RuntimeService> runtimeServices = ExtensionManager.findServices(null, getClass().getClassLoader(), RuntimeService.SERVICE_ID, RuntimeService.class);
 	
 	private Set<String> startedServers = Collections.synchronizedSet(new HashSet<>());
+	
+	private Path javaHome;
 
 	@Override
 	public void run() {
 		if(log.isLoggable(Level.INFO)) {
 			log.info(format("Startup"));
+		}
+		
+		List<JavaRuntimeProvider> javaRuntimeProviders = ExtensionManager.findServices(null, getClass().getClassLoader(), JavaRuntimeProvider.SERVICE_ID, JavaRuntimeProvider.class);
+		if(javaRuntimeProviders == null || javaRuntimeProviders.isEmpty()) {
+			throw new IllegalStateException(format("Unable to find service providing {0}", JavaRuntimeProvider.SERVICE_ID));
+		}
+		javaHome = javaRuntimeProviders.get(0).getJavaHome();
+		if(log.isLoggable(Level.INFO)) {
+			log.info(format("Using Java runtime located at  {0}", javaHome));
 		}
 		
 		Path wlp = null;
@@ -327,7 +338,7 @@ public enum OpenLibertyRuntime implements Runnable {
 		ProcessBuilder pb = new ProcessBuilder().command(commands);
 		
 		Map<String, String> env = pb.environment();
-		env.put("JAVA_HOME", System.getProperty("java.home")); //$NON-NLS-1$ //$NON-NLS-2$
+		env.put("JAVA_HOME", javaHome.toString()); //$NON-NLS-1$
 		String sysPath = System.getenv("PATH"); //$NON-NLS-1$
 		sysPath += File.pathSeparator + Os.OSGetExecutableDirectory();
 		env.put("PATH", sysPath); //$NON-NLS-1$

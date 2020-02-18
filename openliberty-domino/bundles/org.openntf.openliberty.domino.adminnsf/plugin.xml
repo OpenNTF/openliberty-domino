@@ -24,4 +24,7 @@
 	<extension point="com.ibm.commons.Extension">
 		<service type="org.openntf.openliberty.domino.runtime.RuntimeDeploymentTask" class="org.openntf.openliberty.domino.adminnsf.AdminNSFRuntimeDeployment" />
 	</extension>
+	<extension point="com.ibm.commons.Extension">
+		<service type="org.openntf.openliberty.domino.runtime.JavaRuntimeProvider" class="org.openntf.openliberty.domino.adminnsf.AdminNSFJavaRuntimeProvider" />
+	</extension>
 </plugin>

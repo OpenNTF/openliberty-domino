@@ -15,13 +15,24 @@
  */
 package org.openntf.openliberty.domino.util;
 
+import static com.ibm.commons.util.StringUtil.format;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
+import com.ibm.commons.util.StringUtil;
+
 public enum OpenLibertyUtil {
 	;
 	
 	public static final boolean IS_WINDOWS;
+	public static final boolean IS_LINUX;
 	static {
 		String os = System.getProperty("os.name"); //$NON-NLS-1$
 		IS_WINDOWS = os.toLowerCase().contains("windows"); //$NON-NLS-1$
+		IS_LINUX = os.toLowerCase().contains("linux"); //$NON-NLS-1$
 	}
 	
 	/**
@@ -37,6 +48,40 @@ public enum OpenLibertyUtil {
 			return "/tmp"; //$NON-NLS-1$
 		} else {
 			return System.getProperty("java.io.tmpdir"); //$NON-NLS-1$
+		}
+	}
+	
+	@FunctionalInterface
+	public static interface IOFunction<T> {
+		T apply(InputStream is) throws IOException;
+	}
+	
+	/**
+	 * @param url the URL to fetch
+	 * @param consumer a handler for the download's {@link InputStream}
+	 * @throws IOException if there is an unexpected problem downloading the file or if the server
+	 * 		returns any code other than {@link HttpURLConnection#HTTP_OK}
+	 * @since 2.0.0
+	 */
+	public static <T> T download(URL url, IOFunction<T> consumer) throws IOException {
+		// Domino defaults to using old protocols - bump this up for our needs here so the connection succeeds
+		String protocols = StringUtil.toString(System.getProperty("https.protocols")); //$NON-NLS-1$
+		try {
+			System.setProperty("https.protocols", "TLSv1.2"); //$NON-NLS-1$ //$NON-NLS-2$
+			HttpURLConnection conn = (HttpURLConnection)url.openConnection();
+			int responseCode = conn.getResponseCode();
+			try {
+				if(responseCode != HttpURLConnection.HTTP_OK) {
+					throw new IOException(format("Received unexpected response code {0} from URL {1}", responseCode, url));
+				}
+				try(InputStream is = conn.getInputStream()) {
+					return consumer.apply(is);
+				}
+			} finally {
+				conn.disconnect();
+			}
+		} finally {
+			System.setProperty("https.protocols", protocols); //$NON-NLS-1$
 		}
 	}
 }

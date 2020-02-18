@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<note xmlns="http://www.lotus.com/dxl" default="true" class="icon">
+<note class="icon" default="true" xmlns="http://www.lotus.com/dxl">
   <item name="IconBitmap" summary="true">
     <rawitemdata type="6">
 AiAgAQAA///////wD///gAH//gAAf/wAAD/4AAAf8AAAD+AAAAfgAAAHwAAAA8AAAAPAAAADgAAA
@@ -16,9 +16,6 @@ L2ZvgAAACMZmZmZmZmZmZmZmbIAAAACMZmZmZmZmZmZmZsgAAAAACMZmZmZmZmZmZmyAAAAAAACM
 AAAAUEECICABAAD/////+A4DgA==
 </rawitemdata>
   </item>
-  <item name="$DefaultFrameset">
-    <text>Outer Frame</text>
-  </item>
   <item name="$DefaultXPage">
     <text>Lists.xsp</text>
   </item>
@@ -28,19 +25,22 @@ AAAAUEECICABAAD/////+A4DgA==
   <item name="$AllowPost8HTML">
     <text>1</text>
   </item>
-  <item name="$FlagsNoRefresh">
-    <text/>
-  </item>
-  <item name="$Flags">
-    <text>J7FKzNZ4q</text>
-  </item>
   <item name="$Daos">
     <text>1</text>
   </item>
   <item name="$LargeSummary">
     <text>0</text>
   </item>
+  <item name="$DefaultFrameset">
+    <text>Outer Frame</text>
+  </item>
   <item name="$TITLE">
     <text>Open Liberty Admin</text>
+  </item>
+  <item name="$Flags">
+    <text>Jz47qNZFK</text>
+  </item>
+  <item name="$FlagsNoRefresh">
+    <text>rv</text>
   </item>
 </note>
