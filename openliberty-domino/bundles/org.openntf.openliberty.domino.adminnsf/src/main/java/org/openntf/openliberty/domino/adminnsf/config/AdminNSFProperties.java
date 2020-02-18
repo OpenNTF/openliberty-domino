@@ -23,22 +23,22 @@ public enum AdminNSFProperties {
 	private final ResourceBundle bundle;
 	
 	private AdminNSFProperties() {
-		this.bundle = ResourceBundle.getBundle("adminnsf");
+		this.bundle = ResourceBundle.getBundle("adminnsf"); //$NON-NLS-1$
 	}
 	
 	public String getNsfPath() {
-		return bundle.getString("defaultAdminNsf");
+		return bundle.getString("defaultAdminNsf"); //$NON-NLS-1$
 	}
 	
 	public String getDefaultVersion() {
-		return bundle.getString("defaultVersion");
+		return bundle.getString("defaultVersion"); //$NON-NLS-1$
 	}
 	
 	public String getDefaultArtifact() {
-		return bundle.getString("defaultArtifact");
+		return bundle.getString("defaultArtifact"); //$NON-NLS-1$
 	}
 	
 	public String getDefaultMavenRepo() {
-		return bundle.getString("defaultMavenRepo");
+		return bundle.getString("defaultMavenRepo"); //$NON-NLS-1$
 	}
 }

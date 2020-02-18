@@ -50,10 +50,10 @@ import lotus.domino.Session;
 public class AdminNSFRuntimeDeployment implements RuntimeDeploymentTask {
 	private static final Logger log = OpenLibertyLog.LIBERTY_LOG;
 	
-	public static final String ITEM_BASEDIRECTORY = "BaseDirectory";
-	public static final String ITEM_VERSION = "Version";
-	public static final String ITEM_ARTIFACT = "Artfiact";
-	public static final String ITEM_MAVENREPO = "MavenRepo";
+	public static final String ITEM_BASEDIRECTORY = "BaseDirectory"; //$NON-NLS-1$
+	public static final String ITEM_VERSION = "Version"; //$NON-NLS-1$
+	public static final String ITEM_ARTIFACT = "Artfiact"; //$NON-NLS-1$
+	public static final String ITEM_MAVENREPO = "MavenRepo"; //$NON-NLS-1$
 
 	@Override
 	public Path call() throws IOException {
@@ -65,7 +65,7 @@ public class AdminNSFRuntimeDeployment implements RuntimeDeploymentTask {
 				String execDirName = config.getItemValueString(ITEM_BASEDIRECTORY);
 				Path execDir;
 				if(StringUtil.isEmpty(execDirName)) {
-					execDir = Paths.get(Os.OSGetExecutableDirectory()).resolve("wlp");
+					execDir = Paths.get(Os.OSGetExecutableDirectory()).resolve("wlp"); //$NON-NLS-1$
 				} else {
 					execDir = Paths.get(execDirName);
 				}
@@ -75,7 +75,7 @@ public class AdminNSFRuntimeDeployment implements RuntimeDeploymentTask {
 					version = AdminNSFProperties.instance.getDefaultVersion();
 				}
 				
-				Path wlp = execDir.resolve(format("wlp-{0}", version));
+				Path wlp = execDir.resolve(format("wlp-{0}", version)); //$NON-NLS-1$
 				
 				if(!Files.isDirectory(wlp)) {
 					// If it doesn't yet exist, download and deploy a new runtime
@@ -88,7 +88,7 @@ public class AdminNSFRuntimeDeployment implements RuntimeDeploymentTask {
 						artifact = AdminNSFProperties.instance.getDefaultArtifact();
 					}
 					
-					Path downloadDir = execDir.resolve("download");
+					Path downloadDir = execDir.resolve("download"); //$NON-NLS-1$
 					Path wlpPackage = downloadDir.resolve(buildZipName(artifact, version));
 					if(!Files.exists(wlpPackage)) {
 						Files.createDirectories(downloadDir);
@@ -100,21 +100,22 @@ public class AdminNSFRuntimeDeployment implements RuntimeDeploymentTask {
 						}
 						URL url = buildDownloadURL(mavenRepo, artifact, version);
 						if(log.isLoggable(Level.INFO)) {
-							log.info("Downloading runtime from " + url);
+							log.info(format("Downloading runtime from {0}", url));
 						}
 						if(log.isLoggable(Level.INFO)) {
-							log.info("Storing runtime download at " + wlpPackage);
+							log.info(format("Storing runtime download at {0}", wlpPackage));
 						}
 						try(OutputStream os = Files.newOutputStream(wlpPackage, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE)) {
 							// Domino defaults to using old protocols - bump this up for our needs here so the connection succeeds
-							String protocols = StringUtil.toString(System.getProperty("https.protocols"));
+							String protocols = StringUtil.toString(System.getProperty("https.protocols")); //$NON-NLS-1$
 							try {
-								System.setProperty("https.protocols", "TLSv1.2");
+								System.setProperty("https.protocols", "TLSv1.2"); //$NON-NLS-1$ //$NON-NLS-2$
 								HttpURLConnection conn = (HttpURLConnection)url.openConnection();
 								int responseCode = conn.getResponseCode();
 								try {
 									if(responseCode != HttpURLConnection.HTTP_OK) {
-										throw new IOException("Received unexpected response code " + responseCode + " from URL " + url);
+										throw new IOException(format("Received unexpected response code {0} from URL {1}",
+												responseCode, url));
 									}
 									try(InputStream is = conn.getInputStream()) {
 										StreamUtil.copyStream(is, os);
@@ -123,7 +124,7 @@ public class AdminNSFRuntimeDeployment implements RuntimeDeploymentTask {
 									conn.disconnect();
 								}
 							} finally {
-								System.setProperty("https.protocols", protocols);
+								System.setProperty("https.protocols", protocols); //$NON-NLS-1$
 							}
 						}
 					}
@@ -135,7 +136,7 @@ public class AdminNSFRuntimeDeployment implements RuntimeDeploymentTask {
 							ZipEntry entry = zis.getNextEntry();
 							while(entry != null) {
 								String name = entry.getName();
-								if(name.startsWith("wlp/")) {
+								if(name.startsWith("wlp/")) { //$NON-NLS-1$
 									// Remove the standard prefix
 									name = name.substring(4);
 								}
@@ -177,7 +178,7 @@ public class AdminNSFRuntimeDeployment implements RuntimeDeploymentTask {
 	
 	private static URL buildDownloadURL(String mavenRepo, String artifact, String version) throws MalformedURLException {
 		String base = mavenRepo;
-		if(!base.endsWith("/")) {
+		if(!base.endsWith("/")) { //$NON-NLS-1$
 			base += base;
 		}
 		URL url = new URL(base);
@@ -194,13 +195,13 @@ public class AdminNSFRuntimeDeployment implements RuntimeDeploymentTask {
 	
 	private static String buildZipName(String artifact, String version) {
 		String artifactId  = getArtifactId(artifact);
-		return artifactId + '-' + version + ".zip";
+		return artifactId + '-' + version + ".zip"; //$NON-NLS-1$
 	}
 	
 	private static String getArtifactId(String artifact) {
 		int colonIndex = artifact.indexOf(':');
 		if(colonIndex < 1 || colonIndex == artifact.length()+1) {
-			throw new IllegalArgumentException("Illegal Maven artifact ID: " + artifact);
+			throw new IllegalArgumentException(format("Illegal Maven artifact ID: {0}", artifact));
 		}
 		return artifact.substring(colonIndex+1);
 	}

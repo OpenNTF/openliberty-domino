@@ -29,12 +29,12 @@ public enum AdminNSFUtil {
 	public static Database getAdminDatabase(Session session) throws NotesException {
 		String adminNsfPath = AdminNSFProperties.instance.getNsfPath();
 		String server, filePath;
-		int bangIndex = adminNsfPath.indexOf("!!");
+		int bangIndex = adminNsfPath.indexOf("!!"); //$NON-NLS-1$
 		if(bangIndex > -1) {
 			server = adminNsfPath.substring(0, bangIndex);
 			filePath = adminNsfPath.substring(bangIndex+2);
 		} else {
-			server = "";
+			server = ""; //$NON-NLS-1$
 			filePath = adminNsfPath;
 		}
 		
@@ -42,7 +42,7 @@ public enum AdminNSFUtil {
 	}
 	
 	public static Document getConfigurationDocument(Database adminNsf) throws NotesException {
-		View configuration = adminNsf.getView("Configuration");
+		View configuration = adminNsf.getView("Configuration"); //$NON-NLS-1$
 		try {
 			configuration.refresh();
 			Document doc = configuration.getFirstDocument();
@@ -50,7 +50,7 @@ public enum AdminNSFUtil {
 				return doc;
 			} else {
 				doc = adminNsf.createDocument();
-				doc.replaceItemValue("Form", "Configuration");
+				doc.replaceItemValue("Form", "Configuration"); //$NON-NLS-1$ //$NON-NLS-2$
 				return doc;
 			}
 		} finally {
