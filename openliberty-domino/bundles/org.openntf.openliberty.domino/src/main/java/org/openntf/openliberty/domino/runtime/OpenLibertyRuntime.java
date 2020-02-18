@@ -32,6 +32,7 @@ import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.nio.file.attribute.PosixFilePermission;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -76,9 +77,9 @@ public enum OpenLibertyRuntime implements Runnable {
 	private static final String serverFile;
 	static {
 		if(OpenLibertyUtil.IS_WINDOWS) {
-			serverFile = "server.bat";
+			serverFile = "server.bat"; //$NON-NLS-1$
 		} else {
-			serverFile = "server";
+			serverFile = "server"; //$NON-NLS-1$
 		}
 	}
 	
@@ -116,11 +117,11 @@ public enum OpenLibertyRuntime implements Runnable {
 					}
 					switch(command.type) {
 					case START:
-						sendCommand(wlp, "start", command.args).waitFor();
+						sendCommand(wlp, "start", command.args).waitFor(); //$NON-NLS-1$
 						watchLog(wlp, (String)command.args[0]);
 						break;
 					case STOP:
-						sendCommand(wlp, "stop", command.args);
+						sendCommand(wlp, "stop", command.args); //$NON-NLS-1$
 						break;
 					case CREATE_SERVER: {
 						String serverName = (String)command.args[0];
@@ -130,7 +131,7 @@ public enum OpenLibertyRuntime implements Runnable {
 						List<Path> additionalZips = (List<Path>)command.args[3];
 						
 						if(!serverExists(wlp, serverName)) {
-							sendCommand(wlp, "create", serverName).waitFor();
+							sendCommand(wlp, "create", serverName).waitFor(); //$NON-NLS-1$
 						}
 						if(StringUtil.isNotEmpty(serverXml)) {
 							deployServerXml(wlp, serverName, serverXml);
@@ -160,7 +161,7 @@ public enum OpenLibertyRuntime implements Runnable {
 					}
 					case STATUS: {
 						for(String serverName : startedServers) {
-							sendCommand(wlp, "status", serverName);
+							sendCommand(wlp, "status", serverName); //$NON-NLS-1$
 						}
 						break;
 					}
@@ -179,7 +180,7 @@ public enum OpenLibertyRuntime implements Runnable {
 			if(wlp != null) {
 				for(String serverName : startedServers) {
 					try {
-						sendCommand(wlp, "stop", serverName);
+						sendCommand(wlp, "stop", serverName); //$NON-NLS-1$
 					} catch (IOException | NotesException e) {
 						// Nothing to do here
 					}
@@ -236,19 +237,19 @@ public enum OpenLibertyRuntime implements Runnable {
 
 		@Override
 		public String toString() {
-			return "RuntimeTask [type=" + type + ", args=" + Arrays.toString(args) + "]";
+			return MessageFormat.format("RuntimeTask [type={0}, args={1}]", type, Arrays.toString(args)); //$NON-NLS-1$
 		}
 	}
 	
 	private Path deployRuntime() throws IOException {
 		List<RuntimeDeploymentTask> deploymentServices = ExtensionManager.findServices(null, getClass().getClassLoader(), RuntimeDeploymentTask.SERVICE_ID, RuntimeDeploymentTask.class);
 		if(deploymentServices.isEmpty()) {
-			throw new IllegalStateException("Unable to find any services providing " + RuntimeDeploymentTask.SERVICE_ID);
+			throw new IllegalStateException(format("Unable to find any services providing {0}", RuntimeDeploymentTask.SERVICE_ID));
 		}
 		RuntimeDeploymentTask task = deploymentServices.get(0);
 		if(deploymentServices.size() > 1) {
 			if(log.isLoggable(Level.WARNING)) {
-				log.warning(format("Found multiple services providing " + RuntimeDeploymentTask.SERVICE_ID + "; using the first, " + task));
+				log.warning(format("Found multiple services providing {0}; using the first, {1}", RuntimeDeploymentTask.SERVICE_ID, task));
 			}
 		}
 		return task.call();
@@ -257,7 +258,7 @@ public enum OpenLibertyRuntime implements Runnable {
 	private void verifyRuntime(Path wlp) throws IOException {
 		// TODO handle more than execution bits
 		if(!OpenLibertyUtil.IS_WINDOWS) {
-			Path exec = wlp.resolve("bin").resolve("server");
+			Path exec = wlp.resolve("bin").resolve("server"); //$NON-NLS-1$ //$NON-NLS-2$
 			if(!Files.isExecutable(exec)) {
 				Set<PosixFilePermission> perm = EnumSet.copyOf(Files.getPosixFilePermissions(exec));
 				perm.add(PosixFilePermission.OWNER_EXECUTE);
@@ -267,7 +268,7 @@ public enum OpenLibertyRuntime implements Runnable {
 	}
 	
 	private void deployServerXml(Path path, String serverName, String serverXml) throws IOException {
-		Path xmlFile = path.resolve("usr").resolve("servers").resolve(serverName).resolve("server.xml");
+		Path xmlFile = path.resolve("usr").resolve("servers").resolve(serverName).resolve("server.xml"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		try(OutputStream os = Files.newOutputStream(xmlFile, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
 			try(PrintStream ps = new PrintStream(os)) {
 				ps.print(serverXml);
@@ -275,7 +276,7 @@ public enum OpenLibertyRuntime implements Runnable {
 		}
 	}
 	private void deployServerEnv(Path path, String serverName, String serverXml) throws IOException {
-		Path xmlFile = path.resolve("usr").resolve("servers").resolve(serverName).resolve("server.env");
+		Path xmlFile = path.resolve("usr").resolve("servers").resolve(serverName).resolve("server.env"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		try(OutputStream os = Files.newOutputStream(xmlFile, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
 			try(PrintStream ps = new PrintStream(os)) {
 				ps.print(serverXml);
@@ -283,7 +284,7 @@ public enum OpenLibertyRuntime implements Runnable {
 		}
 	}
 	private void deployAdditionalZip(Path path, String serverName, Path zip) throws IOException {
-		Path serverBase = path.resolve("usr").resolve("servers").resolve(serverName);
+		Path serverBase = path.resolve("usr").resolve("servers").resolve(serverName); //$NON-NLS-1$ //$NON-NLS-2$
 		try(InputStream is = Files.newInputStream(zip)) {
 			try(ZipInputStream zis = new ZipInputStream(is)) {
 				ZipEntry entry = zis.getNextEntry();
@@ -314,7 +315,7 @@ public enum OpenLibertyRuntime implements Runnable {
 	}
 
 	private Process sendCommand(Path path, String command, Object... args) throws IOException, NotesException {
-		Path serverScript = path.resolve("bin").resolve(serverFile);
+		Path serverScript = path.resolve("bin").resolve(serverFile); //$NON-NLS-1$
 		
 		List<String> commands = new ArrayList<>();
 		commands.add(serverScript.toString());
@@ -326,11 +327,11 @@ public enum OpenLibertyRuntime implements Runnable {
 		ProcessBuilder pb = new ProcessBuilder().command(commands);
 		
 		Map<String, String> env = pb.environment();
-		env.put("JAVA_HOME", System.getProperty("java.home"));
-		String sysPath = System.getenv("PATH");
+		env.put("JAVA_HOME", System.getProperty("java.home")); //$NON-NLS-1$ //$NON-NLS-2$
+		String sysPath = System.getenv("PATH"); //$NON-NLS-1$
 		sysPath += File.pathSeparator + Os.OSGetExecutableDirectory();
-		env.put("PATH", sysPath);
-		env.put("Domino_HTTP", getServerBase());
+		env.put("PATH", sysPath); //$NON-NLS-1$
+		env.put("Domino_HTTP", getServerBase()); //$NON-NLS-1$
 		
 		Process process = pb.start();
 		
@@ -341,8 +342,8 @@ public enum OpenLibertyRuntime implements Runnable {
 	}
 	
 	private void watchLog(Path path, String serverName) {
-		Path logs = path.resolve("usr").resolve("servers").resolve(serverName).resolve("logs");
-		String consoleLog = "console.log";
+		Path logs = path.resolve("usr").resolve("servers").resolve(serverName).resolve("logs"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		String consoleLog = "console.log"; //$NON-NLS-1$
 		DominoThreadFactory.executor.submit(() -> {
 			try(WatchService watchService = FileSystems.getDefault().newWatchService()) {
 				long pos = 0;
@@ -401,12 +402,12 @@ public enum OpenLibertyRuntime implements Runnable {
 	
 	private boolean serverExists(Path path, String serverName) {
 		// TODO change to ask Liberty for a list of servers
-		Path server = path.resolve("usr").resolve("servers").resolve(serverName);
+		Path server = path.resolve("usr").resolve("servers").resolve(serverName); //$NON-NLS-1$ //$NON-NLS-2$
 		return Files.isDirectory(server);
 	}
 	
 	private void deployWar(Path wlp, String serverName, String warName, Path warFile) {
-		Path dropins = wlp.resolve("usr").resolve("servers").resolve(serverName).resolve("dropins");
+		Path dropins = wlp.resolve("usr").resolve("servers").resolve(serverName).resolve("dropins"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		
 		String name;
 		if(StringUtil.isNotEmpty(warName)) {
@@ -420,15 +421,15 @@ public enum OpenLibertyRuntime implements Runnable {
 			Files.copy(warFile, dest, StandardCopyOption.REPLACE_EXISTING);
 		} catch(IOException e) {
 			if(log.isLoggable(Level.SEVERE)) {
-				log.log(Level.SEVERE, "Encountered exception when deploying dropin: " + e, e);
+				log.log(Level.SEVERE, format("Encountered exception when deploying dropin: {0}", e), e);
 			}
 		}
 	}
 	
 	private void deployExtensions(Path wlp) throws IOException {
-		Path lib = wlp.resolve("usr").resolve("extension").resolve("lib");
+		Path lib = wlp.resolve("usr").resolve("extension").resolve("lib"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		Files.createDirectories(lib);
-		Path features = lib.resolve("features");
+		Path features = lib.resolve("features"); //$NON-NLS-1$
 		Files.createDirectories(features);
 		
 		List<ExtensionDeployer> extensions = ExtensionManager.findServices(null, getClass().getClassLoader(), ExtensionDeployer.SERVICE_ID, ExtensionDeployer.class);
@@ -441,7 +442,7 @@ public enum OpenLibertyRuntime implements Runnable {
 							String entryName = entry.getName();
 							
 							// Deploy .jar entries to the lib folder
-							if(entryName.toLowerCase().endsWith(".jar") && !entryName.contains("/")) {
+							if(entryName.toLowerCase().endsWith(".jar") && !entryName.contains("/")) { //$NON-NLS-1$ //$NON-NLS-2$
 								Path dest = lib.resolve(entryName);
 								try(OutputStream os = Files.newOutputStream(dest, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
 									StreamUtil.copyStream(zis, os);
@@ -449,13 +450,15 @@ public enum OpenLibertyRuntime implements Runnable {
 							}
 							
 							// Look for SUBSYSTEM.MF, parse its info, and deploy to the features directory
-							if("OSGI-INF/SUBSYSTEM.MF".equalsIgnoreCase(entryName)) {
+							if("OSGI-INF/SUBSYSTEM.MF".equalsIgnoreCase(entryName)) { //$NON-NLS-1$
 								Manifest mf = new Manifest(zis);
-								String shortName = mf.getMainAttributes().getValue("IBM-ShortName");
+								String shortName = mf.getMainAttributes().getValue("IBM-ShortName"); //$NON-NLS-1$
 								if(StringUtil.isEmpty(shortName)) {
-									throw new IllegalArgumentException("ESA subsystem manifest provided by " + ext + " doesn't contain an IBM-ShortName");
+									throw new IllegalArgumentException(format(
+											"ESA subsystem manifest provided by {0} doesn''t contain an IBM-ShortName",
+											ext));
 								}
-								Path mfDest = features.resolve(shortName + ".mf");
+								Path mfDest = features.resolve(shortName + ".mf"); //$NON-NLS-1$
 								try(OutputStream os = Files.newOutputStream(mfDest, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
 									mf.write(os);
 								}
@@ -484,8 +487,8 @@ public enum OpenLibertyRuntime implements Runnable {
 			// HTTP_SSLPort int
 			// HTTP_SSLMode string 1=on, 2=off
 			
-			Database names = session.getDatabase("", "names.nsf");
-			View servers = names.getView("$Servers");
+			Database names = session.getDatabase("", "names.nsf"); //$NON-NLS-1$ //$NON-NLS-2$
+			View servers = names.getView("$Servers"); //$NON-NLS-1$
 			Document serverDoc = servers.getDocumentByKey(session.getUserName(), true);
 			
 			int port;
@@ -493,22 +496,22 @@ public enum OpenLibertyRuntime implements Runnable {
 			String host;
 			
 			// Prefer HTTP for simplicity
-			String httpMode = serverDoc.getItemValueString("HTTP_NormalMode");
-			if("1".equals(httpMode)) {
-				port = serverDoc.getItemValueInteger("HTTP_Port");
-				protocol = "http";
+			String httpMode = serverDoc.getItemValueString("HTTP_NormalMode"); //$NON-NLS-1$
+			if("1".equals(httpMode)) { //$NON-NLS-1$
+				port = serverDoc.getItemValueInteger("HTTP_Port"); //$NON-NLS-1$
+				protocol = "http"; //$NON-NLS-1$
 			} else {
 				// Assume SSL is on, since otherwise we don't have a good option
-				port = serverDoc.getItemValueInteger("HTTP_SSLPort");
-				protocol = "https";
+				port = serverDoc.getItemValueInteger("HTTP_SSLPort"); //$NON-NLS-1$
+				protocol = "https"; //$NON-NLS-1$
 			}
 			
-			host = serverDoc.getItemValueString("HTTP_HostName");
+			host = serverDoc.getItemValueString("HTTP_HostName"); //$NON-NLS-1$
 			if(StringUtil.isEmpty(host)) {
-				host = "localhost";
+				host = "localhost"; //$NON-NLS-1$
 			}
 			
-			return protocol + "://" + host + ":" + port;
+			return protocol + "://" + host + ":" + port; //$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
 			session.recycle();
 		}
