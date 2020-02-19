@@ -409,6 +409,17 @@ public enum OpenLibertyRuntime implements Runnable {
 				}
 			}
 		});
+		
+		if(OpenLibertyUtil.IS_WINDOWS) {
+			File consoleLogPath = logs.resolve(consoleLog).toFile();
+			// Spawn a second thread to nudge the filesystem every so often, since the above polling
+			//   doesn't actually work particularly well on Windows
+			DominoThreadFactory.scheduler.scheduleWithFixedDelay(() -> {
+				if(consoleLogPath.exists()) {
+					consoleLogPath.length();
+				}
+			}, 10, 2, TimeUnit.SECONDS);
+		}
 	}
 	
 	private boolean serverExists(Path path, String serverName) {
