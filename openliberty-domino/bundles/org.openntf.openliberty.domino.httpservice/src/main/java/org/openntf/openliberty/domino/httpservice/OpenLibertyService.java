@@ -16,19 +16,15 @@
 package org.openntf.openliberty.domino.httpservice;
 
 import java.io.IOException;
-import java.text.MessageFormat;
 import java.util.List;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
 
 import org.openntf.openliberty.domino.log.OpenLibertyLog;
-import org.openntf.openliberty.domino.runtime.CLICommands;
-import org.openntf.openliberty.domino.runtime.OpenLibertyRuntime;
-import org.openntf.openliberty.domino.util.DominoThreadFactory;
+import org.openntf.openliberty.domino.runtime.CLIManagerDelegate;
 
 import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
@@ -38,15 +34,16 @@ import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpServletRequestAdapt
 import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpServletResponseAdapter;
 import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpSessionAdapter;
 
-public class OpenLibertyService extends HttpService implements CLICommands {
+public class OpenLibertyService extends HttpService {
 	private static final Logger log = OpenLibertyLog.instance.log;
 	
 	private Future<?> runner;
+	private final CLIManagerDelegate delegate = new CLIManagerDelegate();
 
 	public OpenLibertyService(LCDEnvironment env) {
 		super(env);
 		
-		start();
+		delegate.start();
 	}
 
 	@Override
@@ -55,56 +52,16 @@ public class OpenLibertyService extends HttpService implements CLICommands {
 		
 		if(this.runner != null) {
 			if(log.isLoggable(Level.INFO)) {
-				log.info("Shutting down Open Liberty server");
+				log.info("Shutting down Open Liberty service");
 			}
-			stop();
+			delegate.close();
 		}
 	}
 
 	@Override
 	public Object tellCommand(String line) {
 		if(StringUtil.isNotEmpty(line) && line.toLowerCase().startsWith("wlp ")) { //$NON-NLS-1$
-			String[] argv = line.substring("wlp ".length()).split("\\s+"); //$NON-NLS-1$ //$NON-NLS-2$
-			if(argv.length > 0) {
-				Command command = parseCommand(argv[0]);
-				if(command == null) {
-					return MessageFormat.format("Unknown command: {0}", argv[0]);
-				}
-				switch(command) {
-				case STATUS:
-					OpenLibertyRuntime.instance.showStatus();
-					return "Status of running server(s):";
-				case START:
-					if(this.runner != null) {
-						return "Open Liberty server is already running";
-					} else {
-						start();
-						return "Starting Open Libery server";
-					}
-				case STOP:
-					if(this.runner == null) {
-						return "Open Liberty server is not running";
-					} else {
-						stop();
-						return "Stopped Open Liberty server";
-					}
-				case RESTART:
-					if(this.runner != null) {
-						stop();
-						try {
-							TimeUnit.SECONDS.sleep(3);
-						} catch (InterruptedException e) {
-						}
-						start();
-						return "Restarted Open Libery server";
-					} else {
-						start();
-						return "Starting Open Liberty server";
-					}
-				default:
-					return MessageFormat.format("Command not yet implemented: {0}", command);
-				}
-			}
+			delegate.processCommand(line.substring("wlp ".length())); //$NON-NLS-1$
 		}
 		
 		return super.tellCommand(line);
@@ -122,28 +79,5 @@ public class OpenLibertyService extends HttpService implements CLICommands {
 	@Override
 	public void getModules(List<ComponentModule> modules) {
 		// NOP
-	}
-
-	// *******************************************************************************
-	// * Internal methods
-	// *******************************************************************************
-	
-	/**
-	 * @since 1.2.0
-	 */
-	private void start() {
-		if(this.runner == null) {
-			DominoThreadFactory.init();
-			this.runner = DominoThreadFactory.executor.submit(OpenLibertyRuntime.instance);
-		}
-	}
-	/**
-	 * @since 1.2.0
-	 */
-	private void stop() {
-		if(this.runner != null) {
-			DominoThreadFactory.term();
-			this.runner = null;
-		}
 	}
 }
