@@ -25,7 +25,6 @@
 			<resource>
 				<directory>.</directory>
 				<includes>
-					<include>plugin.xml</include>
 					<include>ext/**</include>
 				</includes>
 			</resource>
@@ -79,6 +78,7 @@
 					<instructions>
 						<Bundle-SymbolicName>${project.artifactId};singleton:=true</Bundle-SymbolicName>
 						<Export-Package/>
+						<Fragment-Host>org.openntf.openliberty.domino</Fragment-Host>
 					</instructions>
 				</configuration>
 
