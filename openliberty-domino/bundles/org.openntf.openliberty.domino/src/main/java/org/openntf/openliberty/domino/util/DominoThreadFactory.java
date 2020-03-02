@@ -41,11 +41,19 @@ public class DominoThreadFactory implements ThreadFactory {
 		}
 	}
 	public static void term() {
-		executor.shutdownNow();
-		scheduler.shutdownNow();
+		if(executor != null) {
+			executor.shutdownNow();
+		}
+		if(scheduler != null) {
+			scheduler.shutdownNow();
+		}
 		try {
-			executor.awaitTermination(1, TimeUnit.MINUTES);
-			scheduler.awaitTermination(1, TimeUnit.MINUTES);
+			if(executor != null) {
+				executor.awaitTermination(1, TimeUnit.MINUTES);
+			}
+			if(scheduler != null) {
+				scheduler.awaitTermination(1, TimeUnit.MINUTES);
+			}
 		} catch (InterruptedException e) {
 			// Ignore
 		}

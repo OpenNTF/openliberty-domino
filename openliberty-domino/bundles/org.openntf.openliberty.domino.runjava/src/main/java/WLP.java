@@ -13,16 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package lotus.notes.addins.wlp;
+
 
 import static java.text.MessageFormat.format;
-import static org.openntf.openliberty.domino.runjava.Messages.getString;
 
-import java.io.PrintStream;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
-import org.openntf.openliberty.domino.log.OpenLibertyLog;
+import org.openntf.openliberty.domino.runjava.AddInLogBridge;
+import org.openntf.openliberty.domino.runjava.AddinLogPrintStream;
+
 import org.openntf.openliberty.domino.runtime.CLIManagerDelegate;
 import org.openntf.openliberty.domino.util.commons.ibm.StringUtil;
 
@@ -38,11 +41,9 @@ import lotus.notes.internal.MessageQueue;
  * @author Jesse Gallagher
  * @since 3.0.0
  */
-public class WLP extends JavaServerAddin {
-	public static final String PROG_NAME = getString("WLP.progName"); //$NON-NLS-1$
+public class WLP extends JavaServerAddin implements AddInLogBridge {
 	public static final String QUEUE_NAME = JavaServerAddin.MSG_Q_PREFIX + "WLP"; //$NON-NLS-1$
-	
-	public static WLP instance;
+	private static final String BUNDLE_NAME = "org.openntf.openliberty.domino.runjava.messages"; //$NON-NLS-1$
 
 	// MessageQueue Constants
 	public static final int MQ_MAX_MSGSIZE = 256;
@@ -58,10 +59,10 @@ public class WLP extends JavaServerAddin {
 	public static final int ERR_MQ_EMPTY = PKG_MISC+100;
 	public static final int ERR_MQ_BFR_TOO_SMALL = PKG_MISC+101;
 	public static final int ERR_MQ_QUITTING = PKG_MISC+102;
-	
-	private final PrintStream out = OpenLibertyLog.instance.out;
+
 	private final CLIManagerDelegate delegate = new CLIManagerDelegate();
 	private final ExecutorService commandQueue = Executors.newFixedThreadPool(1, NotesThread::new);
+	private ResourceBundle translationBundle;
 	
 	/**
 	 * CLI/generic entrypoint
@@ -71,49 +72,81 @@ public class WLP extends JavaServerAddin {
 	}
 	
 	public WLP() {
-		setName(PROG_NAME);
-		instance = this;
+		setName("WLP"); //$NON-NLS-1$
 	}
 	
 	@Override
 	public void runNotes() throws NotesException {
+		AddinLogPrintStream.setBridge(this);
 		
-		int taskId = AddInCreateStatusLine(PROG_NAME);
-		AddInSetStatusLine(taskId, getString("WLP.statusInitializing")); //$NON-NLS-1$
+		setName(translate("WLP.progName")); //$NON-NLS-1$
+		int taskId = AddInCreateStatusLine(getName());
+		AddInSetStatusLine(taskId, translate("WLP.statusInitializing")); //$NON-NLS-1$
 		try {
+			delegate.start();
+			
 			MessageQueue mq = new MessageQueue();
 			int status = mq.create(QUEUE_NAME, 0, 0);
 			if(status != NOERROR) {
-				throw new RuntimeException(format(getString("WLP.errorMqCreate"), status)); //$NON-NLS-1$
+				throw new RuntimeException(format(translate("WLP.errorMqCreate"), status)); //$NON-NLS-1$
+			}
+			
+			status = mq.open(QUEUE_NAME, 0);
+			if(status != NOERROR) {
+				throw new RuntimeException(format(translate("WLP.errorMqOpen"), status)); //$NON-NLS-1$
 			}
 
-			AddInSetStatusLine(taskId, getString("WLP.statusIdle")); //$NON-NLS-1$
+			AddInSetStatusLine(taskId, translate("WLP.statusIdle")); //$NON-NLS-1$
 			StringBuffer buf = new StringBuffer();
-			while(status != ERR_MQ_QUITTING) {
+			while(addInRunning() && status != ERR_MQ_QUITTING) {
 				OSPreemptOccasionally();
 				
 				status = mq.get(buf, MQ_MAX_MSGSIZE, MessageQueue.MQ_WAIT_FOR_MSG, 500);
-				if(status == NOERROR) {
+				switch(status) {
+				case NOERROR: {
 					String line = buf.toString();
 					if(StringUtil.isNotEmpty(line)) {
+						
 						commandQueue.submit(() -> {
-							String result = delegate.processCommand(line);
+							// Special handling for exit calls
+							String result;
+							if("quit".equalsIgnoreCase(line) || "exit".equalsIgnoreCase(line)) { //$NON-NLS-1$ //$NON-NLS-2$
+								result = delegate.processCommand("stop"); //$NON-NLS-1$
+							} else {
+								result = delegate.processCommand(line);
+							}
+							
 							if(StringUtil.isNotEmpty(result)) {
-								out.println(result);
+								AddInLogMessageText(result);
 							}
 						});
 					}
 					
-					buf.setLength(0);
+					break;
+				}
+				case ERR_MQ_TIMEOUT:
+				case ERR_MQ_QUITTING:
+				case ERR_MQ_EMPTY:
+					break;
+				default:
+					AddInLogErrorText(translate("WLP.unexpectedCodeWhilePolling", status)); //$NON-NLS-1$
+					break;
 				}
 			}
 		} catch (Exception e) {
 			AddInLogErrorText(e.getLocalizedMessage());
-			e.printStackTrace(out);
+			e.printStackTrace();
 		} finally {
-			AddInSetStatusLine(taskId, getString("WLP.statusTerminating")); //$NON-NLS-1$
+			AddInSetStatusLine(taskId, translate("WLP.statusTerminating")); //$NON-NLS-1$
+			commandQueue.shutdownNow();
+			try {
+				commandQueue.awaitTermination(1, TimeUnit.MINUTES);
+			} catch (InterruptedException e) {
+				// Ignore
+			}
+			delegate.close();
 			
-			AddInSetStatusLine(taskId, getString("WLP.statusTerm")); //$NON-NLS-1$
+			AddInSetStatusLine(taskId, translate("WLP.statusTerm")); //$NON-NLS-1$
 			AddInDeleteStatusLine(taskId);
 		}
 	}
@@ -121,5 +154,20 @@ public class WLP extends JavaServerAddin {
 	@Override
 	public void AddInLogMessageText(String msg) {
 		super.AddInLogMessageText(msg);
+	}
+	
+	// *******************************************************************************
+	// * Internal utility methods
+	// *******************************************************************************
+	
+	private synchronized String translate(String msg, Object... params) {
+		if(this.translationBundle == null) {
+			this.translationBundle = ResourceBundle.getBundle(BUNDLE_NAME);
+		}
+		try {
+			return format(translationBundle.getString(msg), params);
+		} catch (MissingResourceException e) {
+			return '!' + msg + '!';
+		}
 	}
 }

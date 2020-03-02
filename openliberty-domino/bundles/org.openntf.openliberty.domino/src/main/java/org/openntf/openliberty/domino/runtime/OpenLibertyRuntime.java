@@ -72,8 +72,7 @@ import static java.text.MessageFormat.format;
 
 public enum OpenLibertyRuntime implements Runnable {
 	instance;
-	
-	private static final Logger log = OpenLibertyLog.instance.log;
+
 	private static final String serverFile;
 	static {
 		if(OpenLibertyUtil.IS_WINDOWS) {
@@ -92,6 +91,8 @@ public enum OpenLibertyRuntime implements Runnable {
 
 	@Override
 	public void run() {
+		Logger log = OpenLibertyLog.instance.log;
+		
 		if(log.isLoggable(Level.INFO)) {
 			log.info(format("Startup"));
 		}
@@ -102,7 +103,7 @@ public enum OpenLibertyRuntime implements Runnable {
 		}
 		javaHome = javaRuntimeProvider.getJavaHome();
 		if(log.isLoggable(Level.INFO)) {
-			log.info(format("Using Java runtime located at  {0}", javaHome));
+			log.info(format("Using Java runtime located at {0}", javaHome));
 		}
 		
 		Path wlp = null;
@@ -297,8 +298,8 @@ public enum OpenLibertyRuntime implements Runnable {
 					String name = entry.getName();
 					
 					if(StringUtil.isNotEmpty(name)) {
-						if(log.isLoggable(Level.FINE)) {
-							log.fine(format("Deploying file {0}", name));
+						if(OpenLibertyLog.instance.log.isLoggable(Level.FINE)) {
+							OpenLibertyLog.instance.log.fine(format("Deploying file {0}", name));
 						}
 						
 						Path outputPath = serverBase.resolve(name);
@@ -403,8 +404,8 @@ public enum OpenLibertyRuntime implements Runnable {
 				e.printStackTrace(OpenLibertyLog.instance.out);
 			} catch(InterruptedException e) {
 				// Then we're shutting down
-				if(log.isLoggable(Level.FINE)) {
-					log.fine("Terminating log monitor");
+				if(OpenLibertyLog.instance.log.isLoggable(Level.FINE)) {
+					OpenLibertyLog.instance.log.fine("Terminating log monitor");
 				}
 			}
 		});
@@ -441,8 +442,8 @@ public enum OpenLibertyRuntime implements Runnable {
 		try {
 			Files.copy(warFile, dest, StandardCopyOption.REPLACE_EXISTING);
 		} catch(IOException e) {
-			if(log.isLoggable(Level.SEVERE)) {
-				log.log(Level.SEVERE, format("Encountered exception when deploying dropin: {0}", e), e);
+			if(OpenLibertyLog.instance.log.isLoggable(Level.SEVERE)) {
+				OpenLibertyLog.instance.log.log(Level.SEVERE, format("Encountered exception when deploying dropin: {0}", e), e);
 			}
 		}
 	}

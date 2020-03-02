@@ -24,14 +24,16 @@ import org.openntf.openliberty.domino.ext.LoggerPrintStream;
 
 public enum OpenLibertyLog {
 	instance;
-	
-	public final Logger log = createLogger(OpenLibertyLog.class.getPackage().getName());
+
+	public final PrintStream out;
+	public final Logger log;
 	
 	private OpenLibertyLog() {
+		out = ServiceLoader.load(LoggerPrintStream.class).iterator().next();
+		log = createLogger(OpenLibertyLog.class.getPackage().getName());
 		log.setLevel(Level.INFO);
 	}
 	
-	public final PrintStream out = ServiceLoader.load(LoggerPrintStream.class).iterator().next();
 	
 	public Logger createLogger(String name) {
 		Logger log = Logger.getLogger(name);
