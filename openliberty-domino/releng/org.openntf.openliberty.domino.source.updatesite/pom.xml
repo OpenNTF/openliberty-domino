@@ -33,11 +33,11 @@
 								<feature>
 									<id>org.openntf.openliberty.domino.feature</id>
 									<version>${project.version}</version>
-									<label>Domino Open Liberty Runtime Feature</label>
+									<label>Domino Open Liberty Runtime Feature (Developer Resources)</label>
 									<providerName>OpenNTF</providerName>
-									<description>Domino DSL adapter for the discussion DB template</description>
+									<description>Open Liberty Runtime managed by the Domino server (Developer Resources)</description>
 									<generateSourceFeature>true</generateSourceFeature>
-									<copyright>Copyright 2015-2019 Jesse Gallagher</copyright>
+									<copyright>Copyright 2018-2020 Jesse Gallagher</copyright>
 									<license>      Apache License
                            Version 2.0, January 2004
                         http://www.apache.org/licenses/
@@ -226,7 +226,7 @@
       same &quot;printed page&quot; as the copyright notice for easier
       identification within third-party archives.
 
-   Copyright 2019-2019 Jesse Gallagher
+   Copyright 2018-2020 Jesse Gallagher
 
    Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
    you may not use this file except in compliance with the License.
@@ -278,7 +278,6 @@
 			<plugin>
 				<groupId>org.darwino</groupId>
 				<artifactId>p2sitexml-maven-plugin</artifactId>
-				<version>1.1.0</version>
 				<executions>
 					<execution>
 						<id>generate-sitexml</id>
@@ -310,7 +309,6 @@
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>build-helper-maven-plugin</artifactId>
-				<version>1.8</version>
 				<executions>
 					<execution>
 						<goals>

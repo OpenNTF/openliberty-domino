@@ -71,10 +71,12 @@
 	</modules>
 
 	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<tycho-version>1.4.0</tycho-version>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		
+		<tycho-version>1.6.0</tycho-version>
 		
 		<manifest-location>META-INF</manifest-location>
 		<maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
@@ -98,26 +100,6 @@
 				<classifier>Notes</classifier>
 			</dependency>
 			<dependency>
-				<groupId>com.hcl.xsp.p2</groupId>
-				<artifactId>com.ibm.domino.napi</artifactId>
-				<version>[9.0.1,)</version>
-				<classifier>lwpd.domino.napi</classifier>
-				<exclusions>
-					<exclusion>
-						<groupId>com.hcl.xsp.p2</groupId>
-						<artifactId>com.ibm.commons</artifactId>
-					</exclusion>
-					<exclusion>
-						<groupId>com.hcl.xsp.p2</groupId>
-						<artifactId>org.eclipse.core.runtime</artifactId>
-					</exclusion>
-					<exclusion>
-						<groupId>com.hcl.xsp.p2</groupId>
-						<artifactId>com.ibm.notes.java.api</artifactId>
-					</exclusion>
-				</exclusions>
-			</dependency>
-			<dependency>
 				<groupId>com.ibm.sbt</groupId>
 				<artifactId>com.ibm.commons</artifactId>
 				<version>9.0.0</version>
@@ -130,13 +112,7 @@
 			<plugin>
 				<groupId>org.openntf.maven</groupId>
 				<artifactId>nsfodp-maven-plugin</artifactId>
-				<version>1.4.0</version>
 				<extensions>true</extensions>
-				
-				<configuration>
-					<appendTimestampToTitle>true</appendTimestampToTitle>
-					<setProductionXspOptions>true</setProductionXspOptions>
-				</configuration>
 			</plugin>
 
 			<plugin>
@@ -177,7 +153,7 @@
 						<configuration>
 							<rules>
 								<requireMavenVersion>
-									<version>3.0.1</version>
+									<version>3.5.0</version>
 								</requireMavenVersion>
 								<requireJavaVersion>
 									<version>1.8.0</version>
@@ -192,25 +168,14 @@
 		<pluginManagement>
 			<plugins>
 				<plugin>
-					<!-- javadoc configuration -->
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>3.8.0</version>
+				</plugin>
+				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-javadoc-plugin</artifactId>
-					<version>3.0.0</version>
-					<configuration>
-						<!-- Activated by profile below -->
-						<skip>true</skip>
-
-						<failOnError>false</failOnError>
-						<excludePackageNames>com.sun.*:com.ibm.commons.*:com.ibm.sbt.core.*:com.ibm.sbt.plugin.*:com.ibm.sbt.jslibrray.*:com.ibm.sbt.proxy.*:com.ibm.sbt.security.*:*.util.*:com.ibm.sbt.portlet.*:com.ibm.sbt.playground.*:demo.*:acme.*</excludePackageNames>
-
-						<charset>UTF-8</charset>
-						<encoding>UTF-8</encoding>
-						<docencoding>UTF-8</docencoding>
-						<breakiterator>true</breakiterator>
-						<version>true</version>
-						<author>true</author>
-						<keywords>true</keywords>
-					</configuration>
+					<version>3.1.1</version>
 					<executions>
 						<execution>
 							<id>attach-javadocs</id>
@@ -222,7 +187,7 @@
 				</plugin>
 				<plugin>
 					<artifactId>maven-jar-plugin</artifactId>
-					<version>3.0.2</version>
+					<version>3.1.2</version>
 					<configuration>
 						<archive>
 							<manifestFile>${manifest-location}/MANIFEST.MF</manifestFile>
@@ -232,16 +197,22 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-surefire-plugin</artifactId>
-					<version>2.21.0</version>
-					<configuration>
-						<encoding>UTF-8</encoding>
-						<inputEncoding>UTF-8</inputEncoding>
-						<outputEncoding>UTF-8</outputEncoding>
-						<argLine>-ea -Dfile.encoding=UTF-8</argLine>
-					</configuration>
+					<version>3.0.0-M3</version>
 				</plugin>
 				<plugin>
-					<groupId>org.eclipse.tycho</groupId>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-dependency-plugin</artifactId>
+					<version>3.1.1</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-war-plugin</artifactId>
+					<version>3.2.3</version>
+				</plugin>
+				
+				
+				<plugin>
+					<groupId>org.eclipse.tycho.extras</groupId>
 					<artifactId>tycho-p2-extras-plugin</artifactId>
 					<version>${tycho-version}</version>
 				</plugin>
@@ -270,7 +241,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-clean-plugin</artifactId>
-					<version>3.0.0</version>
+					<version>3.1.0</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
@@ -280,18 +251,41 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-site-plugin</artifactId>
-					<version>3.7</version>
+					<version>3.7.1</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-assembly-plugin</artifactId>
-					<version>3.1.0</version>
+					<version>3.1.1</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-resources-plugin</artifactId>
-					<version>3.0.2</version>
+					<version>3.1.0</version>
 				</plugin>
+				
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>build-helper-maven-plugin</artifactId>
+					<version>3.0.0</version>
+				</plugin>
+				<plugin>
+					<groupId>org.darwino</groupId>
+					<artifactId>p2sitexml-maven-plugin</artifactId>
+					<version>1.1.0</version>
+				</plugin>
+				
+				<plugin>
+					<groupId>org.openntf.maven</groupId>
+					<artifactId>nsfodp-maven-plugin</artifactId>
+					<version>3.0.0-SNAPSHOT</version>
+					
+					<configuration>
+						<appendTimestampToTitle>true</appendTimestampToTitle>
+						<setProductionXspOptions>true</setProductionXspOptions>
+					</configuration>
+				</plugin>
+				
 				
 				<plugin>
 					<groupId>org.apache.felix</groupId>
@@ -320,31 +314,6 @@
 					<artifactId>esa-maven-plugin</artifactId>
 					<version>1.0.2</version>
 					<extensions>true</extensions>
-				</plugin>
-				
-				<plugin>
-					<groupId>org.eclipse.m2e</groupId>
-					<artifactId>lifecycle-mapping</artifactId>
-					<version>1.0.0</version>
-					<configuration>
-						<lifecycleMappingMetadata>
-							<pluginExecutions>
-								<pluginExecution>
-									<pluginExecutionFilter>
-										<groupId>org.apache.maven.plugins</groupId>
-										<artifactId>maven-enforcer-plugin</artifactId>
-										<versionRange>[1.0,)</versionRange>
-										<goals>
-											<goal>enforce</goal>
-										</goals>
-									</pluginExecutionFilter>
-									<action>
-										<ignore></ignore>
-									</action>
-								</pluginExecution>
-							</pluginExecutions>
-						</lifecycleMappingMetadata>
-					</configuration>
 				</plugin>
 			</plugins>
 		</pluginManagement>
@@ -400,6 +369,35 @@
 			<properties>
 				<osgi.qualifier>qualifier</osgi.qualifier>
 			</properties>
+			
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.eclipse.m2e</groupId>
+						<artifactId>lifecycle-mapping</artifactId>
+						<version>1.0.0</version>
+						<configuration>
+							<lifecycleMappingMetadata>
+								<pluginExecutions>
+									<pluginExecution>
+										<pluginExecutionFilter>
+											<groupId>org.apache.maven.plugins</groupId>
+											<artifactId>maven-enforcer-plugin</artifactId>
+											<versionRange>[1.0,)</versionRange>
+											<goals>
+												<goal>enforce</goal>
+											</goals>
+										</pluginExecutionFilter>
+										<action>
+											<ignore></ignore>
+										</action>
+									</pluginExecution>
+								</pluginExecutions>
+							</lifecycleMappingMetadata>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
 		</profile>
 	</profiles>
 	
