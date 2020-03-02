@@ -16,6 +16,7 @@
 package org.openntf.openliberty.domino.httpservice;
 
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -25,6 +26,7 @@ import java.util.logging.Logger;
 import javax.servlet.ServletException;
 
 import org.openntf.openliberty.domino.log.OpenLibertyLog;
+import org.openntf.openliberty.domino.runtime.CLICommands;
 import org.openntf.openliberty.domino.runtime.OpenLibertyRuntime;
 import org.openntf.openliberty.domino.util.DominoThreadFactory;
 
@@ -36,7 +38,7 @@ import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpServletRequestAdapt
 import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpServletResponseAdapter;
 import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpSessionAdapter;
 
-public class OpenLibertyService extends HttpService {
+public class OpenLibertyService extends HttpService implements CLICommands {
 	private static final Logger log = OpenLibertyLog.instance.log;
 	
 	private Future<?> runner;
@@ -60,42 +62,52 @@ public class OpenLibertyService extends HttpService {
 	}
 
 	@Override
-	public Object tellCommand(String command) {
-		if(StringUtil.isNotEmpty(command) && command.toLowerCase().startsWith("wlp")) {
-			if("wlp status".equalsIgnoreCase(command)) {
-				OpenLibertyRuntime.instance.showStatus();
-				return "Status of running server(s):";
-			} else if("wlp stop".equalsIgnoreCase(command)) {
-				if(this.runner == null) {
-					return "Open Liberty server is not running";
-				} else {
-					stop();
-					return "Stopped Open Liberty server";
+	public Object tellCommand(String line) {
+		if(StringUtil.isNotEmpty(line) && line.toLowerCase().startsWith("wlp ")) { //$NON-NLS-1$
+			String[] argv = line.substring("wlp ".length()).split("\\s+"); //$NON-NLS-1$ //$NON-NLS-2$
+			if(argv.length > 0) {
+				Command command = parseCommand(argv[0]);
+				if(command == null) {
+					return MessageFormat.format("Unknown command: {0}", argv[0]);
 				}
-			} else if("wlp start".equalsIgnoreCase(command)) {
-				if(this.runner != null) {
-					return "Open Liberty server is already running";
-				} else {
-					start();
-					return "Starting Open Libery server";
-				}
-			} else if("wlp restart".equalsIgnoreCase(command)) {
-				if(this.runner != null) {
-					stop();
-					try {
-						TimeUnit.SECONDS.sleep(3);
-					} catch (InterruptedException e) {
+				switch(command) {
+				case STATUS:
+					OpenLibertyRuntime.instance.showStatus();
+					return "Status of running server(s):";
+				case START:
+					if(this.runner != null) {
+						return "Open Liberty server is already running";
+					} else {
+						start();
+						return "Starting Open Libery server";
 					}
-					start();
-					return "Restarted Open Libery server";
-				} else {
-					start();
-					return "Starting Open Liberty server";
+				case STOP:
+					if(this.runner == null) {
+						return "Open Liberty server is not running";
+					} else {
+						stop();
+						return "Stopped Open Liberty server";
+					}
+				case RESTART:
+					if(this.runner != null) {
+						stop();
+						try {
+							TimeUnit.SECONDS.sleep(3);
+						} catch (InterruptedException e) {
+						}
+						start();
+						return "Restarted Open Libery server";
+					} else {
+						start();
+						return "Starting Open Liberty server";
+					}
+				default:
+					return MessageFormat.format("Command not yet implemented: {0}", command);
 				}
 			}
 		}
 		
-		return super.tellCommand(command);
+		return super.tellCommand(line);
 	}
 
 
