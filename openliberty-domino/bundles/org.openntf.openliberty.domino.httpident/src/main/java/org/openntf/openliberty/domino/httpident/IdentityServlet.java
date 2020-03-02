@@ -15,7 +15,6 @@
  */
 package org.openntf.openliberty.domino.httpident;
 
-import com.ibm.commons.util.StringUtil;
 import com.ibm.commons.util.io.StreamUtil;
 import com.ibm.domino.osgi.core.context.ContextInfo;
 
@@ -60,18 +59,17 @@ public class IdentityServlet extends HttpServlet {
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		System.out.println("I'm new doGet!");
 		handle(req, resp);
 	}
 	
 	protected void handle(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		try(ServletOutputStream os = resp.getOutputStream()) {
-			resp.setContentType("text/plain");
+			resp.setContentType("text/plain"); //$NON-NLS-1$
 			
 			Map<String, String> param = getPost(req);
-			String methodParam = param.get("method");
+			String methodParam = param.get("method"); //$NON-NLS-1$
 			Method method;
-			if(StringUtil.isEmpty(methodParam)) {
+			if(methodParam == null || methodParam.isEmpty()) {
 				method = Method.Identity;
 			} else {
 				method = Method.valueOf(methodParam);
@@ -82,31 +80,31 @@ public class IdentityServlet extends HttpServlet {
 				os.print(identity());
 				break;
 			case checkPassword:
-				os.print(checkPassword(param.get("userSecurityName"), param.get("password")));
+				os.print(checkPassword(param.get("userSecurityName"), param.get("password"))); //$NON-NLS-1$ //$NON-NLS-2$
 				break;
 			case getUsers:
-				os.print(getUsers(param.get("pattern"), Integer.valueOf(param.get("limit"))));
+				os.print(getUsers(param.get("pattern"), Integer.valueOf(param.get("limit")))); //$NON-NLS-1$ //$NON-NLS-2$
 				break;
 			case getUserDisplayName:
-				os.print(getUserDisplayName(param.get("userSecurityName")));
+				os.print(getUserDisplayName(param.get("userSecurityName"))); //$NON-NLS-1$
 				break;
 			case getUniqueUserId:
-				os.print(getUniqueUserId(param.get("userSecurityName")));
+				os.print(getUniqueUserId(param.get("userSecurityName"))); //$NON-NLS-1$
 				break;
 			case getUserSecurityName:
-				os.print(getUserSecurityName(param.get("uniqueUserId")));
+				os.print(getUserSecurityName(param.get("uniqueUserId"))); //$NON-NLS-1$
 				break;
 			case getGroups:
-				os.print(getGroups(param.get("pattern"), Integer.valueOf(param.get("limit"))));
+				os.print(getGroups(param.get("pattern"), Integer.valueOf(param.get("limit")))); //$NON-NLS-1$ //$NON-NLS-2$
 				break;
 			case getUniqueGroupIds:
-				os.print(getUniqueGroupIds(param.get("uniqueUserId")));
+				os.print(getUniqueGroupIds(param.get("uniqueUserId"))); //$NON-NLS-1$
 				break;
 			case isValidGroup:
-				os.print(isValidGroup(param.get("groupSecurityName")));
+				os.print(isValidGroup(param.get("groupSecurityName"))); //$NON-NLS-1$
 				break;
 			case getUsersForGroup:
-				os.print(getUsersForGroup(param.get("groupSecurityName"), Integer.valueOf(param.get("limit"))));
+				os.print(getUsersForGroup(param.get("groupSecurityName"), Integer.valueOf(param.get("limit")))); //$NON-NLS-1$ //$NON-NLS-2$
 				break;
 			default:
 				break;
@@ -134,18 +132,18 @@ public class IdentityServlet extends HttpServlet {
 	private String checkPassword(String userSecurityName, String password) throws NotesException, IOException {
 		Session session = NotesFactory.createSession();
 		try {
-			Database names = session.getDatabase("", "names.nsf");
+			Database names = session.getDatabase("", "names.nsf"); //$NON-NLS-1$ //$NON-NLS-2$
 			Document tempDoc = names.createDocument();
-			tempDoc.replaceItemValue("Username", userSecurityName);
-			tempDoc.replaceItemValue("Password", password);
-			session.evaluate(" @SetField('HashPassword'; @NameLookup([NoCache]:[Exhaustive]; Username; 'HTTPPassword')[1]) ", tempDoc);
+			tempDoc.replaceItemValue("Username", userSecurityName); //$NON-NLS-1$
+			tempDoc.replaceItemValue("Password", password); //$NON-NLS-1$
+			session.evaluate(" @SetField('HashPassword'; @NameLookup([NoCache]:[Exhaustive]; Username; 'HTTPPassword')[1]) ", tempDoc); //$NON-NLS-1$
 			// TODO look up against other password variants, or find real way to do this
-			List<?> result = session.evaluate(" @VerifyPassword(Password; HashPassword) ", tempDoc);
+			List<?> result = session.evaluate(" @VerifyPassword(Password; HashPassword) ", tempDoc); //$NON-NLS-1$
 			if(!result.isEmpty() && Double.valueOf(1).equals(result.get(0))) {
 				// Then it's good! Look up the user's real name
-				return (String)session.evaluate(" @NameLookup([NoCache]:[Exhaustive]; Username; 'FullName') ", tempDoc).get(0);
+				return (String)session.evaluate(" @NameLookup([NoCache]:[Exhaustive]; Username; 'FullName') ", tempDoc).get(0); //$NON-NLS-1$
 			} else {
-				return "";
+				return ""; //$NON-NLS-1$
 			}
 		} catch(Throwable t) {
 			t.printStackTrace();
@@ -160,10 +158,10 @@ public class IdentityServlet extends HttpServlet {
 		Session session = NotesFactory.createSession();
 		try {
 			// TODO change API to avoid 64k trouble
-			Database names = session.getDatabase("", "names.nsf");
+			Database names = session.getDatabase("", "names.nsf"); //$NON-NLS-1$ //$NON-NLS-2$
 			Document tempDoc = names.createDocument();
-			List<String> users = session.evaluate(" @Trim(@Sort(@Unique(@NameLookup([NoCache]:[Exhaustive]; ''; 'FullName')))) ", tempDoc);
-			return String.join("\n", users);
+			List<String> users = session.evaluate(" @Trim(@Sort(@Unique(@NameLookup([NoCache]:[Exhaustive]; ''; 'FullName')))) ", tempDoc); //$NON-NLS-1$
+			return String.join("\n", users); //$NON-NLS-1$
 		} finally {
 			session.recycle();
 		}
@@ -172,15 +170,15 @@ public class IdentityServlet extends HttpServlet {
 	private String getUserDisplayName(String userSecurityName) throws NotesException {
 		Session session = NotesFactory.createSession();
 		try {
-			Database names = session.getDatabase("", "names.nsf");
+			Database names = session.getDatabase("", "names.nsf"); //$NON-NLS-1$ //$NON-NLS-2$
 			Document tempDoc = names.createDocument();
-			tempDoc.replaceItemValue("Username", userSecurityName);
-			List<?> result = session.evaluate(" @Trim(@NameLookup([NoCache]:[Exhaustive]; Username; 'FullName')) ", tempDoc);
+			tempDoc.replaceItemValue("Username", userSecurityName); //$NON-NLS-1$
+			List<?> result = session.evaluate(" @Trim(@NameLookup([NoCache]:[Exhaustive]; Username; 'FullName')) ", tempDoc); //$NON-NLS-1$
 			if(!result.isEmpty()) {
 				Name name = session.createName((String)result.get(0));
 				return name.getCommon();
 			} else {
-				return "";
+				return ""; //$NON-NLS-1$
 			}
 		} finally {
 			session.recycle();
@@ -190,14 +188,14 @@ public class IdentityServlet extends HttpServlet {
 	private String getUniqueUserId(String userSecurityName) throws NotesException {
 		Session session = NotesFactory.createSession();
 		try {
-			Database names = session.getDatabase("", "names.nsf");
+			Database names = session.getDatabase("", "names.nsf"); //$NON-NLS-1$ //$NON-NLS-2$
 			Document tempDoc = names.createDocument();
-			tempDoc.replaceItemValue("Username", userSecurityName);
-			List<?> result = session.evaluate(" @Trim(@NameLookup([NoCache]:[Exhaustive]; Username; 'ShortName')) ", tempDoc);
+			tempDoc.replaceItemValue("Username", userSecurityName); //$NON-NLS-1$
+			List<?> result = session.evaluate(" @Trim(@NameLookup([NoCache]:[Exhaustive]; Username; 'ShortName')) ", tempDoc); //$NON-NLS-1$
 			if(!result.isEmpty()) {
 				return (String)result.get(0);
 			} else {
-				return "";
+				return ""; //$NON-NLS-1$
 			}
 		} finally {
 			session.recycle();
@@ -207,14 +205,14 @@ public class IdentityServlet extends HttpServlet {
 	private String getUserSecurityName(String uniqueUserId) throws NotesException {
 		Session session = NotesFactory.createSession();
 		try {
-			Database names = session.getDatabase("", "names.nsf");
+			Database names = session.getDatabase("", "names.nsf"); //$NON-NLS-1$ //$NON-NLS-2$
 			Document tempDoc = names.createDocument();
-			tempDoc.replaceItemValue("Username", uniqueUserId);
-			List<?> result = session.evaluate(" @Trim(@NameLookup([NoCache]:[Exhaustive]; Username; 'FullName')) ", tempDoc);
+			tempDoc.replaceItemValue("Username", uniqueUserId); //$NON-NLS-1$
+			List<?> result = session.evaluate(" @Trim(@NameLookup([NoCache]:[Exhaustive]; Username; 'FullName')) ", tempDoc); //$NON-NLS-1$
 			if(!result.isEmpty()) {
 				return (String)result.get(0);
 			} else {
-				return "";
+				return ""; //$NON-NLS-1$
 			}
 		} finally {
 			session.recycle();
@@ -225,10 +223,10 @@ public class IdentityServlet extends HttpServlet {
 	public String getGroups(String pattern, int limit) throws NotesException {
 		Session session = NotesFactory.createSession();
 		try {
-			Database names = session.getDatabase("", "names.nsf");
+			Database names = session.getDatabase("", "names.nsf"); //$NON-NLS-1$ //$NON-NLS-2$
 			Document tempDoc = names.createDocument();
-			List<String> groups = session.evaluate(" @Trim(@Sort(@Unique(@NameLookup([NoCache]:[Exhaustive]; ''; 'ListName')))) ", tempDoc);
-			return String.join("\n", groups);
+			List<String> groups = session.evaluate(" @Trim(@Sort(@Unique(@NameLookup([NoCache]:[Exhaustive]; ''; 'ListName')))) ", tempDoc); //$NON-NLS-1$
+			return String.join("\n", groups); //$NON-NLS-1$
 		} finally {
 			session.recycle();
 		}
@@ -241,13 +239,13 @@ public class IdentityServlet extends HttpServlet {
 			DominoServer server = new DominoServer(session.getUserName());
 			String name = getUserSecurityName(uniqueUserId);
 			List<String> names = new ArrayList<>((Collection<String>)server.getNamesList(name));
-			int starIndex = names.indexOf("*");
+			int starIndex = names.indexOf("*"); //$NON-NLS-1$
 			if(starIndex > -1) {
 				// Everything at and after this point should be a group or
 				//   pseudo-group (e.g. "*/O=SomeOrg")
 				names = names.subList(starIndex, names.size());
 			}
-			return String.join("\n", names);
+			return String.join("\n", names); //$NON-NLS-1$
 		} finally {
 			session.recycle();
 		}
@@ -256,10 +254,10 @@ public class IdentityServlet extends HttpServlet {
 	public String isValidGroup(String groupSecurityName) throws NotesException  {
 		Session session = NotesFactory.createSession();
 		try {
-			Database names = session.getDatabase("", "names.nsf");
+			Database names = session.getDatabase("", "names.nsf"); //$NON-NLS-1$ //$NON-NLS-2$
 			Document tempDoc = names.createDocument();
-			tempDoc.replaceItemValue("GroupName", groupSecurityName);
-			List<?> result = session.evaluate(" @Trim(@NameLookup([NoCache]:[Exhaustive]; GroupName; 'ListName')) ", tempDoc);
+			tempDoc.replaceItemValue("GroupName", groupSecurityName); //$NON-NLS-1$
+			List<?> result = session.evaluate(" @Trim(@NameLookup([NoCache]:[Exhaustive]; GroupName; 'ListName')) ", tempDoc); //$NON-NLS-1$
 			return String.valueOf(!result.isEmpty());
 		} finally {
 			session.recycle();
@@ -272,11 +270,11 @@ public class IdentityServlet extends HttpServlet {
 		try {
 			// TODO Look up and expand group
 			// TODO work with multiple group-allowed directories
-			Database names = session.getDatabase("", "names.nsf");
+			Database names = session.getDatabase("", "names.nsf"); //$NON-NLS-1$ //$NON-NLS-2$
 			Document tempDoc = names.createDocument();
-			tempDoc.replaceItemValue("GroupName", groupSecurityName);
-			List<String> members = session.evaluate(" @Text(@Trim(@Unique(@Sort(@DbLookup(''; '':'names.nsf'; '$VIMGroups'; GroupName; 'Members'))))) ", tempDoc);
-			return String.join("\n", members);
+			tempDoc.replaceItemValue("GroupName", groupSecurityName); //$NON-NLS-1$
+			List<String> members = session.evaluate(" @Text(@Trim(@Unique(@Sort(@DbLookup(''; '':'names.nsf'; '$VIMGroups'; GroupName; 'Members'))))) ", tempDoc); //$NON-NLS-1$
+			return String.join("\n", members); //$NON-NLS-1$
 		} finally {
 			session.recycle();
 		}
@@ -296,11 +294,11 @@ public class IdentityServlet extends HttpServlet {
 			content = StreamUtil.readString(is);
 		}
 		
-		String[] parts = content.split("&");
+		String[] parts = content.split("&"); //$NON-NLS-1$
 		for(String part : parts) {
 			int eqIndex = part.indexOf('=');
 			if(eqIndex < 0) {
-				result.put(part, "");
+				result.put(part, ""); //$NON-NLS-1$
 			} else {
 				String key = part.substring(0, eqIndex);
 				String value = URLDecoder.decode(part.substring(eqIndex+1), StandardCharsets.UTF_8.name());

@@ -15,7 +15,7 @@
  */
 package org.openntf.openliberty.domino.adminnsf;
 
-import static com.ibm.commons.util.StringUtil.format;
+import static java.text.MessageFormat.format;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,10 +37,8 @@ import org.openntf.openliberty.domino.adminnsf.util.AdminNSFUtil;
 import org.openntf.openliberty.domino.log.OpenLibertyLog;
 import org.openntf.openliberty.domino.runtime.RuntimeDeploymentTask;
 import org.openntf.openliberty.domino.util.OpenLibertyUtil;
-
-import com.ibm.commons.util.StringUtil;
-import com.ibm.commons.util.io.StreamUtil;
-import com.ibm.domino.napi.c.Os;
+import org.openntf.openliberty.domino.util.commons.ibm.StreamUtil;
+import org.openntf.openliberty.domino.util.commons.ibm.StringUtil;
 
 import lotus.domino.Database;
 import lotus.domino.Document;
@@ -49,7 +47,7 @@ import lotus.domino.NotesFactory;
 import lotus.domino.Session;
 
 public class AdminNSFRuntimeDeployment implements RuntimeDeploymentTask {
-	private static final Logger log = OpenLibertyLog.LIBERTY_LOG;
+	private static final Logger log = OpenLibertyLog.instance.log;
 	
 	public static final String ITEM_BASEDIRECTORY = "BaseDirectory"; //$NON-NLS-1$
 	public static final String ITEM_VERSION = "Version"; //$NON-NLS-1$
@@ -68,7 +66,7 @@ public class AdminNSFRuntimeDeployment implements RuntimeDeploymentTask {
 				String execDirName = config.getItemValueString(ITEM_BASEDIRECTORY);
 				Path execDir;
 				if(StringUtil.isEmpty(execDirName)) {
-					execDir = Paths.get(Os.OSGetExecutableDirectory()).resolve("wlp"); //$NON-NLS-1$
+					execDir = Paths.get(OpenLibertyUtil.getDominoProgramDirectory()).resolve("wlp"); //$NON-NLS-1$
 				} else {
 					execDir = Paths.get(execDirName);
 				}

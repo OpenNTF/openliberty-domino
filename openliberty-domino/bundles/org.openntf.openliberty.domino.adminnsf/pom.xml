@@ -12,34 +12,15 @@
 	
 	<dependencies>
 		<dependency>
-			<groupId>com.ibm.xsp</groupId>
-			<artifactId>com.ibm.commons</artifactId>
-			<version>[10.0.0,)</version>
-			<classifier>lwpd.commons</classifier>
-		</dependency>
-		<dependency>
-			<groupId>com.ibm.xsp</groupId>
-			<artifactId>com.ibm.domino.napi</artifactId>
-			<version>[10.0.0,)</version>
-			<classifier>lwpd.domino.napi</classifier>
-		</dependency>
-		<dependency>
-			<groupId>com.ibm.xsp</groupId>
+			<groupId>com.hcl.xsp.p2</groupId>
 			<artifactId>com.ibm.notes.java.api.win32.linux</artifactId>
-			<version>[10.0.0,)</version>
 			<classifier>Notes</classifier>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>org.openntf.openliberty.domino</artifactId>
 			<version>${project.version}</version>
-		</dependency>
-		
-		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-compress</artifactId>
-			<version>1.20</version>
-			<scope>provided</scope>
 		</dependency>
 	</dependencies>
 	
@@ -51,7 +32,7 @@
 			<resource>
 				<directory>.</directory>
 				<includes>
-					<include>plugin.xml</include>
+					<include>fragment.xml</include>
 				</includes>
 			</resource>
 		</resources>
@@ -64,6 +45,7 @@
 					<instructions>
 						<Bundle-SymbolicName>${project.artifactId};singleton:=true</Bundle-SymbolicName>
 						<Export-Package/>
+						<Fragment-Host>org.openntf.openliberty.domino</Fragment-Host>
 					</instructions>
 				</configuration>
 

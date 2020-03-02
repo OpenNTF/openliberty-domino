@@ -54,22 +54,31 @@
 		<module>bundles/org.openntf.openliberty.domino.httpident</module>
 		<module>bundles/org.openntf.openliberty.domino.adminnsf</module>
 		<module>bundles/org.openntf.openliberty.domino.userregistry</module>
+		<module>bundles/org.openntf.openliberty.domino.runjava</module>
 		
 		<module>releng/org.openntf.openliberty.domino.updatesite</module>
 		<module>releng/org.openntf.openliberty.domino.source.updatesite</module>
+		
+		<!--
+			Management NSF
+		-->
+		<module>nsfs/nsf-libertyadmin</module>
+		
+		<!--
+			Final Distribution
+		-->
+		<module>releng/openliberty-domino-dist</module>
 	</modules>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<tycho-version>1.4.0</tycho-version>
-		<compiler>1.8</compiler>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
 		
 		<manifest-location>META-INF</manifest-location>
 		<maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
 		<osgi.qualifier>${maven.build.timestamp}</osgi.qualifier>
-		
-		<!-- This will be re-computed per-project, hence the extra two layers -->
-		<osgi-deps-path>${project.baseUri}../../../osgi-deps/target/repository</osgi-deps-path>
 	</properties>
 
     <pluginRepositories>
@@ -79,19 +88,45 @@
 			<url>https://artifactory.openntf.org/openntf</url>
 		</pluginRepository>
     </pluginRepositories>
+    
+    <dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>com.hcl.xsp.p2</groupId>
+				<artifactId>com.ibm.notes.java.api.win32.linux</artifactId>
+				<version>[9.0.1,)</version>
+				<classifier>Notes</classifier>
+			</dependency>
+			<dependency>
+				<groupId>com.hcl.xsp.p2</groupId>
+				<artifactId>com.ibm.domino.napi</artifactId>
+				<version>[9.0.1,)</version>
+				<classifier>lwpd.domino.napi</classifier>
+				<exclusions>
+					<exclusion>
+						<groupId>com.hcl.xsp.p2</groupId>
+						<artifactId>com.ibm.commons</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>com.hcl.xsp.p2</groupId>
+						<artifactId>org.eclipse.core.runtime</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>com.hcl.xsp.p2</groupId>
+						<artifactId>com.ibm.notes.java.api</artifactId>
+					</exclusion>
+				</exclusions>
+			</dependency>
+			<dependency>
+				<groupId>com.ibm.sbt</groupId>
+				<artifactId>com.ibm.commons</artifactId>
+				<version>9.0.0</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
 	<build>
 		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.7.0</version>
-				<configuration>
-					<source>${compiler}</source>
-					<target>${compiler}</target>
-				</configuration>
-			</plugin>
-			
 			<plugin>
 				<groupId>org.openntf.maven</groupId>
 				<artifactId>nsfodp-maven-plugin</artifactId>
@@ -119,6 +154,8 @@
 						<exclude>**/build.properties</exclude>
 						<exclude>**/odp/AppProperties/database.properties</exclude>
 						<exclude>**/OSGI-INF/org.openntf.openliberty.wlp.*.xml</exclude>
+						<exclude>**/org/openntf/openliberty/domino/util/commons/**</exclude>
+						<exclude>**/org/openntf/openliberty/domino/adminnsf/util/json/**</exclude>
 					</excludes>
 					<properties>
 						<owner>Jesse Gallagher</owner>
@@ -315,19 +352,41 @@
 	
 	<profiles>
 		<profile>
-			<id>odpcompiler</id>
+			<id>notes-platform-repository</id>
 			<activation>
 				<property>
-					<name>nsfodp.compiler.server</name>
+					<name>notes-platform</name>
 				</property>
 			</activation>
+
+			<pluginRepositories>
+				<pluginRepository>
+					<id>artifactory.openntf.org</id>
+					<name>artifactory.openntf.org</name>
+					<url>https://artifactory.openntf.org/openntf</url>
+				</pluginRepository>
+			</pluginRepositories>
+	
+			<repositories>
+				<repository>
+					<id>com.hcl.xsp.p2</id>
+					<url>${notes-platform}</url>
+					<layout>p2</layout>
+				</repository>
+			</repositories>
 			
-			<modules>
-				<module>nsfs/nsf-libertyadmin</module>
-				
-				<module>releng/openliberty-domino-dist</module>
-			</modules>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.openntf.maven</groupId>
+						<artifactId>p2-layout-resolver</artifactId>
+						<version>1.1.0</version>
+						<extensions>true</extensions>
+					</plugin>
+				</plugins>
+			</build>
 		</profile>
+		
 		<!--
 			This m2e-specific property exists in order to make the generated manifests
 			work better when launched from Eclipse

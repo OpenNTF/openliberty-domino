@@ -40,6 +40,7 @@ import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -47,6 +48,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.jar.Manifest;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -55,11 +58,8 @@ import org.openntf.openliberty.domino.ext.RuntimeService;
 import org.openntf.openliberty.domino.log.OpenLibertyLog;
 import org.openntf.openliberty.domino.util.DominoThreadFactory;
 import org.openntf.openliberty.domino.util.OpenLibertyUtil;
-
-import com.ibm.commons.extension.ExtensionManager;
-import com.ibm.commons.util.StringUtil;
-import com.ibm.commons.util.io.StreamUtil;
-import com.ibm.domino.napi.c.Os;
+import org.openntf.openliberty.domino.util.commons.ibm.StreamUtil;
+import org.openntf.openliberty.domino.util.commons.ibm.StringUtil;
 
 import lotus.domino.Database;
 import lotus.domino.Document;
@@ -68,12 +68,12 @@ import lotus.domino.NotesFactory;
 import lotus.domino.Session;
 import lotus.domino.View;
 
-import static com.ibm.commons.util.StringUtil.format;
+import static java.text.MessageFormat.format;
 
 public enum OpenLibertyRuntime implements Runnable {
 	instance;
 	
-	private static final Logger log = OpenLibertyLog.LIBERTY_LOG;
+	private static final Logger log = OpenLibertyLog.instance.log;
 	private static final String serverFile;
 	static {
 		if(OpenLibertyUtil.IS_WINDOWS) {
@@ -84,7 +84,7 @@ public enum OpenLibertyRuntime implements Runnable {
 	}
 	
 	private final BlockingQueue<RuntimeTask> taskQueue = new LinkedBlockingDeque<RuntimeTask>();
-	private List<RuntimeService> runtimeServices = ExtensionManager.findServices(null, getClass().getClassLoader(), RuntimeService.SERVICE_ID, RuntimeService.class);
+	private List<RuntimeService> runtimeServices = StreamSupport.stream(ServiceLoader.load(RuntimeService.class).spliterator(), false).collect(Collectors.toList());
 	
 	private Set<String> startedServers = Collections.synchronizedSet(new HashSet<>());
 	
@@ -96,11 +96,11 @@ public enum OpenLibertyRuntime implements Runnable {
 			log.info(format("Startup"));
 		}
 		
-		List<JavaRuntimeProvider> javaRuntimeProviders = ExtensionManager.findServices(null, getClass().getClassLoader(), JavaRuntimeProvider.SERVICE_ID, JavaRuntimeProvider.class);
-		if(javaRuntimeProviders == null || javaRuntimeProviders.isEmpty()) {
+		JavaRuntimeProvider javaRuntimeProvider = ServiceLoader.load(JavaRuntimeProvider.class).iterator().next();
+		if(javaRuntimeProvider == null) {
 			throw new IllegalStateException(format("Unable to find service providing {0}", JavaRuntimeProvider.SERVICE_ID));
 		}
-		javaHome = javaRuntimeProviders.get(0).getJavaHome();
+		javaHome = javaRuntimeProvider.getJavaHome();
 		if(log.isLoggable(Level.INFO)) {
 			log.info(format("Using Java runtime located at  {0}", javaHome));
 		}
@@ -185,7 +185,7 @@ public enum OpenLibertyRuntime implements Runnable {
 		} catch(Throwable t) {
 			if(log.isLoggable(Level.SEVERE)) {
 				log.log(Level.SEVERE, "Encountered unexpected exception", t);
-				t.printStackTrace(OpenLibertyLog.out);
+				t.printStackTrace(OpenLibertyLog.instance.out);
 			}
 		} finally {
 			if(wlp != null) {
@@ -253,17 +253,11 @@ public enum OpenLibertyRuntime implements Runnable {
 	}
 	
 	private Path deployRuntime() throws IOException {
-		List<RuntimeDeploymentTask> deploymentServices = ExtensionManager.findServices(null, getClass().getClassLoader(), RuntimeDeploymentTask.SERVICE_ID, RuntimeDeploymentTask.class);
-		if(deploymentServices.isEmpty()) {
+		RuntimeDeploymentTask deploymentService = ServiceLoader.load(RuntimeDeploymentTask.class).iterator().next();
+		if(deploymentService == null) {
 			throw new IllegalStateException(format("Unable to find any services providing {0}", RuntimeDeploymentTask.SERVICE_ID));
 		}
-		RuntimeDeploymentTask task = deploymentServices.get(0);
-		if(deploymentServices.size() > 1) {
-			if(log.isLoggable(Level.WARNING)) {
-				log.warning(format("Found multiple services providing {0}; using the first, {1}", RuntimeDeploymentTask.SERVICE_ID, task));
-			}
-		}
-		return task.call();
+		return deploymentService.call();
 	}
 	
 	private void verifyRuntime(Path wlp) throws IOException {
@@ -340,7 +334,12 @@ public enum OpenLibertyRuntime implements Runnable {
 		Map<String, String> env = pb.environment();
 		env.put("JAVA_HOME", javaHome.toString()); //$NON-NLS-1$
 		String sysPath = System.getenv("PATH"); //$NON-NLS-1$
-		sysPath += File.pathSeparator + Os.OSGetExecutableDirectory();
+		
+		String execDirectory = OpenLibertyUtil.getDominoProgramDirectory();
+		
+		if(!StringUtil.isEmpty(sysPath)) {
+			sysPath += File.pathSeparator + execDirectory;
+		}
 		env.put("PATH", sysPath); //$NON-NLS-1$
 		env.put("Domino_HTTP", getServerBase()); //$NON-NLS-1$
 		
@@ -391,7 +390,7 @@ public enum OpenLibertyRuntime implements Runnable {
 								String newContent = StreamUtil.readString(is);
 								pos += newContent.length();
 								
-								OpenLibertyLog.out.println(newContent);
+								OpenLibertyLog.instance.out.println(newContent);
 							}
 						}
 						
@@ -401,7 +400,7 @@ public enum OpenLibertyRuntime implements Runnable {
 					}
 				}
 			} catch (IOException e) {
-				e.printStackTrace(OpenLibertyLog.out);
+				e.printStackTrace(OpenLibertyLog.instance.out);
 			} catch(InterruptedException e) {
 				// Then we're shutting down
 				if(log.isLoggable(Level.FINE)) {
@@ -454,7 +453,7 @@ public enum OpenLibertyRuntime implements Runnable {
 		Path features = lib.resolve("features"); //$NON-NLS-1$
 		Files.createDirectories(features);
 		
-		List<ExtensionDeployer> extensions = ExtensionManager.findServices(null, getClass().getClassLoader(), ExtensionDeployer.SERVICE_ID, ExtensionDeployer.class);
+		List<ExtensionDeployer> extensions = StreamSupport.stream(ServiceLoader.load(ExtensionDeployer.class).spliterator(), false).collect(Collectors.toList());
 		if(extensions != null) {
 			for(ExtensionDeployer ext : extensions) {
 				try(InputStream is = ext.getEsaData()) {
@@ -552,7 +551,7 @@ public enum OpenLibertyRuntime implements Runnable {
 				BufferedReader reader = new BufferedReader(new InputStreamReader(is));
 				String line = null;
 				while((line = reader.readLine()) != null) {
-					OpenLibertyLog.out.println(line);
+					OpenLibertyLog.instance.out.println(line);
 				}
 			} catch (IOException e) {
 				e.printStackTrace();

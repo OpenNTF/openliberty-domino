@@ -16,27 +16,29 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>com.ibm.xsp</groupId>
+			<groupId>com.ibm.sbt</groupId>
 			<artifactId>com.ibm.commons</artifactId>
-			<version>[10.0.0,)</version>
-			<classifier>lwpd.commons</classifier>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>com.ibm.xsp</groupId>
+			<groupId>com.hcl.xsp.p2</groupId>
 			<artifactId>com.ibm.domino.xsp.adapter</artifactId>
 			<version>[10.0.0,)</version>
 			<classifier>lwpd.domino.adapter</classifier>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>com.ibm.xsp</groupId>
+			<groupId>com.hcl.xsp.p2</groupId>
 			<artifactId>com.ibm.domino.xsp.bootstrap</artifactId>
 			<version>[10.0.0,)</version>
 			<classifier>xsp.domino.bridge</classifier>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>com.ibm.xsp</groupId>
+			<groupId>com.hcl.xsp.p2</groupId>
 			<artifactId>org.eclipse.equinox.http.servlet</artifactId>
 			<version>[1.0.100,)</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>javax.servlet</groupId>

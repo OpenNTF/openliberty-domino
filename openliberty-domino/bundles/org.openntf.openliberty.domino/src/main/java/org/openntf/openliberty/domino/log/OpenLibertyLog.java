@@ -16,30 +16,26 @@
 package org.openntf.openliberty.domino.log;
 
 import java.io.PrintStream;
+import java.util.ServiceLoader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.openntf.openliberty.domino.Activator;
-import org.openntf.openliberty.domino.config.RuntimeProperties;
-
-import com.ibm.commons.util.StringUtil;
+import org.openntf.openliberty.domino.ext.LoggerPrintStream;
 
 public enum OpenLibertyLog {
-	;
+	instance;
 	
-	private static final String PREFIX = RuntimeProperties.instance.getPrefix();
-	public final static Logger LIBERTY_LOG = createLogger(Activator.class.getPackage().getName(), PREFIX);
+	public final Logger log = createLogger(OpenLibertyLog.class.getPackage().getName());
 	
-	static {
-		LIBERTY_LOG.setLevel(Level.INFO);
+	private OpenLibertyLog() {
+		log.setLevel(Level.INFO);
 	}
 	
-	public static final PrintStream out = new DominoLogPrintStream(System.err, PREFIX + ": "); //$NON-NLS-1$
+	public final PrintStream out = ServiceLoader.load(LoggerPrintStream.class).iterator().next();
 	
-	public static Logger createLogger(String name, String label) {
+	public Logger createLogger(String name) {
 		Logger log = Logger.getLogger(name);
-		String prefix = StringUtil.isEmpty(label) ? null : (label + ": "); //$NON-NLS-1$
-		DominoConsoleHandler consoleHandler = new DominoConsoleHandler(prefix);
+		DominoConsoleHandler consoleHandler = new DominoConsoleHandler(out);
 		DominoConsoleFormatter consoleFormatter = new DominoConsoleFormatter(null, false);
 		consoleHandler.setFormatter(consoleFormatter);
 		consoleHandler.setLevel(Level.ALL);

@@ -27,8 +27,7 @@ import org.openntf.openliberty.domino.adminnsf.util.AdminNSFUtil;
 import org.openntf.openliberty.domino.log.OpenLibertyLog;
 import org.openntf.openliberty.domino.runtime.OpenLibertyRuntime;
 import org.openntf.openliberty.domino.util.OpenLibertyUtil;
-
-import com.ibm.commons.util.StringUtil;
+import org.openntf.openliberty.domino.util.commons.ibm.StringUtil;
 
 import lotus.domino.Database;
 import lotus.domino.DateTime;
@@ -43,7 +42,7 @@ import lotus.domino.View;
 import lotus.domino.ViewEntry;
 import lotus.domino.ViewNavigator;
 
-import static com.ibm.commons.util.StringUtil.format;
+import static java.text.MessageFormat.format;
 
 /**
  * This task searches the active admin NSF for server documents and deploys them as needed.
@@ -52,7 +51,7 @@ import static com.ibm.commons.util.StringUtil.format;
  * @since 1.18004.0
  */
 public class AdminNSFService implements Runnable {
-	private static final Logger log = OpenLibertyLog.LIBERTY_LOG;
+	private static final Logger log = OpenLibertyLog.instance.log;
 	
 	public static final String VIEW_SERVERS = "Servers";
 	public static final String ITEM_SERVERNAME = "Name";

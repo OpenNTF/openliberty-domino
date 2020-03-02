@@ -11,43 +11,27 @@
 	
 	<dependencies>
 		<dependency>
-			<groupId>com.ibm.xsp</groupId>
+			<groupId>com.ibm.sbt</groupId>
 			<artifactId>com.ibm.commons</artifactId>
-			<version>[10.0.0,)</version>
-			<classifier>lwpd.commons</classifier>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>com.ibm.xsp</groupId>
-			<artifactId>com.ibm.domino.napi</artifactId>
-			<version>[10.0.0,)</version>
-			<classifier>lwpd.domino.napi</classifier>
-		</dependency>
-		<dependency>
-			<groupId>com.ibm.xsp</groupId>
+			<groupId>com.hcl.xsp.p2</groupId>
 			<artifactId>com.ibm.notes.java.api.win32.linux</artifactId>
-			<version>[10.0.0,)</version>
 			<classifier>Notes</classifier>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>com.ibm.xsp</groupId>
+			<groupId>com.hcl.xsp.p2</groupId>
 			<artifactId>com.ibm.domino.osgi.core</artifactId>
 			<version>[10.0.0,)</version>
-		</dependency>
-		<dependency>
-			<groupId>com.ibm.xsp</groupId>
-			<artifactId>org.eclipse.equinox.http.servlet</artifactId>
-			<version>[1.0.100,)</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>servlet-api</artifactId>
 			<version>2.4</version>
 			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>httpclient</artifactId>
-			<version>4.5.5</version>
 		</dependency>
 	</dependencies>
 	

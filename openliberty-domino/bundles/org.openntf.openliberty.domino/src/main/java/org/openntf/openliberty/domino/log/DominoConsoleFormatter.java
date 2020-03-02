@@ -20,7 +20,7 @@ import java.util.Date;
 import java.util.logging.LogRecord;
 import java.util.logging.SimpleFormatter;
 
-import com.ibm.commons.util.StringUtil;
+import org.openntf.openliberty.domino.util.commons.ibm.StringUtil;
 
 public class DominoConsoleFormatter extends SimpleFormatter {
 	

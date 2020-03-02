@@ -25,10 +25,10 @@ public class DominoConsoleHandler extends StreamHandler {
 	
 	private PrintStream out;
 
-	public DominoConsoleHandler(String prefix) {
+	public DominoConsoleHandler(PrintStream out) {
 		super();
 		
-		out = new DominoLogPrintStream(System.err, prefix);
+		this.out = out;
 		AccessController.doPrivileged((PrivilegedAction<Void>) () -> {
 			try {
 				setOutputStream(out);

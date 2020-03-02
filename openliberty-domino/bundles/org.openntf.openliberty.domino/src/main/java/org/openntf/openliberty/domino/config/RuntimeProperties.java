@@ -23,10 +23,10 @@ public enum RuntimeProperties {
 	private final ResourceBundle bundle;
 	
 	private RuntimeProperties() {
-		this.bundle = ResourceBundle.getBundle("runtime");
+		this.bundle = ResourceBundle.getBundle("runtime"); //$NON-NLS-1$
 	}
 	
 	public String getPrefix() {
-		return bundle.getString("prefix");
+		return bundle.getString("prefix"); //$NON-NLS-1$
 	}
 }

@@ -37,7 +37,7 @@ import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpServletResponseAdap
 import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpSessionAdapter;
 
 public class OpenLibertyService extends HttpService {
-	private static final Logger log = OpenLibertyLog.LIBERTY_LOG;
+	private static final Logger log = OpenLibertyLog.instance.log;
 	
 	private Future<?> runner;
 

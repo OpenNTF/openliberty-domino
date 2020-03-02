@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openntf.openliberty.domino.log;
+package org.openntf.openliberty.domino.httpservice;
 
 import java.io.PrintStream;
 import java.text.DateFormat;
@@ -21,16 +21,18 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.regex.Pattern;
 
-import com.ibm.commons.util.StringUtil;
+import org.openntf.openliberty.domino.config.RuntimeProperties;
+import org.openntf.openliberty.domino.util.commons.ibm.StringUtil;
+
 import com.ibm.commons.util.io.NullOutputStream;
 import com.ibm.domino.napi.c.Os;
 
 public class DominoLogPrintStream extends PrintStream {
 	private final String prefix;
 	
-	public DominoLogPrintStream(PrintStream delegate, String prefix) {
+	public DominoLogPrintStream() {
 		super(new NullOutputStream());
-		this.prefix = prefix;
+		this.prefix = RuntimeProperties.instance.getPrefix();
 	}
 	
 	private ThreadLocal<StringBuilder> buffer = ThreadLocal.withInitial(StringBuilder::new);

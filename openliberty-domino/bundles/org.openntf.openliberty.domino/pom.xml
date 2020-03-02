@@ -11,27 +11,10 @@
 	
 	<dependencies>
 		<dependency>
-			<groupId>com.ibm.xsp</groupId>
-			<artifactId>com.ibm.commons</artifactId>
-			<version>[10.0.0,)</version>
-			<classifier>lwpd.commons</classifier>
-		</dependency>
-		<dependency>
-			<groupId>com.ibm.xsp</groupId>
-			<artifactId>com.ibm.domino.napi</artifactId>
-			<version>[10.0.0,)</version>
-			<classifier>lwpd.domino.napi</classifier>
-		</dependency>
-		<dependency>
-			<groupId>com.ibm.xsp</groupId>
+			<groupId>com.hcl.xsp.p2</groupId>
 			<artifactId>com.ibm.notes.java.api.win32.linux</artifactId>
-			<version>[10.0.0,)</version>
 			<classifier>Notes</classifier>
-		</dependency>
-		<dependency>
-			<groupId>com.ibm.xsp</groupId>
-			<artifactId>org.eclipse.osgi</artifactId>
-			<version>[3.11.0,)</version>
+			<scope>provided</scope>
 		</dependency>
 	</dependencies>
 	

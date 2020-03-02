@@ -32,27 +32,24 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
-import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
+import org.openntf.openliberty.domino.util.commons.apache.tar.TarArchiveEntry;
+import org.openntf.openliberty.domino.util.commons.apache.tar.TarArchiveInputStream;
 import org.openntf.openliberty.domino.adminnsf.util.AdminNSFUtil;
+import org.openntf.openliberty.domino.adminnsf.util.json.parser.JSONParser;
+import org.openntf.openliberty.domino.adminnsf.util.json.parser.ParseException;
 import org.openntf.openliberty.domino.log.OpenLibertyLog;
 import org.openntf.openliberty.domino.runtime.JavaRuntimeProvider;
 import org.openntf.openliberty.domino.util.DominoThreadFactory;
 import org.openntf.openliberty.domino.util.OpenLibertyUtil;
-
-import com.ibm.commons.util.StringUtil;
-import com.ibm.commons.util.io.StreamUtil;
-import com.ibm.commons.util.io.json.JsonException;
-import com.ibm.commons.util.io.json.JsonJavaFactory;
-import com.ibm.commons.util.io.json.JsonParser;
-import com.ibm.domino.napi.c.Os;
+import org.openntf.openliberty.domino.util.commons.ibm.StreamUtil;
+import org.openntf.openliberty.domino.util.commons.ibm.StringUtil;
 
 import lotus.domino.Database;
 import lotus.domino.Document;
 import lotus.domino.NotesFactory;
 import lotus.domino.Session;
 
-import static com.ibm.commons.util.StringUtil.format;
+import static java.text.MessageFormat.format;
 
 /**
  * Implementation of {@link JavaRuntimeProvider} that reads a Java version from the
@@ -63,7 +60,7 @@ import static com.ibm.commons.util.StringUtil.format;
  * @since 2.0.0
  */
 public class AdminNSFJavaRuntimeProvider implements JavaRuntimeProvider {
-	private static final Logger log = OpenLibertyLog.LIBERTY_LOG;
+	private static final Logger log = OpenLibertyLog.instance.log;
 	
 	public static final String ITEM_JAVAVERSION = "JavaVersion"; //$NON-NLS-1$
 	public static final String ITEM_JAVAJVM = "JavaJVM"; //$NON-NLS-1$
@@ -95,7 +92,7 @@ public class AdminNSFJavaRuntimeProvider implements JavaRuntimeProvider {
 						String execDirName = config.getItemValueString(AdminNSFRuntimeDeployment.ITEM_BASEDIRECTORY);
 						Path execDir;
 						if(StringUtil.isEmpty(execDirName)) {
-							execDir = Paths.get(Os.OSGetExecutableDirectory()).resolve("wlp"); //$NON-NLS-1$
+							execDir = Paths.get(OpenLibertyUtil.getDominoProgramDirectory()).resolve("wlp"); //$NON-NLS-1$
 						} else {
 							execDir = Paths.get(execDirName);
 						}
@@ -114,15 +111,15 @@ public class AdminNSFJavaRuntimeProvider implements JavaRuntimeProvider {
 						if("1.8".equals(javaVersion)) { //$NON-NLS-1$
 							javaVersion = "8"; //$NON-NLS-1$
 						}
-						String releasesUrl = StringUtil.format(API_RELEASES, javaVersion);
+						String releasesUrl = format(API_RELEASES, javaVersion);
 						if(log.isLoggable(Level.FINE)) {
 							log.fine(format("Downloading release list from {0}", releasesUrl));
 						}
 						@SuppressWarnings("unchecked")
 						List<Map<String, Object>> releases = OpenLibertyUtil.download(new URL(releasesUrl), is -> {
 							try(Reader r = new InputStreamReader(is)) {
-								return (List<Map<String, Object>>)JsonParser.fromJson(JsonJavaFactory.instanceEx2, r);
-							} catch (JsonException e) {
+								return (List<Map<String, Object>>)new JSONParser().parse(r);
+							} catch (ParseException e) {
 								throw new IOException(e);
 							}
 						});
@@ -187,7 +184,7 @@ public class AdminNSFJavaRuntimeProvider implements JavaRuntimeProvider {
 		} catch (Exception e) {
 			if(log.isLoggable(Level.SEVERE)) {
 				log.log(Level.SEVERE, "Exception while locating Java runtime", e);
-				e.printStackTrace(OpenLibertyLog.out);
+				e.printStackTrace(OpenLibertyLog.instance.out);
 			}
 			throw new RuntimeException(e);
 		}

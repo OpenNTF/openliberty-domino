@@ -267,11 +267,6 @@
 											<transitive>false</transitive>
 											<source>false</source>
 										</artifact>
-										<artifact>
-											<id>org.apache.commons:commons-compress:1.20</id>
-											<transitive>false</transitive>
-											<source>false</source>
-										</artifact>
 									</artifacts>
 							    </feature>
 							</featureDefinitions>

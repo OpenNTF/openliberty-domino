@@ -15,14 +15,18 @@
  */
 package org.openntf.openliberty.domino.util;
 
-import static com.ibm.commons.util.StringUtil.format;
+import static java.text.MessageFormat.format;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.concurrent.ExecutionException;
 
-import com.ibm.commons.util.StringUtil;
+import org.openntf.openliberty.domino.util.commons.ibm.StringUtil;
+
+import lotus.domino.NotesFactory;
+import lotus.domino.Session;
 
 public enum OpenLibertyUtil {
 	;
@@ -82,6 +86,26 @@ public enum OpenLibertyUtil {
 			}
 		} finally {
 			System.setProperty("https.protocols", protocols); //$NON-NLS-1$
+		}
+	}
+	
+	/**
+	 * @return the path of the active Domino program
+	 * @since 3.0.0
+	 */
+	public static String getDominoProgramDirectory() {
+		try {
+			return DominoThreadFactory.executor.submit(() -> {
+				Session s = NotesFactory.createSession();
+				try {
+					
+					return s.getEnvironmentString("NotesProgram", true); //$NON-NLS-1$
+				} finally {
+					s.recycle();
+				}
+			}).get();
+		} catch (InterruptedException | ExecutionException e) {
+			throw new RuntimeException(e);
 		}
 	}
 }
