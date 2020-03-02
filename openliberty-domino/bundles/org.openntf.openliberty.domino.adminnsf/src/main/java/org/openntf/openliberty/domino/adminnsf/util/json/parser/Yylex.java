@@ -2,6 +2,7 @@
 
 package org.openntf.openliberty.domino.adminnsf.util.json.parser;
 
+@SuppressWarnings({ "nls", "unused" })
 class Yylex {
 
   /** This character denotes the end of file */

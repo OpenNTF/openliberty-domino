@@ -16,6 +16,7 @@ import java.util.Iterator;
  * 
  * @author FangYidong<fangyidong@yahoo.com.cn>
  */
+@SuppressWarnings({ "nls", "rawtypes", "unchecked" })
 public class JSONArray extends ArrayList implements JSONAware, JSONStreamAware {
 	private static final long serialVersionUID = 3957988303675231981L;
 	

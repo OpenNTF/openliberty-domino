@@ -6,6 +6,7 @@ package org.openntf.openliberty.domino.adminnsf.util.json.parser;
  * @author FangYidong<fangyidong@yahoo.com.cn>
  *
  */
+@SuppressWarnings("nls")
 public class ParseException extends Exception {
 	private static final long serialVersionUID = -7880698968187728547L;
 	
