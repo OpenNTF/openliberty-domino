@@ -1,6 +1,6 @@
 # Domino Open Liberty Runtime
 
-Inspired by [Sven Hasselbach's blog posts](http://hasselba.ch/blog/?p=2625), this project wraps [Open Liberty](https://openliberty.io), the open-source version of WebSphere Liberty, to run alongside the Domino HTTP task using the Domino JVM.
+Inspired by [Sven Hasselbach's blog posts](http://hasselba.ch/blog/?p=2625), this project wraps [Open Liberty](https://openliberty.io), the open-source version of WebSphere Liberty, to run alongside the Domino HTTP task.
 
 ### What It Does
 
@@ -8,7 +8,7 @@ Like the original blog posts, this provides access to Domino classes and the sur
 
 ### What It Doesn't Do
 
-This project does not enhance the Domino HTTP stack in any way. The normal HTTP task continues as normal, with its same abilities and limitations.
+This project does not enhance the Domino HTTP stack in any way. The traditional HTTP task continues as normal, with its same abilities and limitations.
 
 Additionally, this doesn't give the Liberty server any particular knowledge of how Domino normally works - it won't serve resources from NSFs on its own, nor does it automatically have access to the XPages OSGi framework.
 
@@ -16,20 +16,31 @@ Additionally, this doesn't give the Liberty server any particular knowledge of h
 
 - Domino 9.0.1 FP10 or newer
 
-## Usage
+## Installation
 
-To set up the Open Liberty runtime, install the contents of the `UpdateSite` directory on your Domino server, either via an Update Site NSF or in the data directory, and then create a new database named `libertyadmin.nsf` in the root of your server using the provided NTF.
+The Open Liberty runtime can be installed either as a set of OSGi plugins running with Domino's HTTP runtime or using the RunJava command. In both cases, create a new database named `libertyadmin.nsf` in the root of your server using the provided NTF before loading the runtime.
+
+### OSGi Deployment
+
+To install via OSGi, install the contents of the `UpdateSite` directory on your Domino server, either via an Update Site NSF or in the data directory.
+
+### RunJava Deployment
+
+To install via RunJava, copy the JAR file from the `RunJava` directory into either the `jvm/lib/ext` directory or the `ndext` directory in your Domino installation. The runtime can be loaded by running `load runjava WLP` on the console or at startup adding `runjava WLP` to the `ServerTasks` notes.ini property. In these cases, "WLP" is case-sensitive.
+
+## Usage
 
 After it is installed, open the admin NSF and add at least one server document. When HTTP is (re-)started on the server, servers configured here will be automatically deployed and launched. Additionally, if you create a "Dropin App" response document, you can attach .war files that will be automatically deposited in the "dropins" folder in the server. These applications can also be manually deployed there or added in the server.xml, as with a normal Open Liberty runtime.
 
 ### Console Commands
 
-The runtime supports several Domino console commands, all of which are prefixed by `tell http osgi wlp`:
+The runtime supports several Domino console commands, all of which are prefixed by `tell http osgi wlp` when run via OSGi and `tell wlp` when run via RunJava:
 
 * `status`: Displays the status of all running Liberty servers. This is equivalent to the `server status $name` command in the Liberty package
 * `stop`: Stops all running Liberty servers
 * `start`: Starts all configured Liberty servers
 * `restart`: Equivalent to `stop` followed by `start`
+* `help`: Get a listing of currently-supported options
 
 ### Domino Proxy Application
 
