@@ -62,7 +62,7 @@ public class WLP extends JavaServerAddin implements AddInLogBridge {
 	public static final int ERR_MQ_QUITTING = PKG_MISC+102;
 
 	private final CLIManagerDelegate delegate = new CLIManagerDelegate();
-	private final ExecutorService commandQueue = Executors.newFixedThreadPool(1, NotesThread::new);
+	private final ExecutorService commandQueue = Executors.newSingleThreadExecutor(NotesThread::new);
 	private ResourceBundle translationBundle;
 	
 	/**
