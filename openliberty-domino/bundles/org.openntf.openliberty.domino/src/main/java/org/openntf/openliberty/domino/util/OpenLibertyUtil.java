@@ -100,7 +100,6 @@ public enum OpenLibertyUtil {
 			return DominoThreadFactory.executor.submit(() -> {
 				Session s = NotesFactory.createSession();
 				try {
-					
 					return s.getEnvironmentString("NotesProgram", true); //$NON-NLS-1$
 				} finally {
 					s.recycle();
