@@ -377,6 +377,13 @@ public enum OpenLibertyRuntime implements Runnable {
 	
 	private void watchLog(Path path, String serverName) {
 		Path logs = path.resolve("usr").resolve("servers").resolve(serverName).resolve("logs"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		if(!Files.exists(logs)) {
+			try {
+				Files.createDirectories(logs);
+			} catch (IOException e) {
+				e.printStackTrace(OpenLibertyLog.instance.out);
+			}
+		}
 		String consoleLog = "console.log"; //$NON-NLS-1$
 		DominoThreadFactory.executor.submit(() -> {
 			try(WatchService watchService = FileSystems.getDefault().newWatchService()) {
