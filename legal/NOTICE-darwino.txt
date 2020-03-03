@@ -1,0 +1,17 @@
+Darwino Domino NAPI
+Copyright (C) 2014-2018 Darwino Inc.
+For license information see the LICENSE file which accompanies this NOTICE.txt file.
+
+The Darwino Domino NAPI includes third-party code from the following sources:
+
+1. Code from the OpenNTF Domino API, available from https://github.com/OpenNTF/org.openntf.domino and licensed under the Apache License 2.0
+2. Redistributable binary files from the IBM C API Toolkit for Notes/Domino 9.0.1, available from https://www.ibm.com/developerworks/develop/collaboration/index.html and distributed according to the included file "REDIST-IBM C API Toolkit.txt" from the download
+
+The repository contains the following third-party libraries to support its build environment (these files are not needed at runtime):
+
+1. javax.mail, available from https://mvnrepository.com/artifact/com.sun.mail/javax.mail/1.5.3 and licensed under either the CDDL or GPL 2.0, used here under the CDDL
+2. javax.activation, copyright Oracle Corporation licensed under the CDDL
+3. org.eclipse.equinox.launcher, available from http://download.eclipse.org/releases/neon/201612211000 and licensed under the EPL 1.0
+4. org.hamcrest.core, available from http://download.eclipse.org/releases/neon/201612211000 and licensed under the BSD 2-clause license
+5. JUnit 4.12, available from http://download.eclipse.org/releases/neon/201612211000 and licensed under the EPL 1.0
+6. SLF4J 1.7.2, available from http://download.eclipse.org/releases/neon/201612211000 and licensed under the MIT license

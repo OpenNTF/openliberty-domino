@@ -36,6 +36,13 @@
 			</includes>
 			<outputDirectory>.</outputDirectory>
 		</fileSet>
+		<fileSet>
+			<directory>${project.basedir}/../../../legal</directory>
+			<includes>
+				<include>*</include>
+			</includes>
+			<outputDirectory>legal</outputDirectory>
+		</fileSet>
 	</fileSets>
 	
 	<dependencySets>
@@ -55,6 +62,15 @@
 			
 			<outputDirectory>SourceUpdateSite</outputDirectory>
 			<unpack>true</unpack>
+			<useTransitiveDependencies>false</useTransitiveDependencies>
+		</dependencySet>
+		<dependencySet>
+			<includes>
+				<include>org.openntf:org.openntf.openliberty.domino.runjava:*</include>
+			</includes>
+			
+			<outputDirectory>RunJava</outputDirectory>
+			<unpack>false</unpack>
 			<useTransitiveDependencies>false</useTransitiveDependencies>
 		</dependencySet>
 	</dependencySets>

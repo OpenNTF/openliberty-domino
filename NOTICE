@@ -11,9 +11,12 @@ This product contains the following 3rd party code:
 
 - A class derived from Smiley's HTTP Proxy Servlet, which available from https://github.com/mitre/HTTP-Proxy-Servlet and licensed under the Apache License 2.0
 - Classes derived from IBM Commons, which is available from https://github.com/OpenNTF/SocialSDK/tree/master/commons/com.ibm.commons and is licensed under the Apache License 2.0
+	- The original NOTICE is included in the "legal" directory, but none of the referenced third-party code is included
 - json-simple, which is available from https://github.com/fangyidong/json-simple and is licensed under the Apache License 2.0
 - Classes derived from the Darwino Domino API, which is available from https://github.com/darwino/domino-napi and is licensed under the Apache License 2.0
+	- The original NOTICE is included in the "legal" directory, but none of the referenced third-party code is included
 - Classes from Apache Commons Compress, which is available from https://commons.apache.org/proper/commons-compress/ and is licensed under the Apache License 2.0
+	- The original NOTICE is included in the "legal" directory, but none of the referenced third-party code is included
 
 The runtime may automatically download the following 3rd party code:
 
