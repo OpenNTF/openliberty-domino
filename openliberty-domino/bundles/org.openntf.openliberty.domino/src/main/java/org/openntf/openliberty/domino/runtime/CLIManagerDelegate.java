@@ -84,16 +84,23 @@ public class CLIManagerDelegate implements AutoCloseable {
 					start();
 					return "Starting Open Liberty server";
 				}
+			case HELP:
+				emitHelp();
+				return ""; //$NON-NLS-1$
 			default:
 				return MessageFormat.format("Command not yet implemented: {0}", command);
 			}
 		} else {
-			OpenLibertyLog.instance.out.println("Available commands:");
-			for(Command command : Command.values()) {
-				OpenLibertyLog.instance.out.println("- " + command.toString()); //$NON-NLS-1$
-			}
+			emitHelp();
 			
 			return ""; //$NON-NLS-1$
+		}
+	}
+	
+	private void emitHelp() {
+		OpenLibertyLog.instance.out.println("Available commands:");
+		for(Command command : Command.values()) {
+			OpenLibertyLog.instance.out.println("- " + command.toString()); //$NON-NLS-1$
 		}
 	}
 	
@@ -102,7 +109,7 @@ public class CLIManagerDelegate implements AutoCloseable {
 	// *******************************************************************************
 
 	private enum Command {
-		STATUS, STOP, START, RESTART;
+		STATUS, STOP, START, RESTART, HELP;
 	}
 	
 	private Command parseCommand(String command) {
