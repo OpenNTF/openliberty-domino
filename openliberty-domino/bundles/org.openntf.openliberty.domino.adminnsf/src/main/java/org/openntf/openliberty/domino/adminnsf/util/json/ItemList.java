@@ -9,10 +9,10 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 /**
- * |a:b:c| => |a|,|b|,|c|
- * |:| => ||,||
- * |a:| => |a|,||
- * @author FangYidong<fangyidong@yahoo.com.cn>
+ * |a:b:c| =&gt; |a|,|b|,|c|
+ * |:| =&gt; ||,||
+ * |a:| =&gt; |a|,||
+ * @author FangYidong fangyidong@yahoo.com.cn
  */
 @SuppressWarnings({ "nls", "rawtypes", "unchecked" })
 public class ItemList {
@@ -106,10 +106,6 @@ public class ItemList {
 		this.split(s,sp,items,isMultiToken);
 	}
 	
-	/**
-	 * @param i 0-based
-	 * @return
-	 */
 	public String get(int i){
 		return (String)items.get(i);
 	}

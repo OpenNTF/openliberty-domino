@@ -46,7 +46,6 @@ import org.openntf.openliberty.domino.util.commons.apache.zip.ZipEncodingHelper;
  * methods are provided to position at each successive entry in
  * the archive, and the read each entry as a normal input stream
  * using read().
- * @NotThreadSafe
  */
 public class TarArchiveInputStream extends ArchiveInputStream {
 
@@ -1096,7 +1095,7 @@ public class TarArchiveInputStream extends ArchiveInputStream {
     private static class TarArchiveSparseZeroInputStream extends InputStream {
         /**
          * Just return 0
-         * @return
+         * @return 0
          * @throws IOException
          */
         @Override

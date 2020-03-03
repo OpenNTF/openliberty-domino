@@ -33,7 +33,6 @@ import org.openntf.openliberty.domino.util.commons.apache.zip.ZipEncodingHelper;
 /**
  * This class provides static utility methods to work with byte streams.
  *
- * @Immutable
  */
 // CheckStyle:HideUtilityClassConstructorCheck OFF (bc)
 public class TarUtils {

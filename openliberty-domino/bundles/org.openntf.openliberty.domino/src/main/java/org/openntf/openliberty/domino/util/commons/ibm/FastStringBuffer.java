@@ -58,7 +58,7 @@ public class FastStringBuffer {
     * Constructs a string buffer from an array of characters.
     * The array is not initially copied into the string buffer, but rather referenced.
     * @param buffer of characters to be managed by this class
-    * @param count, the number (in char) of useful information contained in the array.
+    * @param count the number (in char) of useful information contained in the array.
     * @exception IllegalArgumentException , if buffer parameter is null.
     */
    public FastStringBuffer(char[] buffer, int count) {
@@ -126,9 +126,8 @@ public class FastStringBuffer {
     *
     * @param      index   the index of the desired character.
     * @return     the character at the specified index of this string buffer.
-    * @see        org.openntf.openliberty.domino.util.commons.ibm.jscript.util.FastStringBuffer#length()
     * @exception  StringIndexOutOfBoundsException  if the index is invalid.
-    * @see        com.ibm.jscript.util.StringBuffer#length() */
+    */
     public final char charAt(int index) {
        /*#IF DEBUG*/
            if ((index < 0) || (index >= count)) {
@@ -146,7 +145,7 @@ public class FastStringBuffer {
     * characters to be copied is <code>srcEnd-srcBegin</code>. The
     * characters are copied into the subarray of <code>dst</code> starting
     * at index <code>dstBegin</code> and ending at index:
-    * <p><blockquote><pre>
+    * <blockquote><pre>
     *     dstbegin + (srcEnd-srcBegin) - 1
     * </pre></blockquote>
     *
@@ -181,7 +180,6 @@ public class FastStringBuffer {
     * @param      index   the index of the character to modify.
     * @param      ch      the new character.
     * @exception  StringIndexOutOfBoundsException  if the index is invalid.
-    * @see        com.ibm.jscript.util.StringBuffer#length()
     */
    public final void setCharAt(int index, char ch) {
        /*#IF DEBUG*/
@@ -202,8 +200,6 @@ public class FastStringBuffer {
     *
     * @param   obj   an <code>Object</code>.
     * @return  this string buffer.
-    * @see     com.ibm.jscript.util.String#valueOf(java.lang.Object)
-    * @see     com.ibm.jscript.util.StringBuffer#append(java.lang.String)
     */
    public final FastStringBuffer append(Object obj) {
        return append(String.valueOf(obj));
@@ -290,8 +286,6 @@ public class FastStringBuffer {
     *
     * @param   b   a <code>boolean</code>.
     * @return  this string buffer.
-    * @see     com.ibm.jscript.util.String#valueOf(boolean)
-    * @see     com.ibm.jscript.util.StringBuffer#append(java.lang.String)
     */
    public final FastStringBuffer append(boolean b) {
        return append(String.valueOf(b));
@@ -304,7 +298,7 @@ public class FastStringBuffer {
     * The argument is appended to the contents of this string buffer.
     * The length of this string buffer increases by <code>1</code>.
     *
-    * @param   ch   a <code>char</code>.
+    * @param   c   a <code>char</code>.
     * @return  this string buffer.
     */
    public final FastStringBuffer append(char c) {
@@ -326,8 +320,6 @@ public class FastStringBuffer {
     *
     * @param   i   an <code>int</code>.
     * @return  this string buffer.
-    * @see     com.ibm.jscript.util.String#valueOf(int)
-    * @see     com.ibm.jscript.util.StringBuffer#append(java.lang.String)
     */
    public final FastStringBuffer append(int i) {
        return append(String.valueOf(i));
@@ -392,7 +384,7 @@ public class FastStringBuffer {
     * string buffer.
     *
     * @param      offset   the offset.
-    * @param      b        an <code>Object</code>.
+    * @param      obj        an <code>Object</code>.
     * @return     this string buffer.
     * @exception  StringIndexOutOfBoundsException  if the offset is invalid.
     */
@@ -443,7 +435,7 @@ public class FastStringBuffer {
     * the length of the argument.
     *
     * @param      offset   the offset.
-    * @param      ch       a character array.
+    * @param      str       a character array.
     * @return     this string buffer.
     * @exception  StringIndexOutOfBoundsException  if the offset is invalid.
     */
@@ -499,7 +491,7 @@ public class FastStringBuffer {
     * string buffer.
     *
     * @param      offset   the offset.
-    * @param      ch       a <code>char</code>.
+    * @param      c       a <code>char</code>.
     * @return     this string buffer.
     * @exception  StringIndexOutOfBoundsException  if the offset is invalid.
     */
@@ -528,7 +520,7 @@ public class FastStringBuffer {
     * string buffer.
     *
     * @param      offset   the offset.
-    * @param      b        an <code>int</code>.
+    * @param      i       an <code>int</code>.
     * @return     this string buffer.
     * @exception  StringIndexOutOfBoundsException  if the offset is invalid.
     */
@@ -550,7 +542,7 @@ public class FastStringBuffer {
     * string buffer.
     *
     * @param      offset   the offset.
-    * @param      b        a <code>long</code>.
+    * @param      l        a <code>long</code>.
     * @return     this string buffer.
     * @exception  StringIndexOutOfBoundsException  if the offset is invalid.
     */
@@ -572,7 +564,7 @@ public class FastStringBuffer {
     * string buffer.
     *
     * @param      offset   the offset.
-    * @param      b        a <code>float</code>.
+    * @param      f        a <code>float</code>.
     * @return     this string buffer.
     * @exception  StringIndexOutOfBoundsException  if the offset is invalid.
     */
@@ -594,7 +586,7 @@ public class FastStringBuffer {
     * string buffer.
     *
     * @param      offset   the offset.
-    * @param      b        a <code>double</code>.
+    * @param      d        a <code>double</code>.
     * @return     this string buffer.
     * @exception  StringIndexOutOfBoundsException  if the offset is invalid.
     */
@@ -666,6 +658,8 @@ public class FastStringBuffer {
 
    /**
     * Compare the buffer to a string.
+    * @param str the string to compare to 
+    * @return whether this object equals the provided string
     */
    public boolean equals( String str ) {
        if( str!=null && str.length()==count ) {
@@ -679,9 +673,7 @@ public class FastStringBuffer {
        return false;
    }
 
-   /**
-    *
-    */
+   
    public final boolean startsWith( char c ) {
        return count>0 && value[0]==c;
    }
@@ -708,9 +700,6 @@ public class FastStringBuffer {
        }
    }
 
-   /**
-    *
-    */
    public final FastStringBuffer append( FastStringBuffer b, int srcBegin, int srcEnd ) {
        if (b == null) {
            return this;
@@ -737,9 +726,6 @@ public class FastStringBuffer {
        return this;
    }
 
-   /**
-    *
-    */
    public final FastStringBuffer append( String str, int srcBegin, int srcEnd ) {
        // Null value has a representation!
        if (str == null) {
@@ -760,6 +746,8 @@ public class FastStringBuffer {
 
    /**
     * Load the content of a IO reader.
+    * @param r the reader to read
+    * @return this string buffer
     */
    public final FastStringBuffer load( Reader r ) {
        clear();
@@ -768,6 +756,8 @@ public class FastStringBuffer {
 
    /**
     * Append the content of a IO reader.
+    * @param r the reader to read
+    * @return this string buffer
     */
    public final FastStringBuffer append( Reader r ) {
        char[] b = new char[8192];
@@ -784,6 +774,7 @@ public class FastStringBuffer {
 
    /**
     * Save the content to a writer.
+    * @param w the writer to write to
     */
    public final void save( Writer w ) {
        try {
@@ -809,6 +800,8 @@ public class FastStringBuffer {
 
    /**
     * Extract a part of the string buffer to a string.
+    * @param first the starting index position
+ 	* @param last the ending index position, exclusive
     * @return the substring
     */
    public final String substring( int first, int last ) {
@@ -817,6 +810,8 @@ public class FastStringBuffer {
 
    /**
     * Delete a part of the buffer.
+    * @param begin the starting index position
+ 	* @param end the ending index position
     */
    public final void delete( int begin, int end ) {
 //       /*#IF DEBUG*/
@@ -838,6 +833,9 @@ public class FastStringBuffer {
 
    /**
     * Replace a buffer part.
+    * @param begin the starting index position
+ 	* @param end the ending index position
+ 	* @param replace the replacement string
     */
    public final void replace( int begin, int end, String replace ) {
        delete( begin, end );
@@ -846,6 +844,9 @@ public class FastStringBuffer {
 
    /**
     * Replace a buffer part.
+    * @param begin the starting index position
+ 	* @param end the ending index position
+ 	* @param replace the replacement string
     */
    public final void replace( int begin, int end, char[] replace ) {
        delete( begin, end );
@@ -854,15 +855,15 @@ public class FastStringBuffer {
 
    /**
     * Replace a buffer part.
+    * @param begin the starting index position
+ 	* @param end the ending index position
+ 	* @param replace the replacement string
     */
    public final void replace( int begin, int end, FastStringBuffer replace ) {
        delete( begin, end );
        insert( begin, replace.toString() ); // TODO: optimize it ?
    }
 
-   /**
-    * Replace a set of Strings.
-    */
    public final void replace( String oldString, String newString ) {
        int pos = 0;
        while(pos<length()) {
@@ -876,9 +877,6 @@ public class FastStringBuffer {
        }
    }
 
-   /**
-    * Search an instance of a char.
-    */
    public int indexOf( char c, int begin ) {
        for( int i=begin; i<count; i++ ) {
            if( value[i]==c ) {
@@ -891,9 +889,6 @@ public class FastStringBuffer {
        return indexOf(c,0);
    }
 
-   /**
-    * Search an instance of a string.
-    */
    public int indexOf( String string, int begin ) {
        int length = string.length();
        if( length>0 ) {
@@ -920,9 +915,6 @@ mainloop:
        return indexOf(string,0);
    }
 
-   /**
-    * Search the last instance of a char.
-    */
    public int lastIndexOf( char c, int end ) {
        for( int i=end; i>=0; i-- ) {
            if( value[i]==c ) {
@@ -946,12 +938,6 @@ mainloop:
        return '\0';
    }
    
-   /**
-    * Append a formatted string.
-    * A call to <CODE>TString.toString()</CODE> is made for each object. By this
-    * way, arrays are properly dumped.
-    * modified by dhan
-    */
 //   public final FastStringBuffer appendFormat( String fmt, Object[] args) {
 //   	return appendFormatp(fmt,args);
 //   } 

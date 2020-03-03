@@ -143,7 +143,6 @@ import org.openntf.openliberty.domino.util.commons.apache.zip.ZipEncoding;
  * </pre>
  * <p>which is identical to new-style POSIX up to the first 130 bytes of the prefix.</p>
  *
- * @NotThreadSafe
  */
 
 public class TarArchiveEntry implements ArchiveEntry, TarConstants {

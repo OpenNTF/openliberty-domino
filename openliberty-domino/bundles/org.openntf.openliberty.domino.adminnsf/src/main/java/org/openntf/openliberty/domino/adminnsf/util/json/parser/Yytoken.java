@@ -5,7 +5,7 @@
 package org.openntf.openliberty.domino.adminnsf.util.json.parser;
 
 /**
- * @author FangYidong<fangyidong@yahoo.com.cn>
+ * @author FangYidong fangyidong@yahoo.com.cn
  */
 @SuppressWarnings("nls")
 public class Yytoken {

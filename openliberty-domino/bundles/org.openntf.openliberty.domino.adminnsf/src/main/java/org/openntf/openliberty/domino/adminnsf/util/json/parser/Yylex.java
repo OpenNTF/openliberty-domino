@@ -366,9 +366,6 @@ int getPosition(){
   }
 
     
-  /**
-   * Closes the input stream.
-   */
   public final void yyclose() throws java.io.IOException {
     zzAtEOF = true;            /* indicate end of file */
     zzEndRead = zzStartRead;  /* invalidate buffer    */
@@ -399,9 +396,6 @@ int getPosition(){
   }
 
 
-  /**
-   * Returns the current lexical state.
-   */
   public final int yystate() {
     return zzLexicalState;
   }
@@ -417,9 +411,6 @@ int getPosition(){
   }
 
 
-  /**
-   * Returns the text matched by the current regular expression.
-   */
   public final String yytext() {
     return new String( zzBuffer, zzStartRead, zzMarkedPos-zzStartRead );
   }
@@ -441,9 +432,6 @@ int getPosition(){
   }
 
 
-  /**
-   * Returns the length of the matched text region.
-   */
   public final int yylength() {
     return zzMarkedPos-zzStartRead;
   }
@@ -492,13 +480,6 @@ int getPosition(){
   }
 
 
-  /**
-   * Resumes scanning until the next regular expression is matched,
-   * the end of input is encountered or an I/O-Error occurs.
-   *
-   * @return      the next token
-   * @exception   java.io.IOException  if any I/O-Error occurs
-   */
   public Yytoken yylex() throws java.io.IOException, ParseException {
     int zzInput;
     int zzAction;

@@ -61,8 +61,10 @@ public enum OpenLibertyUtil {
 	}
 	
 	/**
+	 * @param <T> the expected return type
 	 * @param url the URL to fetch
 	 * @param consumer a handler for the download's {@link InputStream}
+	 * @return the consumed value
 	 * @throws IOException if there is an unexpected problem downloading the file or if the server
 	 * 		returns any code other than {@link HttpURLConnection#HTTP_OK}
 	 * @since 2.0.0

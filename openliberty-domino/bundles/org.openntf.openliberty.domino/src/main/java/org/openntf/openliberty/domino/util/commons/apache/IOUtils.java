@@ -31,7 +31,6 @@ import java.nio.channels.ReadableByteChannel;
 
 /**
  * Utility functions
- * @Immutable (has mutable data but it is write-only)
  */
 public final class IOUtils {
 

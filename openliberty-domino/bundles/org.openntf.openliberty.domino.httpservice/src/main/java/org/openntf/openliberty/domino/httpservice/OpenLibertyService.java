@@ -17,7 +17,6 @@ package org.openntf.openliberty.domino.httpservice;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -37,7 +36,6 @@ import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpSessionAdapter;
 public class OpenLibertyService extends HttpService {
 	private static final Logger log = OpenLibertyLog.instance.log;
 	
-	private Future<?> runner;
 	private final CLIManagerDelegate delegate = new CLIManagerDelegate();
 
 	public OpenLibertyService(LCDEnvironment env) {
@@ -50,12 +48,10 @@ public class OpenLibertyService extends HttpService {
 	public void destroyService() {
 		super.destroyService();
 		
-		if(this.runner != null) {
-			if(log.isLoggable(Level.INFO)) {
-				log.info("Shutting down Open Liberty service");
-			}
-			delegate.close();
+		if(log.isLoggable(Level.INFO)) {
+			log.info("Shutting down Open Liberty service");
 		}
+		delegate.close();
 	}
 
 	@Override

@@ -8,6 +8,7 @@
 		<relativePath>../..</relativePath>
 	</parent>
 	<artifactId>org.openntf.openliberty.domino.userregistry</artifactId>
+	<packaging>bundle</packaging>
 	
 	<dependencies>
 		<dependency>
@@ -73,6 +74,7 @@
 			<plugin>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-bundle-plugin</artifactId>
+				<extensions>true</extensions>
 				
 				<configuration>
 					<instructions>
@@ -81,16 +83,6 @@
 						<Fragment-Host>org.openntf.openliberty.domino</Fragment-Host>
 					</instructions>
 				</configuration>
-
-				<executions>
-					<execution>
-						<id>bundle-manifest</id>
-						<phase>process-classes</phase>
-						<goals>
-							<goal>manifest</goal>
-						</goals>
-					</execution>
-				</executions>
 			</plugin>
 		</plugins>
 	</build>

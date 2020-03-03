@@ -34,7 +34,7 @@ import java.io.InputStream;
  * <pre>
  * public static boolean matches(byte[] signature, int length)
  * </pre>
- * which is used by the {@link ArchiveStreamFactory} to autodetect
+ * which is used by the {@code ArchiveStreamFactory} to autodetect
  * the archive type from the first few bytes of a stream.
  */
 public abstract class ArchiveInputStream extends InputStream {

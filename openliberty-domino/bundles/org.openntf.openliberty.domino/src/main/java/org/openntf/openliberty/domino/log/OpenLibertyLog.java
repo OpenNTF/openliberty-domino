@@ -33,7 +33,7 @@ public enum OpenLibertyLog {
 	public final Logger log;
 	
 	private OpenLibertyLog() {
-		out = ServiceLoader.load(LoggerPrintStream.class).iterator().next();
+		out = ServiceLoader.load(LoggerPrintStream.class, OpenLibertyLog.class.getClassLoader()).iterator().next();
 		log = createLogger(OpenLibertyLog.class.getPackage().getName());
 		log.setLevel(Level.INFO);
 	}

@@ -23,9 +23,14 @@ public class OpenLibertyServiceFactory implements IServiceFactory {
 
 	@Override
 	public HttpService[] getServices(LCDEnvironment env) {
-		return new HttpService[] {
-			new OpenLibertyService(env)
-		};
+		try {
+			return new HttpService[] {
+				new OpenLibertyService(env)
+			};
+		} catch(Throwable t) {
+			t.printStackTrace();
+			throw t;
+		}
 	}
 
 }

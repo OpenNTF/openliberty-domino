@@ -29,6 +29,8 @@ public class StreamUtil {
      * Copy contents of one stream onto another
      * @param is input stream
      * @param os output stream
+	 * @return the amount read
+	 * @throws IOException if there is an underlying problem
      */
     public static long copyStream(InputStream is, OutputStream os) throws IOException {
         return copyStream(is, os, 8192);
@@ -36,13 +38,15 @@ public class StreamUtil {
 
     /**
      * Copy contents of one stream onto another
+     * <p>Note: there are cases where InputStream.available() returns &gt; 0 but in
+     * actual fact the stream won't be able to read anything, so we need to
+     * handle the fact that InputStream.read() may return -1</p>
+     * 
      * @param is input stream
      * @param os output stream
      * @param bufferSize size of buffer to use for copy
-     * 
-     * Note: there are cases where InputStream.available() returns > 0 but in
-     * actual fact the stream won't be able to read anything, so we need to
-     * handle the fact that InputStream.read() may return -1
+	 * @return the amount read
+	 * @throws IOException if there is an underlying problem
      */
     public static long copyStream(InputStream is, OutputStream os, int bufferSize) throws IOException {
 		byte[] buffer = new byte[bufferSize];
@@ -57,7 +61,9 @@ public class StreamUtil {
     
     /**
      * Read a string from an input stream using the default encoding.
-     * @ibm-api
+     * @param is the stream to read
+     * @return the stream content
+	 * @throws IOException if there is an underlying problem
      */
 	public static String readString(InputStream is) throws IOException {
 		FastStringBuffer sb = new FastStringBuffer();

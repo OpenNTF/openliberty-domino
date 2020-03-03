@@ -84,7 +84,7 @@ public enum OpenLibertyRuntime implements Runnable {
 	}
 	
 	private final BlockingQueue<RuntimeTask> taskQueue = new LinkedBlockingDeque<RuntimeTask>();
-	private List<RuntimeService> runtimeServices = StreamSupport.stream(ServiceLoader.load(RuntimeService.class).spliterator(), false).collect(Collectors.toList());
+	private List<RuntimeService> runtimeServices = StreamSupport.stream(ServiceLoader.load(RuntimeService.class, getClass().getClassLoader()).spliterator(), false).collect(Collectors.toList());
 	
 	private Set<String> startedServers = Collections.synchronizedSet(new HashSet<>());
 	private Set<Process> subprocesses = Collections.synchronizedSet(new HashSet<>());
@@ -103,7 +103,7 @@ public enum OpenLibertyRuntime implements Runnable {
 			log.info(format("Startup"));
 		}
 		
-		JavaRuntimeProvider javaRuntimeProvider = ServiceLoader.load(JavaRuntimeProvider.class).iterator().next();
+		JavaRuntimeProvider javaRuntimeProvider = ServiceLoader.load(JavaRuntimeProvider.class, getClass().getClassLoader()).iterator().next();
 		if(javaRuntimeProvider == null) {
 			throw new IllegalStateException(format("Unable to find service providing {0}", JavaRuntimeProvider.SERVICE_ID));
 		}
@@ -274,7 +274,7 @@ public enum OpenLibertyRuntime implements Runnable {
 	}
 	
 	private Path deployRuntime() throws IOException {
-		RuntimeDeploymentTask deploymentService = ServiceLoader.load(RuntimeDeploymentTask.class).iterator().next();
+		RuntimeDeploymentTask deploymentService = ServiceLoader.load(RuntimeDeploymentTask.class, getClass().getClassLoader()).iterator().next();
 		if(deploymentService == null) {
 			throw new IllegalStateException(format("Unable to find any services providing {0}", RuntimeDeploymentTask.SERVICE_ID));
 		}
@@ -477,7 +477,7 @@ public enum OpenLibertyRuntime implements Runnable {
 		Path features = lib.resolve("features"); //$NON-NLS-1$
 		Files.createDirectories(features);
 		
-		List<ExtensionDeployer> extensions = StreamSupport.stream(ServiceLoader.load(ExtensionDeployer.class).spliterator(), false).collect(Collectors.toList());
+		List<ExtensionDeployer> extensions = StreamSupport.stream(ServiceLoader.load(ExtensionDeployer.class, getClass().getClassLoader()).spliterator(), false).collect(Collectors.toList());
 		if(extensions != null) {
 			for(ExtensionDeployer ext : extensions) {
 				try(InputStream is = ext.getEsaData()) {

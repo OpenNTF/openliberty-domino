@@ -8,6 +8,7 @@
 		<relativePath>../..</relativePath>
 	</parent>
 	<artifactId>org.openntf.openliberty.domino.httpservice</artifactId>
+	<packaging>bundle</packaging>
 	
 	<dependencies>
 		<dependency>
@@ -34,18 +35,6 @@
 			<classifier>xsp.domino.bridge</classifier>
 			<scope>provided</scope>
 		</dependency>
-		<dependency>
-			<groupId>com.hcl.xsp.p2</groupId>
-			<artifactId>org.eclipse.equinox.http.servlet</artifactId>
-			<version>[1.0.100,)</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>servlet-api</artifactId>
-			<version>2.4</version>
-			<scope>provided</scope>
-		</dependency>
 	</dependencies>
 	
 	<build>
@@ -68,21 +57,14 @@
 				<configuration>
 					<instructions>
 						<Bundle-SymbolicName>${project.artifactId};singleton:=true</Bundle-SymbolicName>
-						<Require-Bundle>org.eclipse.equinox.http.servlet</Require-Bundle>
+						<Require-Bundle>
+							com.ibm.domino.xsp.adapter,
+							com.ibm.domino.xsp.bootstrap
+						</Require-Bundle>
 						<Export-Package/>
 						<Fragment-Host>org.openntf.openliberty.domino</Fragment-Host>
 					</instructions>
 				</configuration>
-
-				<executions>
-					<execution>
-						<id>bundle-manifest</id>
-						<phase>process-classes</phase>
-						<goals>
-							<goal>manifest</goal>
-						</goals>
-					</execution>
-				</executions>
 			</plugin>
 		</plugins>
 	</build>

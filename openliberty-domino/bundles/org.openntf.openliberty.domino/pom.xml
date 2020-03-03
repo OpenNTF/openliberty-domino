@@ -8,6 +8,7 @@
 		<relativePath>../..</relativePath>
 	</parent>
 	<artifactId>org.openntf.openliberty.domino</artifactId>
+	<packaging>bundle</packaging>
 	
 	<dependencies>
 		<dependency>
@@ -23,16 +24,13 @@
 			<plugin>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-bundle-plugin</artifactId>
-
-				<executions>
-					<execution>
-						<id>bundle-manifest</id>
-						<phase>process-classes</phase>
-						<goals>
-							<goal>manifest</goal>
-						</goals>
-					</execution>
-				</executions>
+				<extensions>true</extensions>
+				
+				<configuration>
+					<instructions>
+						<Bundle-SymbolicName>${project.artifactId};singleton:=true</Bundle-SymbolicName>
+					</instructions>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>
