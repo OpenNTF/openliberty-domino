@@ -23,6 +23,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import org.openntf.openliberty.domino.log.OpenLibertyLog;
 import org.openntf.openliberty.domino.runjava.AddInLogBridge;
 import org.openntf.openliberty.domino.runjava.AddinLogPrintStream;
 
@@ -96,42 +97,39 @@ public class WLP extends JavaServerAddin implements AddInLogBridge {
 				throw new RuntimeException(format(translate("WLP.errorMqOpen"), status)); //$NON-NLS-1$
 			}
 
-			AddInSetStatusLine(taskId, translate("WLP.statusIdle")); //$NON-NLS-1$
-			StringBuffer buf = new StringBuffer();
-			while(addInRunning() && status != ERR_MQ_QUITTING) {
-				OSPreemptOccasionally();
-				
-				status = mq.get(buf, MQ_MAX_MSGSIZE, MessageQueue.MQ_WAIT_FOR_MSG, 500);
-				switch(status) {
-				case NOERROR: {
-					String line = buf.toString();
-					if(StringUtil.isNotEmpty(line)) {
-						
-						commandQueue.submit(() -> {
-							// Special handling for exit calls
-							String result;
-							if("quit".equalsIgnoreCase(line) || "exit".equalsIgnoreCase(line)) { //$NON-NLS-1$ //$NON-NLS-2$
-								result = delegate.processCommand("stop"); //$NON-NLS-1$
-							} else {
-								result = delegate.processCommand(line);
-							}
-							
-							if(StringUtil.isNotEmpty(result)) {
-								AddInLogMessageText(result);
-							}
-						});
-					}
+			try {
+				AddInSetStatusLine(taskId, translate("WLP.statusIdle")); //$NON-NLS-1$
+				StringBuffer buf = new StringBuffer();
+				while(addInRunning() && status != ERR_MQ_QUITTING) {
+					OSPreemptOccasionally();
 					
-					break;
+					status = mq.get(buf, MQ_MAX_MSGSIZE, MessageQueue.MQ_WAIT_FOR_MSG, 500);
+					switch(status) {
+					case NOERROR: {
+						String line = buf.toString();
+						if(StringUtil.isNotEmpty(line)) {
+							
+							commandQueue.submit(() -> {
+								String result = delegate.processCommand(line);
+								if(StringUtil.isNotEmpty(result)) {
+									OpenLibertyLog.instance.out.println(result);
+								}
+							});
+						}
+						
+						break;
+					}
+					case ERR_MQ_TIMEOUT:
+					case ERR_MQ_EMPTY:
+					case ERR_MQ_QUITTING:
+						break;
+					default:
+						AddInLogErrorText(translate("WLP.unexpectedCodeWhilePolling", status)); //$NON-NLS-1$
+						break;
+					}
 				}
-				case ERR_MQ_TIMEOUT:
-				case ERR_MQ_QUITTING:
-				case ERR_MQ_EMPTY:
-					break;
-				default:
-					AddInLogErrorText(translate("WLP.unexpectedCodeWhilePolling", status)); //$NON-NLS-1$
-					break;
-				}
+			} finally {
+				mq.close(0);
 			}
 		} catch (Exception e) {
 			AddInLogErrorText(e.getLocalizedMessage());
@@ -144,7 +142,11 @@ public class WLP extends JavaServerAddin implements AddInLogBridge {
 			} catch (InterruptedException e) {
 				// Ignore
 			}
-			delegate.close();
+			try {
+				delegate.close();
+			} catch(Throwable t) {
+				t.printStackTrace();
+			}
 			
 			AddInSetStatusLine(taskId, translate("WLP.statusTerm")); //$NON-NLS-1$
 			AddInDeleteStatusLine(taskId);

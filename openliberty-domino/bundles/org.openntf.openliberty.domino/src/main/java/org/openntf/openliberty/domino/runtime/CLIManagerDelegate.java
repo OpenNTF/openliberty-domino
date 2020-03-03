@@ -31,11 +31,13 @@ public class CLIManagerDelegate implements AutoCloseable {
 	 * 
 	 * <p>This method should be called during full shutdown of the runtime.
 	 */
+	@Override
 	public void close() {
-		DominoThreadFactory.term();
 		if(this.runner != null) {
+			this.runner.cancel(true);
 			this.runner = null;
 		}
+		DominoThreadFactory.term();
 	}
 	
 	/**

@@ -24,6 +24,10 @@ import org.openntf.openliberty.domino.ext.LoggerPrintStream;
 
 public enum OpenLibertyLog {
 	instance;
+	
+	public static Logger getLog() {
+		return instance.log;
+	}
 
 	public final PrintStream out;
 	public final Logger log;

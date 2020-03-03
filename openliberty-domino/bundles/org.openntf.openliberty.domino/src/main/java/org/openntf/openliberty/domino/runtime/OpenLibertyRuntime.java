@@ -25,6 +25,7 @@ import java.io.PrintStream;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.StandardWatchEventKinds;
@@ -86,12 +87,17 @@ public enum OpenLibertyRuntime implements Runnable {
 	private List<RuntimeService> runtimeServices = StreamSupport.stream(ServiceLoader.load(RuntimeService.class).spliterator(), false).collect(Collectors.toList());
 	
 	private Set<String> startedServers = Collections.synchronizedSet(new HashSet<>());
+	private Set<Process> subprocesses = Collections.synchronizedSet(new HashSet<>());
+	// Flag used by sendCommand to check whether the whole system is shutting down
+	private boolean terminating;
 	
 	private Path javaHome;
+	private Path execDirectory;
+	private Logger log;
 
 	@Override
 	public void run() {
-		Logger log = OpenLibertyLog.instance.log;
+		log = OpenLibertyLog.instance.log;
 		
 		if(log.isLoggable(Level.INFO)) {
 			log.info(format("Startup"));
@@ -105,6 +111,7 @@ public enum OpenLibertyRuntime implements Runnable {
 		if(log.isLoggable(Level.INFO)) {
 			log.info(format("Using Java runtime located at {0}", javaHome));
 		}
+		execDirectory = Paths.get(OpenLibertyUtil.getDominoProgramDirectory());
 		
 		Path wlp = null;
 		try {
@@ -129,7 +136,7 @@ public enum OpenLibertyRuntime implements Runnable {
 					}
 					switch(command.type) {
 					case START:
-						sendCommand(wlp, "start", command.args).waitFor(); //$NON-NLS-1$
+						sendCommand(wlp, "start", command.args); //$NON-NLS-1$
 						watchLog(wlp, (String)command.args[0]);
 						break;
 					case STOP:
@@ -189,12 +196,25 @@ public enum OpenLibertyRuntime implements Runnable {
 				t.printStackTrace(OpenLibertyLog.instance.out);
 			}
 		} finally {
+			terminating = true;
 			if(wlp != null) {
 				for(String serverName : startedServers) {
 					try {
+						if(log.isLoggable(Level.INFO)) {
+							log.info("Shutting down server " + serverName);
+						}
 						sendCommand(wlp, "stop", serverName); //$NON-NLS-1$
 					} catch (IOException | NotesException e) {
 						// Nothing to do here
+					}
+				}
+			}
+			
+			for(Process p : subprocesses) {
+				if(p.isAlive()) {
+					try {
+						p.waitFor();
+					} catch (InterruptedException e) {
 					}
 				}
 			}
@@ -334,20 +354,23 @@ public enum OpenLibertyRuntime implements Runnable {
 		
 		Map<String, String> env = pb.environment();
 		env.put("JAVA_HOME", javaHome.toString()); //$NON-NLS-1$
+		
 		String sysPath = System.getenv("PATH"); //$NON-NLS-1$
-		
-		String execDirectory = OpenLibertyUtil.getDominoProgramDirectory();
-		
-		if(!StringUtil.isEmpty(sysPath)) {
-			sysPath += File.pathSeparator + execDirectory;
-		}
+		sysPath += File.pathSeparator + execDirectory;
 		env.put("PATH", sysPath); //$NON-NLS-1$
+		
 		env.put("Domino_HTTP", getServerBase()); //$NON-NLS-1$
 		
+		if(log.isLoggable(Level.FINE)) {
+			OpenLibertyLog.getLog().fine(format("Executing command {0}", pb.command()));
+		}
 		Process process = pb.start();
+		subprocesses.add(process);
 		
-		DominoThreadFactory.executor.submit(new StreamRedirector(process.getInputStream()));
-		DominoThreadFactory.executor.submit(new StreamRedirector(process.getErrorStream()));
+		if(!terminating) {
+			DominoThreadFactory.executor.submit(new StreamRedirector(process.getInputStream()));
+			DominoThreadFactory.executor.submit(new StreamRedirector(process.getErrorStream()));
+		}
 		
 		return process;
 	}
