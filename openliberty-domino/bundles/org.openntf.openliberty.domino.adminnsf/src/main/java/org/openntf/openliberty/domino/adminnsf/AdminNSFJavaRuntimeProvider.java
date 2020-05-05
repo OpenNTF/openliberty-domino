@@ -24,10 +24,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -124,8 +126,8 @@ public class AdminNSFJavaRuntimeProvider implements JavaRuntimeProvider {
 							}
 						});
 						
-						@SuppressWarnings("unchecked")
-						List<Map<String, Object>> assets = releases.stream()
+						// Find any applicable releases, in order, as some releases may contain only certain platforms
+						List<Map<String, Object>> validReleases = releases.stream()
 							.filter(release -> !(Boolean)release.get("prerelease")) //$NON-NLS-1$
 							.filter(release -> !(Boolean)release.get("draft")) //$NON-NLS-1$
 							.filter(release -> {
@@ -136,9 +138,11 @@ public class AdminNSFJavaRuntimeProvider implements JavaRuntimeProvider {
 									return !name.contains("_openj9"); //$NON-NLS-1$
 								}
 							})
-							.findFirst()
-							.map(release -> (List<Map<String, Object>>)release.get("assets")) //$NON-NLS-1$
-							.orElseThrow(() -> new IllegalStateException("Unable to locate AdoptOpenJDK build in release list"));
+							.filter(release -> release.containsKey("assets")) //$NON-NLS-1$
+							.collect(Collectors.toList());
+						if(validReleases.isEmpty()) {
+							throw new IllegalStateException("Unable to locate AdoptOpenJDK build in release list");
+						}
 						
 						// HotSpot:
 						//    Linux: https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.6%2B10/OpenJDK11U-jdk_x64_linux_hotspot_11.0.6_10.tar.gz
@@ -148,7 +152,12 @@ public class AdminNSFJavaRuntimeProvider implements JavaRuntimeProvider {
 						//    Linux: https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.6%2B10_openj9-0.18.1/OpenJDK11U-jdk_x64_linux_openj9_11.0.6_10_openj9-0.18.1.tar.gz
 						//    Windows x64: https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.6%2B10_openj9-0.18.1/OpenJDK11U-jdk_x64_windows_openj9_11.0.6_10_openj9-0.18.1.zip
 						String qualifier = format("jdk_{0}_{1}", getOsArch(), getOsName()); //$NON-NLS-1$
-						Map<String, Object> download = assets.stream()
+						@SuppressWarnings("unchecked")
+						Map<String, Object> download = validReleases.stream()
+							.map(release -> (List<Map<String, Object>>)release.get("assets")) //$NON-NLS-1$
+							.flatMap(Collection::stream)
+							.filter(asset -> !StringUtil.toString(asset.get("name")).contains("-testimage")) //$NON-NLS-1$ //$NON-NLS-2$
+							.filter(asset -> !StringUtil.toString(asset.get("name")).contains("-debugimage")) //$NON-NLS-1$ //$NON-NLS-2$
 							.filter(asset -> StringUtil.toString(asset.get("name")).contains("-" + qualifier + "_")) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 							.filter(asset -> "application/x-compressed-tar".equals(asset.get("content_type")) || "application/zip".equals(asset.get("content_type"))) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 							.findFirst()
