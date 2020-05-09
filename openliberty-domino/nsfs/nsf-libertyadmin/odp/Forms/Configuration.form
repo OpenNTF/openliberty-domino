@@ -49,7 +49,7 @@
       <par def="1"/>
       <par def="1"/>
       <table altbgcolor="white" bgcolor="#efefef" colorstyle="left"
-        columnspacing="0.0500in" refwidth="14.8333in"
+        columnspacing="0.0500in" refwidth="14.7396in"
         rowspacing="0.0500in" widthtype="fitmargins">
         <tablecolumn width="2in"/>
         <tablecolumn width="100%"/>
@@ -149,8 +149,8 @@ Yg4BAIQAAAAAAAAAAAA=
                   recalconchange="true" ui="dialoglist">
                   <textlist>
                     <text>Domino JVM|Domino</text>
-                    <text>1.8</text>
-                    <text>11</text>
+                    <text>1.8 (LTS)|1.8</text>
+                    <text>11 (LTS)|11</text>
                     <text>14</text>
                   </textlist>
                 </keywords>
