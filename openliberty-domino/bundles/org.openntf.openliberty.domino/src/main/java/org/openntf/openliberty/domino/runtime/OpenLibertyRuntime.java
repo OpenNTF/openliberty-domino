@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.io.Writer;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -146,8 +147,9 @@ public enum OpenLibertyRuntime implements Runnable {
 						String serverName = (String)command.args[0];
 						String serverXml = (String)command.args[1];
 						String serverEnv = (String)command.args[2];
+						String jvmOptions = (String)command.args[3];
 						@SuppressWarnings("unchecked")
-						List<Path> additionalZips = (List<Path>)command.args[3];
+						List<Path> additionalZips = (List<Path>)command.args[4];
 						
 						if(!serverExists(wlp, serverName)) {
 							sendCommand(wlp, "create", serverName).waitFor(); //$NON-NLS-1$
@@ -160,6 +162,9 @@ public enum OpenLibertyRuntime implements Runnable {
 						}
 						for(Path zip : additionalZips) {
 							deployAdditionalZip(wlp, serverName, zip);
+						}
+						if(StringUtil.isNotEmpty(jvmOptions)) {
+							deployJvmOptions(wlp, serverName, jvmOptions);
 						}
 						break;
 					}
@@ -235,8 +240,8 @@ public enum OpenLibertyRuntime implements Runnable {
 		startedServers.remove(serverName);
 	}
 	
-	public void createServer(String serverName, String serverXml, String serverEnv, List<Path> additionalZips) {
-		taskQueue.add(new RuntimeTask(RuntimeTask.Type.CREATE_SERVER, serverName, serverXml, serverEnv, additionalZips));
+	public void createServer(String serverName, String serverXml, String serverEnv, String jvmOptions, List<Path> additionalZips) {
+		taskQueue.add(new RuntimeTask(RuntimeTask.Type.CREATE_SERVER, serverName, serverXml, serverEnv, jvmOptions, additionalZips));
 	}
 	
 	public void deployDropin(String serverName, String warName, Path warFile, boolean deleteAfterDeploy) {
@@ -301,14 +306,20 @@ public enum OpenLibertyRuntime implements Runnable {
 			}
 		}
 	}
-	private void deployServerEnv(Path path, String serverName, String serverXml) throws IOException {
+	private void deployServerEnv(Path path, String serverName, String serverEnv) throws IOException {
 		Path xmlFile = path.resolve("usr").resolve("servers").resolve(serverName).resolve("server.env"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		try(OutputStream os = Files.newOutputStream(xmlFile, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
-			try(PrintStream ps = new PrintStream(os)) {
-				ps.print(serverXml);
-			}
+		try(Writer w = Files.newBufferedWriter(xmlFile, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
+			w.write(serverEnv);
 		}
 	}
+	/** @since 2.0.0 */
+	private void deployJvmOptions(Path path, String serverName, String jvmOptions) throws IOException {
+		Path file = path.resolve("usr").resolve("servers").resolve(serverName).resolve("jvm.options"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		try(Writer w = Files.newBufferedWriter(file, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
+			w.write(jvmOptions);
+		}
+	}
+	
 	private void deployAdditionalZip(Path path, String serverName, Path zip) throws IOException {
 		Path serverBase = path.resolve("usr").resolve("servers").resolve(serverName); //$NON-NLS-1$ //$NON-NLS-2$
 		try(InputStream is = Files.newInputStream(zip)) {

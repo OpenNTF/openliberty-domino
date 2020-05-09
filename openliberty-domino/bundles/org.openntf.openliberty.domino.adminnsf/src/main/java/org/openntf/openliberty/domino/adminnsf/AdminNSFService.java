@@ -61,6 +61,8 @@ public class AdminNSFService implements Runnable {
 	public static final String ITEM_DEPLOYMENTZIPS = "DeploymentZIPs"; //$NON-NLS-1$
 	public static final String ITEM_APPNAME = "AppName"; //$NON-NLS-1$
 	public static final String ITEM_WAR = "WarFile"; //$NON-NLS-1$
+	/** @since 2.0.0 */
+	public static final String ITEM_JVMOPTIONS = "JvmOptions"; //$NON-NLS-1$
 	
 	private long lastRun = -1;
 	
@@ -100,6 +102,7 @@ public class AdminNSFService implements Runnable {
 								}
 								String serverXml = serverDoc.getItemValueString(ITEM_SERVERXML);
 								String serverEnv = serverDoc.getItemValueString(ITEM_SERVERENV);
+								String jvmOptions = serverDoc.getItemValueString(ITEM_JVMOPTIONS);
 								List<Path> additionalZips = new ArrayList<>();
 								if(serverDoc.hasItem(ITEM_DEPLOYMENTZIPS)) {
 									RichTextItem deploymentItem = (RichTextItem)serverDoc.getFirstItem(ITEM_DEPLOYMENTZIPS);
@@ -115,7 +118,7 @@ public class AdminNSFService implements Runnable {
 									}
 								}
 								
-								OpenLibertyRuntime.instance.createServer(serverName, serverXml, serverEnv, additionalZips);
+								OpenLibertyRuntime.instance.createServer(serverName, serverXml, serverEnv, jvmOptions, additionalZips);
 								OpenLibertyRuntime.instance.startServer(serverName);
 							} else {
 								if(log.isLoggable(Level.FINER)) {
