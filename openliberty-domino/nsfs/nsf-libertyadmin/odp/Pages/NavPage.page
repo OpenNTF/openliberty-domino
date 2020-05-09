@@ -1,37 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<note xmlns="http://www.lotus.com/dxl" class="form">
+<page bgcolor="#d6dde5" hide="mobile" name="NavPage"
+  publicaccess="false" renderpassthrough="true" xmlns="http://www.lotus.com/dxl">
+  <body>
+    <richtext>
+      <pardef id="1" leftmargin="0.7500in" rightmargin="100%"/>
+      <par def="1"/>
+      <par def="1">
+        <embeddedoutline expand="none" height="0.4583in"
+          heighttype="fitcontent" name="TempOutline" outline="MainOut"
+          scrollbars="false" showtwistie="true" targetframe="NotesView" widthtype="fitwindow">
+          <title>
+            <font style="bold"/>
+            <layout entryvoffset="0.0500in" height="0.2000in"
+              heighttype="fixed" labelalign="middleleft"
+              labelhoffset="0.2000in" labelvoffset="0"/>
+          </title>
+          <toplevel selectedcolor="white">
+            <eoutlinebackground repeat="hrepeat" selectedcolor="#576c83"/>
+            <layout entryvoffset="0.0403in" height="0.2000in"
+              heighttype="fixed" imagealign="middleleft"
+              labelalign="middleleft" labelhoffset="0.2250in" labelvoffset="0"/>
+          </toplevel>
+          <sublevel selectedcolor="white">
+            <eoutlinebackground repeat="hrepeat" selectedcolor="#576c83"/>
+            <layout entryvoffset="0.0403in" height="0.2000in"
+              heighttype="fixed" imagealign="middleleft"
+              labelalign="middleleft" labelhoffset="0.2250in" labelvoffset="0"/>
+          </sublevel>
+          <border/>
+        </embeddedoutline>
+      </par>
+    </richtext>
+  </body>
   <item name="OriginalModTime">
     <datetime dst="true">20061024T120302,07-04</datetime>
   </item>
-  <item name="$HTMLCode" sign="true">
-    <rawitemdata type="1">
-X/8QAAIADwAHAAAAAAAAAA==
-</rawitemdata>
-  </item>
-  <item name="$TITLE">
-    <text>NavPage</text>
-  </item>
-  <item name="$Info" sign="true">
-    <rawitemdata type="1">
-hhgBAIAAAAAAgAAATwABANbd5QAQAAAA
-</rawitemdata>
-  </item>
-  <item name="$Body" sign="true">
-    <rawitemdata type="1">
-gQKC/1oAAQAAAAAAAAAAADgEAAA4BAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAABAAAAAJSAOAQAADgEAABZTGQAAQAAAAQAAACDBAEAhf8JAAEAAAogAIECgwQBAIX/
-CAABAAAK3QYAAK3/cf8qAAAAAAADABYACAAAAAAAAAAAAAAAAAAAAAAAAAAAAE1haW5PdXQArf8U
-ABsACAAAAAgATWFpbk91dADq/z4AGwABhAAAZACUAgEAAAoAAAAAAAAAAAEBAAoBAAAKAAAFAP//
-/wABAAAAAAAAAAAAAAAAAAAAAAAAAOz/IgHgDwQAAAAAAAAAAAAAAAAAAAAAAAAAAABIAAAAIAE6
-AAAAIAE6AAAAIAELAAkAAQAACgEAAAoBAAAKAQAACgEAAAoBAAAKAAAAAAAAIAFEAUQBAwADAAMA
-BQD///8ABQD///8ABQD///8ABQD///8ABQD///8AAQBXbIMABQA/gIAABQD39/cAAQBXbIMABQA/
-gIAAAQAAAAAAAQD///8AAQD///8AAAAAAAIAAgAAAAAAAwADAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAEAAAAAAAEAAAAAAAEAAAAAAAEAAAAAAAEAAAAAAAEAAAAAAAAAEwAAAAAAAAAAAAAAAAAA
-AAAAAAAAAFRlbXBPdXRsaW5lTm90ZXNWaWV3/P86AAAAAAAAAAAAAAAAAAAAAAAAAAAABgAAAAAA
-AAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAK4C3gYAAK4Ahf8IAAEAAAo=
-</rawitemdata>
-  </item>
-  <item name="$Flags">
-    <text>C34WQ1</text>
-  </item>
-</note>
+</page>

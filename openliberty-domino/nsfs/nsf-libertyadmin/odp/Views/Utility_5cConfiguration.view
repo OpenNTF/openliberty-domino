@@ -1,59 +1,72 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<note xmlns="http://www.lotus.com/dxl" class="view">
-  <item name="$FormatNote" summary="true" sign="true">
-    <rawitemdata type="4">
-AQB+KIAn7bruOpvxfwCFfCWF
-</rawitemdata>
-  </item>
-  <item name="$FormulaClass" sign="true">
-    <text>1</text>
-  </item>
-  <item name="$Index" sign="true">
-    <text/>
-  </item>
-  <item name="$Formula" summary="true" sign="true">
-    <formula compiled="true">
-mgACAAwAAgAkMp8AAwACAAwAAgAkM2kAAwACAAwAAgAkNKQAAwAFACwAJwAGAAQAAgACAAIACQAE
-AEZvcm0kMiQzJDQkQ29uZmxpY3QkUkVGAAQABAAAADYABQAEAEZvcm0BAA0AQ29uZmlndXJhdGlv
-bgAKAgUACQAkQ29uZmxpY3QAaAEeARwCAwAHAA4ACAAJTDFTNFM1Uw==
-</formula>
-  </item>
-  <item name="$Collation" summary="true">
-    <rawitemdata type="2">
-BgAAAABE
-</rawitemdata>
-  </item>
-  <item name="$ViewFormat" summary="true" sign="true">
-    <rawitemdata type="5">
-AQAFAAIAiEAAAFZDAAACAAEACgAKAFAAAQAACgAAAAAAAAAAAAICAAAAVkMAAAQABAAAAAAAUAAB
-AAAKAAAAAAAAAAAAAgIAAABWQwAAAgAEAA4AAABQAAEAAAoAAAABEAAAAAACAgAAAFZDAAACAAcA
-DgAAAHoAAQAACgAAAAAAAAAAAAICAAAAVkMAAAIACAAOAAAAeAABAAAKAAAAAAAAAAAAAgIAAAAk
-MCMKAAAACACSAAMAAQUBAAQAf0Ew/0Zvcm1Gb3JtJDJTaXplDgACAAwAAgAkMp8AAwAkM0NyZWF0
-ZWQOAAIADAACACQzaQADACQ0TW9kaWZpZWQOAAIADAACACQ0pAADACYAAQAAAAEBAAkBAAAKAQEO
-CgAAPwCtKwEAAQABAAAAAAAAAAAAV0MBAQAJAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//8AAAAA
-AAAAAAAAAAAAAFdDAQEACQAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAP//AAAAAAAAAAAAAAAAAABX
-QwEBAAkAAAAAAAAAAAAAAAAAAAAAAACEAAAAAAD//wAAAAAAAAAAAAAAAAAAV0MBAQAJAAAAAAAA
-AAAAAAAAAAAAAAAABAAAAAAA//8AAAAAAAAAAAAAAAAAAFdDAQEACQAAAAAAAAAAAAAAAAAAAAAA
-AAQAAAAAAP//AAAAAAAAAAAAAAAAAABCABEAAAABAP///wABAO/v7wABAP///wAAAAAAAAAAAAEA
-////AAEA////AAAAAQAAAAAAAQAAAAAAAQAAAAAAAAAIAAAAAAABAFlDAAEQAAAAAQAAAAEAAAAA
-AAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAuLCQA
-</rawitemdata>
-  </item>
-  <item name="$Comment" sign="true">
-    <text/>
-  </item>
-  <item name="$Flags">
-    <text>Yw</text>
-  </item>
-  <item name="$V5ACTIONS" sign="true">
-    <rawitemdata type="1">
-vRwjAAAAAQABAAAAAQAAAAAAAAAAAAAACAACAHn/bAABANTQyAABAAAAAAAJAAAAAAABANTQyAAA
-AB8AAAAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAPz/OgAAAAAAAQAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAEAAAAAAAAAAAAAAAAAAAA=
-</rawitemdata>
-  </item>
-  <item name="$TITLE" sign="true">
-    <text>Utility\Configuration|Configuration</text>
-  </item>
-</note>
+<view alias="Configuration" allowcustomizations="false"
+  allownewdocuments="false" altrowcolor="#efefef" bgcolor="white"
+  boldunreadrows="false" evaluateactions="false" extendlastcolumn="true"
+  gridcolor="white" gridstyle="solid" headerbgcolor="white"
+  headerlinecount="1" headers="beveled" hide="web"
+  hidemarginborder="false" marginbgcolor="white" marginwidth="0px"
+  name="Utility\Configuration" onopengoto="lastopened"
+  onrefresh="displayindicator" opencollapsed="false"
+  publicaccess="false" rowlinecount="1" rowspacing="1"
+  showhierarchies="false" showinmenu="false" showmargin="true"
+  showresponsehierarchy="true" shrinkrows="false" totalscolor="black"
+  uniquekeys="false" unreadcolor="black" unreadmarks="none" xmlns="http://www.lotus.com/dxl">
+  <code event="selection">
+    <formula>SELECT Form="Configuration" &amp; !@IsAvailable($Conflict)</formula>
+  </code>
+  <actionbar bgcolor="#d4d0c8" bordercolor="black">
+    <actionbuttonstyle bgcolor="#d4d0c8"/>
+    <font color="system"/>
+    <border style="solid" width="0px 0px 1px"/>
+  </actionbar>
+  <column hidedetailrows="false" itemname="$0" resizable="true"
+    separatemultiplevalues="false" showaslinks="false"
+    sortnoaccent="true" sortnocase="true" width="10">
+    <columnheader title="#">
+      <font size="9pt" style="bold"/>
+    </columnheader>
+    <code event="value">
+      <formula>@DocNumber</formula>
+    </code>
+  </column>
+  <column hidedetailrows="false" itemname="Form" resizable="true"
+    separatemultiplevalues="false" showaslinks="false"
+    sortnoaccent="false" sortnocase="true" width="10">
+    <columnheader title="Form">
+      <font size="9pt" style="bold"/>
+    </columnheader>
+  </column>
+  <column hidedetailrows="false" itemname="$2" resizable="true"
+    separatemultiplevalues="false" showaslinks="false"
+    sortnoaccent="false" sortnocase="true" width="10">
+    <columnheader title="Size">
+      <font size="9pt" style="bold"/>
+    </columnheader>
+    <numberformat bytes="true" currencysym="$" currencysymtype="custom"
+      decimalsym="." format="fixed" parens="false" percent="false"
+      punctuated="false" thousandssep="," usecustomsym="false"/>
+    <code event="value">
+      <formula>@DocLength</formula>
+    </code>
+  </column>
+  <column hidedetailrows="false" itemname="$3" resizable="true"
+    separatemultiplevalues="false" showaslinks="false"
+    sortnoaccent="false" sortnocase="true" width="15.2500">
+    <columnheader title="Created">
+      <font size="9pt" style="bold"/>
+    </columnheader>
+    <code event="value">
+      <formula>@Created</formula>
+    </code>
+  </column>
+  <column hidedetailrows="false" itemname="$4" resizable="true"
+    separatemultiplevalues="false" showaslinks="false"
+    sortnoaccent="false" sortnocase="true" width="15">
+    <columnheader title="Modified">
+      <font size="9pt" style="bold"/>
+    </columnheader>
+    <code event="value">
+      <formula>@Modified</formula>
+    </code>
+  </column>
+</view>

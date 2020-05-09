@@ -1,55 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<note xmlns="http://www.lotus.com/dxl" class="view">
-  <item name="$FormatNote" summary="true">
-    <rawitemdata type="4">
-AQCU7G6FoWlsP/FjaADvdyWF
-</rawitemdata>
-  </item>
-  <item name="$TITLE" sign="true">
-    <text>Trash</text>
-  </item>
-  <item name="$Index" sign="true">
-    <text/>
-  </item>
-  <item name="$Formula" summary="true" sign="true">
-    <formula compiled="true">
-SgAFACAAGwADAAQACQAEAEZvcm0kQ29uZmxpY3QkUkVGAAQABAAAABgAvwBYAQAAAAAAAADAY0AP
-AgQAAwAHAAwABQAJNVM2UwA=
-</formula>
-  </item>
-  <item name="$FormulaClass" sign="true">
-    <text>1</text>
-  </item>
-  <item name="$Collation" summary="true">
-    <rawitemdata type="2">
-BgAAAABE
-</rawitemdata>
-  </item>
-  <item name="$ViewFormat" summary="true" sign="true">
-    <rawitemdata type="5">
-AQACAAIAiEAAAFZDAAACAAEACgAKAFAAAQAACgAAAAAAAAAAAAICAAAAVkMAAAQABAAAAAAAUAAB
-AAAKAAAAAAAAAAAAAgIAAAAkMCMKAAAACACSAAMAAQUBAAQAf0Ew/0Zvcm1Gb3JtJgABAAAAAQEA
-CQEAAAoBAQ4KAAA/AK0rAQABAAEAAAAAAAAAAABXQwEBAAkAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAD//wAAAAAAAAAAAAAAAAAAV0MBAQAJAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAA//8AAAAAAAAA
-AAAAAAAAAEIAEQAAAAEA////AAEA7+/vAAEA////AAAAAAAAAAAAAQD///8AAQD///8AAAABAAAA
-AAABAAAAAAABAAAAAAAAAAgAAAAAAAEA
-</rawitemdata>
-  </item>
-  <item name="$Comment" sign="true">
-    <text/>
-  </item>
-  <item name="$Flags">
-    <text>PYl</text>
-  </item>
+<view allowcustomizations="false" allownewdocuments="false"
+  altrowcolor="#efefef" bgcolor="white" boldunreadrows="false"
+  deleteddocs="true" evaluateactions="false" extendlastcolumn="true"
+  gridcolor="white" gridstyle="solid" headerbgcolor="white"
+  headerlinecount="1" headers="beveled" hidemarginborder="false"
+  marginbgcolor="white" marginwidth="0px" name="Trash" noreplace="true"
+  onopengoto="lastopened" onrefresh="displayindicator"
+  opencollapsed="false" publicaccess="false" rowlinecount="1"
+  rowspacing="1" showhierarchies="false" showinmenu="false"
+  showmargin="true" showresponsehierarchy="true" shrinkrows="false"
+  totalscolor="black" uniquekeys="false" unreadcolor="black"
+  unreadmarks="none" xmlns="http://www.lotus.com/dxl">
+  <code event="selection">
+    <formula>SELECT (@TextToNumber(@Version) &gt; 158)</formula>
+  </code>
+  <actionbar bgcolor="#d4d0c8" bordercolor="black">
+    <actionbuttonstyle bgcolor="#d4d0c8"/>
+    <font color="system"/>
+    <border style="solid" width="0px 0px 1px"/>
+  </actionbar>
+  <column hidedetailrows="false" itemname="$0" resizable="true"
+    separatemultiplevalues="false" showaslinks="false"
+    sortnoaccent="true" sortnocase="true" width="10">
+    <columnheader title="#">
+      <font size="9pt" style="bold"/>
+    </columnheader>
+    <code event="value">
+      <formula>@DocNumber</formula>
+    </code>
+  </column>
+  <column hidedetailrows="false" itemname="Form" resizable="true"
+    separatemultiplevalues="false" showaslinks="false"
+    sortnoaccent="false" sortnocase="true" width="10">
+    <columnheader title="Form">
+      <font size="9pt" style="bold"/>
+    </columnheader>
+  </column>
   <item name="$ViewInheritedFrom">
     <text>All</text>
   </item>
-  <item name="$V5ACTIONS" sign="true">
-    <rawitemdata type="1">
-vRwjAAAAAQABAAAAAQAAAAAAAAAAAAAACAACAHn/bAABANTQyAABAAAAAAAJAAAAAAABANTQyAAA
-AB8AAAAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAPz/OgAAAAAAAQAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAEAAAAAAAAAAAAAAAAAAAA=
-</rawitemdata>
-  </item>
-</note>
+</view>

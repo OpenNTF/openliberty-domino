@@ -1,35 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<note xmlns="http://www.lotus.com/dxl" class="filter">
-  <item name="$POID">
-    <datetime dst="true">20080313T103820,40-04</datetime>
-  </item>
-  <item name="$SiteMapList" sign="true">
-    <rawitemdata type="1a">
-AQYBAAEABQBIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAFAEgAhAARCAIApgAAAAAAAAASAAAAMgAAAAAAAAAAAAAAQAAAAAAA
-AwADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFRm9ybXVsYSBDb25zb2xlAAEA9v8w
-AAAAAAADAAMADgAAAAAAAAAAAAAAAAAAAAAAAAAAAEZvcm11bGFDb25zb2xlAAY+AAoABAAAACoA
-iwACACkBAAAAAAAA+wIqAQEAAQA1AAEAAQA2AB8CCgIEAB4BAwAHAA4ABwAJNlM4UzlTAEgAZQAA
-CgIApwAAAAAAAAAVAAAAUAAAAAAAAAAAAAAAAAAAAAAABQAOAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAFRWRpdCBDb25maWd1cmF0aW9uAAEA9v9OAAEAAAAFAA4ANAAAAAAAAAAAAAAA
-AAA0AAAAKAACAKIPAAAAAAAAAQASAEVkaXQgQ29uZmlndXJhdGlvbu0CAwAHAAoAAwAJNFMASABQ
-ACAAAgCgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABQAAAAAAD8/wAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAZOAAAAPAABAAsAUHJlZmVyZW5jZXMAAQALAEhpZGRlblZpZXdzAPQA9wMB
-AAsAT3RoZXIgVmlld3MACgIDAAcAEAAJAAk0UzZTOFM5UwBIADIAAQgCAKMAAAAAAAAACAAAACoA
-AAAAAAAAAAAAAAAAAAAAAAMAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABVRyYXNo
-AAEA9v8nAAAAAAADAAIABQAAAAAAAAAAAAAAAAAAAAAAAAAAAFRyYXNoP0gA+AAwCgAAZwAAAAAA
-AAAQAAAAXAAAAAAAAAAAAAAAjAAAAAAABQAOAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAFT3RoZXIgVmlldy4uLgABAPb/WgABAAAABQAOAEAAAAAAAAAAAAAAAAAAQAAKAAQACAASAAEA
-BABWaWV3+wEYAQMABwAMAAUACTBTMEUAAAASAAIAkhMAAAAAAADtAQMABwAKAAMACTBSAAAGigAK
-AAQAAABkAIsAAgApAQAAAAAAAPsCKgEBAAEANQABAAEANgAfAgoCBAAeAQEACwBQcmVmZXJlbmNl
-cwABAAsASGlkZGVuVmlld3MA9AD3AwEADQBPdGhlciBWaWV3Li4uAAoCHQIDAAcAIAAZAAk2UzhT
-OVMxM1MxNFMxOFMyMFMyMlMyM1MA
-</rawitemdata>
-  </item>
-  <item name="$TITLE">
-    <text>MainOut</text>
-  </item>
-  <item name="$Flags">
-    <text>m</text>
-  </item>
-</note>
+<outline name="MainOut" publicaccess="false" xmlns="http://www.lotus.com/dxl">
+  <outlineentry hide="web" label="Formula Console" type="namedelementlink">
+    <namedelementlink name="FormulaConsole" type="form"/>
+    <code event="hidewhen">
+      <formula>!(@UserAccess(@DbName; [AccessLevel]) = "5":"6")</formula>
+    </code>
+  </outlineentry>
+  <outlineentry keepfocus="true" label="Edit Configuration" type="action">
+    <code event="value">
+      <formula>@Command([ToolsRunMacro]; "Edit Configuration")</formula>
+    </code>
+  </outlineentry>
+  <outlineentry type="otherviews">
+    <code event="hidewhen">
+      <formula>@GetProfileField("Preferences"; "HiddenViews"; @UserName) = "Other Views"</formula>
+    </code>
+  </outlineentry>
+  <outlineentry label="Trash" type="namedelementlink">
+    <namedelementlink name="Trash" type="view"/>
+  </outlineentry>
+  <outlineentry hide="web" keepfocus="true" label="Other View..." type="action">
+    <code event="value">
+      <formula>@SetTargetFrame("View");
+@Command([ViewChange])</formula>
+    </code>
+    <code event="hidewhen">
+      <formula>!(@UserAccess(@DbName; [AccessLevel]) = "5":"6") | @GetProfileField("Preferences"; "HiddenViews"; @UserName) = "Other View..."</formula>
+    </code>
+  </outlineentry>
+</outline>

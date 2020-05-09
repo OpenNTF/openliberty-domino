@@ -1,22 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<note xmlns="http://www.lotus.com/dxl" class="form">
-  <item name="$TITLE" sign="true">
-    <text>Navigation Frame</text>
-  </item>
-  <item name="$Comment" sign="true">
-    <text/>
-  </item>
-  <item name="$FrameSet" sign="true">
-    <rawitemdata type="1">
-7/8YAAIAAwAAAAAAAAAAAAAAAAAAAAAA8P8+AEUAAAAAAAAAAAABAAEAAAAAAAUAAAAAAAUAAAAA
-AAIAAQAAAAAAAQAAAAAAAAABADEAAwAlAAMAAQDx/zQAEQAAAABAAAECAAEAAQAAAAAAAAAAAAAA
-AQAAAAAAAAABAP///8QBAAAKAQAAAADE9v8zAAAAAAADAAcAEQAAAAAAAAAAAAAAAAAAAAAAAAAA
-AE5hdmlnYXRpb24gSGVhZGVyP/H/PQARAAAAAEAAAAMAAQABAAAAAAAAAAAACQABAAAAAAAAAE5v
-dGVzVmlldwEA////xAEAAAoBAAAAAMQ/9v8pAAAAAAADAAcABwAAAAAAAAAAAAAAAAAAAAAAAAAA
-AE5hdlBhZ2U/
-</rawitemdata>
-  </item>
-  <item name="$Flags">
-    <text>#34CQ</text>
-  </item>
-</note>
+<frameset bordercolor="black" borderwidth="1px" name="Navigation Frame"
+  publicaccess="false" rows="49px 37" spacing="0px" xmlns="http://www.lotus.com/dxl">
+  <frame border3d="false" noresize="true" scrolling="never">
+    <namedelementlink name="Navigation Header" type="page"/>
+  </frame>
+  <frame border3d="false" scrolling="auto" targetframe="NotesView">
+    <namedelementlink name="NavPage" type="page"/>
+  </frame>
+</frameset>

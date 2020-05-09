@@ -1,139 +1,180 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<note xmlns="http://www.lotus.com/dxl" class="form">
-  <item name="$Comment" sign="true">
-    <text/>
-  </item>
-  <item name="$HTMLCode" sign="true">
-    <rawitemdata type="1">
-X/8QAAIADwAHAAAAAAAAAA==
-</rawitemdata>
-  </item>
-  <item name="$TITLE">
-    <text>Server</text>
-  </item>
-  <item name="$Info" sign="true">
-    <rawitemdata type="1">
-hhgBAIAAAAAAgAAAAQABAP///wAQAAAA
-</rawitemdata>
-  </item>
-  <item name="$SubForms">
-    <text>Footer</text>
-  </item>
+<form name="Server" publicaccess="false" renderpassthrough="true" xmlns="http://www.lotus.com/dxl">
+  <code event="windowtitle">
+    <formula>"Server"</formula>
+  </code>
+  <actionbar bgcolor="#d4d0c8" bordercolor="black">
+    <actionbuttonstyle bgcolor="#d4d0c8"/>
+    <font color="system"/>
+    <border style="solid" width="0px 0px 1px"/>
+    <action align="right" hide="edit previewedit" icon="4" title="Delete">
+      <code event="click">
+        <formula>@Command([EditClear])</formula>
+      </code>
+    </action>
+    <action hide="edit previewedit" icon="5" title="Edit">
+      <code event="click">
+        <formula>@Command([EditDocument])</formula>
+      </code>
+      <code event="hidewhen">
+        <formula>@ToNumber(@UserAccess(@DbName; [AccessLevel])) &lt; 4 &amp; !(@Name([Abbreviate]; @UserName)=@Author)</formula>
+      </code>
+    </action>
+    <action hide="preview read" title="Save">
+      <code event="click">
+        <formula>@If(
+	@ClientType="Web" | @IsValid; @Do(
+		@Command([FileSave]);
+		@Command([EditDocument])
+	);
+	""
+)</formula>
+      </code>
+    </action>
+    <action hide="preview read" title="Save and Close">
+      <code event="click">
+        <formula>@If(
+	@ClientType="Web" | @IsValid; @Do(
+		@Command([FileSave]);
+		@Command([FileCloseWindow])
+	);
+	""
+)</formula>
+      </code>
+    </action>
+  </actionbar>
+  <body>
+    <richtext>
+      <pardef id="1"/>
+      <par def="1"/>
+      <par def="1"/>
+      <table altbgcolor="white" bgcolor="#efefef" colorstyle="left"
+        columnspacing="0.0500in" refwidth="9.3229in"
+        rowspacing="0.0500in" widthtype="fitmargins">
+        <tablecolumn width="2in"/>
+        <tablecolumn width="100%"/>
+        <tablerow>
+          <tablecell borderwidth="0px">
+            <pardef id="3" keeptogether="true" keepwithnext="true"/>
+            <par def="3">Name</par>
+          </tablecell>
+          <tablecell borderwidth="0px">
+            <pardef id="4" keeptogether="true" keepwithnext="true"/>
+            <par def="4">
+              <field kind="editable" name="Name" type="text">
+                <code event="defaultvalue">
+                  <formula>"defaultServer"</formula>
+                </code>
+              </field>
+              <compositedata afterbegincount="3" aftercontainercount="1"
+                afterparcount="7" containertype="65418" nexttype="222"
+                prevtype="65418" type="98">
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata>
+            </par>
+          </tablecell>
+        </tablerow>
+      </table>
+      <par def="1"/>
+      <table altbgcolor="white" bgcolor="#efefef" colorstyle="left"
+        columnspacing="0.0500in" refwidth="9.3229in"
+        rowspacing="0.0500in" widthtype="fitmargins">
+        <tablecolumn width="2in"/>
+        <tablecolumn width="100%"/>
+        <tablerow>
+          <tablecell borderwidth="0px">
+            <par def="3">server.env</par>
+          </tablecell>
+          <tablecell borderwidth="0px">
+            <par def="4">
+              <run>
+                <font name="monospace"/>
+                <field kind="editable" name="ServerEnv" type="text"/>
+              </run>
+              <compositedata afterbegincount="3" aftercontainercount="1"
+                afterparcount="6" containertype="65418" nexttype="222"
+                prevtype="65418" type="98">
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata>
+            </par>
+          </tablecell>
+        </tablerow>
+        <tablerow>
+          <tablecell borderwidth="0px">
+            <par def="3">server.xml</par>
+          </tablecell>
+          <tablecell borderwidth="0px">
+            <par def="4">
+              <run>
+                <font name="monospace"/>
+                <field kind="editable" name="ServerXML" type="text">
+                  <code event="defaultvalue">
+                    <formula>"&lt;?xml version=\"1.0\" encoding=\"UTF-8\"?&gt;
+&lt;server description=\"new server\"&gt;
+
+    &lt;!-- Enable features --&gt;
+    &lt;featureManager&gt;
+        &lt;feature&gt;jsp-2.3&lt;/feature&gt;
+    &lt;/featureManager&gt;
+
+    &lt;!-- To access this server from a remote client add a host attribute to the following element, e.g. host=\"*\" --&gt;
+    &lt;httpEndpoint id=\"defaultHttpEndpoint\"
+                  httpPort=\"9080\"
+                  httpsPort=\"9443\" /&gt;
+
+    &lt;!-- Automatically expand WAR files and EAR files --&gt;
+    &lt;applicationManager autoExpand=\"true\"/&gt;
+&lt;/server&gt;"</formula>
+                  </code>
+                </field>
+              </run>
+              <compositedata afterbegincount="3" aftercontainercount="1"
+                afterparcount="6" containertype="65418" nexttype="222"
+                prevtype="65418" type="98">
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata>
+            </par>
+          </tablecell>
+        </tablerow>
+        <tablerow>
+          <tablecell borderwidth="0px">
+            <par def="3">Additional deployment ZIPs</par>
+          </tablecell>
+          <tablecell borderwidth="0px">
+            <par def="4">
+              <field firstdisplay="attachment" kind="editable"
+                name="DeploymentZIPs" onlyallow="attachment" type="richtextlite"/>
+            </par>
+            <pardef hide="read print preview" id="5" keeptogether="true" keepwithnext="true"/>
+            <par def="5">
+              <run>
+                <font color="gray" size="8pt"/>Any attached ZIP files are expanded in the base directory of the deployed server.</run>
+            </par>
+          </tablecell>
+        </tablerow>
+      </table>
+      <pardef firstlineleftmargin="1in" id="2"/>
+      <par def="2"/>
+      <subformref name="Footer"/>
+      <pardef align="right" id="6">
+        <code event="hidewhen">
+          <formula>@IsNewDoc</formula>
+        </code>
+      </pardef>
+      <par def="6"/>
+    </richtext>
+  </body>
   <item name="$SubForm_RepIDs" sign="true">
     <text>0000000000000000</text>
-  </item>
-  <item name="$WindowTitle" sign="true">
-    <formula>"Server"</formula>
-  </item>
-  <item name="$Flags">
-    <text/>
-  </item>
-  <item name="Name" placeholder="true">
-    <rawitemdata type="0"/>
-  </item>
-  <item name="ServerEnv" placeholder="true">
-    <rawitemdata type="0"/>
-  </item>
-  <item name="ServerXML" placeholder="true">
-    <rawitemdata type="0"/>
-  </item>
-  <item name="CreatedBy" placeholder="true">
-    <rawitemdata type="0"/>
   </item>
   <item name="DateComposed" summary="false">
     <rawitemdata type="400">
 AAAAAAAAAAA=
 </rawitemdata>
   </item>
-  <item name="ModifiedBy" placeholder="true">
-    <rawitemdata type="0"/>
-  </item>
   <item name="DateModified" summary="false">
     <rawitemdata type="400">
 AAAAAAAAAAA=
 </rawitemdata>
   </item>
-  <item name="DeploymentZIPs" placeholder="true">
-    <rawitemdata type="0"/>
-  </item>
-  <item name="$Fields">
-    <textlist>
-      <text>DeploymentZIPs</text>
-      <text>DateModified</text>
-      <text>ModifiedBy</text>
-      <text>DateComposed</text>
-      <text>CreatedBy</text>
-      <text>ServerXML</text>
-      <text>ServerEnv</text>
-      <text>Name</text>
-    </textlist>
-  </item>
-  <item name="$Body" sign="true">
-    <rawitemdata type="1">
-gQKC/1oAAQAAAAAAAAAAAKAFAACgBQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAABAAAAAJSHAAAAAAAAAAAAAAAAAQAAAAQAAACDBAEAhf8IAAEAAAqBAoMEAQCF/wgA
-AQAACoECgv9aAAIAAAAAAAAAAACgBQAAoAUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAQAAAACUhQAAAACgBQcAAAAAAAEAAAAEAAAAgwQCAN0GAQD7//v/LAABAAAA
-AQIBAAAAAAAAAAAAAAAAAO/v7wD///8AAQAAAAAAAAAAAAAAXP8+AAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAA4AAAAAAAAAAQAACgAAAAABAAAAAADeBgEA+/+jDqAFSABIAEgA
-SAACAqQSAADoBSgRAAAAAgAAAQEAAIECgv9aAAMAAAAAAAAAAADoBSgR6AUAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACGAQAAAABUhwAAAAAAAAAAAAAAAAEAAAAEAAAA
-gwQDAIX/DAABAAAKTmFtZaQSAAG4Eck5gHAAAgAAAQEAAIECgv9aAAQAAAAAAAAAAAC4Eck5uBEA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACGAQAAAABUhwAAAAAAAAAA
-AAAAAAEAAAAEAAAAgwQEAIX/CAABAAAK3QYAAIr//v9QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAeAB4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACK/0IA
-igAABQAwAgAAAAAAAAIBAAAKGgAAAAAAAAAEAAAAAAAaAAAAGAABAA0AZGVmYXVsdFNlcnZlcgAD
-AE5hbWViDgEAhAAAAAAAAAAAAN4GAACK/4X/CAABAAAKpQYAAAAAgQKDBAEAhf8IAAEAAAqBAoME
-AgDdBgEA+//7/ywAAQAAAAMCAQAAAAAAAAAAAAAAAADv7+8A////AAEAAAAAAAAAAAAAAFz/PgAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOAAAAAAAAAAEAAAoAAAAAAQAAAAAA
-3gYBAPv/ow6gBUgASABIAEgAAgKkEgAA6AUoEQAAAAIAAAEBAACBAoMEAwCF/xIAAQAACnNlcnZl
-ci5lbnakEgABuBHJOYBwAAIAAAEBAACBAoMEBACF/wgAAQAACt0GAACK//7/UAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHgAeAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAiv8uAIoAAAUAMAIAAAAAAAACBAAACgAAAAAAAAAACQAAAAAAU2VydmVyRW52AGIO
-AQCEAAAAAAAAAAAA3gYAAIr/hf8IAAEAAAqkEgEA6AUoEQAAAAIAAAEBAACBAoMEAwCF/xIAAQAA
-CnNlcnZlci54bWykEgEBuBHJOYBwAAIAAAEBAACBAoMEBACF/wgAAQAACt0GAACK//7/UAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHgAeAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAiv9IAooAAAUAMAIAAAAAAAACBAAAChoCAAAAAAAACQAAAAAAGgIAABgC
-AQAOAjw/eG1sIHZlcnNpb249IjEuMCIgZW5jb2Rpbmc9IlVURi04Ij8+ADxzZXJ2ZXIgZGVzY3Jp
-cHRpb249Im5ldyBzZXJ2ZXIiPgAAICAgIDwhLS0gRW5hYmxlIGZlYXR1cmVzIC0tPgAgICAgPGZl
-YXR1cmVNYW5hZ2VyPgAgICAgICAgIDxmZWF0dXJlPmpzcC0yLjM8L2ZlYXR1cmU+ACAgICA8L2Zl
-YXR1cmVNYW5hZ2VyPgAAICAgIDwhLS0gVG8gYWNjZXNzIHRoaXMgc2VydmVyIGZyb20gYSByZW1v
-dGUgY2xpZW50IGFkZCBhIGhvc3QgYXR0cmlidXRlIHRvIHRoZSBmb2xsb3dpbmcgZWxlbWVudCwg
-ZS5nLiBob3N0PSIqIiAtLT4AICAgIDxodHRwRW5kcG9pbnQgaWQ9ImRlZmF1bHRIdHRwRW5kcG9p
-bnQiACAgICAgICAgICAgICAgICAgIGh0dHBQb3J0PSI5MDgwIgAgICAgICAgICAgICAgICAgICBo
-dHRwc1BvcnQ9Ijk0NDMiIC8+AAAgICAgPCEtLSBBdXRvbWF0aWNhbGx5IGV4cGFuZCBXQVIgZmls
-ZXMgYW5kIEVBUiBmaWxlcyAtLT4AICAgIDxhcHBsaWNhdGlvbk1hbmFnZXIgYXV0b0V4cGFuZD0i
-dHJ1ZSIvPgA8L3NlcnZlcj4DAFNlcnZlclhNTABiDgEAhAAAAAAAAAAAAN4GAACK/4X/CAABAAAK
-pBICAOgFKBEAAAACAAABAQAAgQKDBAMAhf8iAAEAAApBZGRpdGlvbmFsIGRlcGxveW1lbnQgWklQ
-c6QSAgG4Eck5gHAAAgAAAQEAAIECgwQEAIX/CAABAAAK3QYAAIr//v9QAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAACAAAAAAAAAAAAAAAAeAB4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAACw/xQAAAAAAAAACAAAAAAAAAAAAIr/MgCCAAEAAAACAAAAAAAAAgEAAAoAAAAAAAAAAA4A
-AAAAAERlcGxveW1lbnRaSVBzYg4BAIEAAAAAAAABAADeBgAAiv+F/wgAAQAACoECgv9aAAUAAAAA
-AAAAAAC4Eck5uBEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADWIQAA
-AABUhwAAAAAAAAAAAAAAAAEAAAAEAAAAgwQFAN0GAACF/4X/WQABAA4IQW55IGF0dGFjaGVkIFpJ
-UCBmaWxlcyBhcmUgZXhwYW5kZWQgaW4gdGhlIGJhc2UgZGlyZWN0b3J5IG9mIHRoZSBkZXBsb3ll
-ZCBzZXJ2ZXIuANIIAQCAgIAA3gYAAIX/pQYAAAAAgQKDBAIAhf8IAAEAAAqBAoMEAQCF/wgAAQAA
-Ct0GAACt/3H/KAAAAAAAAwAYAAYAAAAAAAAAAAAAAAAAAAAAAAAAAABGb290ZXKt/xMADgAIAAAA
-BwBGb290ZXIAAK4C3gYAAK4Ahf8IAAEAAAqBAoL/WgAGAAEAAAAAAAAAoAUAAKAFAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAkAAAAAlIcAAAAAAAAAAAAAAAABAAAA
-BAAAALv/GAAGAAAAJpAjCBiQCgAAAAgAiQADAIMEBgCF/wgAAQAACg==
-</rawitemdata>
-  </item>
-  <item name="$V5ACTIONS" sign="true">
-    <rawitemdata type="1">
-vRwjAAAAAQABAAAAAQAAAAAAAAAAAAAACAACAHn/bAABANTQyAABAAAAAAAJAAAAAAABANTQyAAA
-AB8AAAAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAPz/OgAAAAAAAQAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAEAAAAAAAAAAAAAAAAAAAC+/zwAAAABAAQAjwAAAQYAAAAEAAAARGVsZXRlIAAAABIA
-AgDaBwAAAAAAAO0BAwAHAAwABQAJMFMwRQC+/5YAAAABAAUADwAAAAQAXAABAAAARWRpdCAAAAAS
-AAIA6AcAAAAAAADtAQMABwAMAAUACTBTMEUAXAAKAAQAAAA+AIsAAgApAQAAAAAAAPsCKgH7AVQB
-AAAAAAAAAAAQQA4CAgAFAAAAAAAAAPQAtAJ5AAoCBAAeARwCAwAHABgAEQAJNlM5UzEwUzExUzEy
-UzE4UwC+/4wAAAABAAAAkwEAAAQAAAACAAAAU2F2ZXIACgAEAAAARgD7AAUBAQADAFdlYgAKAuQA
-HQKvACwAIAACAMYLAAAAAAAA7QECAOgHAAAAAAAA7QGzAq4ADAABAAAArgAEALUDAwAHACYAHwAJ
-MlJUNVM2UzhTMTBSVFQxNVJUVDE5UlQyMVJUMjJSAL7/lgAAAAEAAACTAQAADgAAAAMAAABTYXZl
-IGFuZCBDbG9zZXIACgAEAAAARgD7AAUBAQADAFdlYgAKAuQAHQKvACwAIAACAMYLAAAAAAAA7QEC
-APwRAAAAAAAA7QGzAq4ADAABAAAArgAEALUDAwAHACYAHwAJMlJUNVM2UzhTMTBSVFQxNVJUVDE5
-UlQyMVJUMjJSAA==
-</rawitemdata>
-  </item>
-</note>
+</form>
