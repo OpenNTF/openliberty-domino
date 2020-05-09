@@ -18,6 +18,7 @@ package org.openntf.openliberty.domino.adminnsf;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -53,13 +54,13 @@ import static java.text.MessageFormat.format;
 public class AdminNSFService implements Runnable {
 	private static final Logger log = OpenLibertyLog.instance.log;
 	
-	public static final String VIEW_SERVERS = "Servers";
-	public static final String ITEM_SERVERNAME = "Name";
-	public static final String ITEM_SERVERENV = "ServerEnv";
-	public static final String ITEM_SERVERXML = "ServerXML";
-	public static final String ITEM_DEPLOYMENTZIPS = "DeploymentZIPs";
-	public static final String ITEM_APPNAME = "AppName";
-	public static final String ITEM_WAR = "WarFile";
+	public static final String VIEW_SERVERS = "Servers"; //$NON-NLS-1$
+	public static final String ITEM_SERVERNAME = "Name"; //$NON-NLS-1$
+	public static final String ITEM_SERVERENV = "ServerEnv"; //$NON-NLS-1$
+	public static final String ITEM_SERVERXML = "ServerXML"; //$NON-NLS-1$
+	public static final String ITEM_DEPLOYMENTZIPS = "DeploymentZIPs"; //$NON-NLS-1$
+	public static final String ITEM_APPNAME = "AppName"; //$NON-NLS-1$
+	public static final String ITEM_WAR = "WarFile"; //$NON-NLS-1$
 	
 	private long lastRun = -1;
 	
@@ -179,7 +180,7 @@ public class AdminNSFService implements Runnable {
 			}
 		} catch(Throwable t) {
 			if(log.isLoggable(Level.SEVERE)) {
-				log.log(Level.SEVERE, "Encountered exception in " + getClass().getSimpleName(), t);
+				log.log(Level.SEVERE, MessageFormat.format("Encountered exception in {0}", getClass().getSimpleName()), t);
 				t.printStackTrace();
 			}
 		}
