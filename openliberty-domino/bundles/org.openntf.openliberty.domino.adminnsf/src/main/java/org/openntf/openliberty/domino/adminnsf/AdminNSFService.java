@@ -106,7 +106,7 @@ public class AdminNSFService implements Runnable {
 									List<EmbeddedObject> objects = deploymentItem.getEmbeddedObjects();
 									for(EmbeddedObject eo : objects) {
 										if(eo.getType() == EmbeddedObject.EMBED_ATTACHMENT) {
-											Path zip = Files.createTempFile(TEMP_DIR, "nsfdeployment", ".zip");
+											Path zip = Files.createTempFile(TEMP_DIR, "nsfdeployment", ".zip"); //$NON-NLS-1$ //$NON-NLS-2$
 											Files.deleteIfExists(zip);
 											eo.extractFile(zip.toString());
 											additionalZips.add(zip);
@@ -141,10 +141,11 @@ public class AdminNSFService implements Runnable {
 												for(EmbeddedObject eo : objects) {
 													// Deploy all attached files
 													if(eo.getType() == EmbeddedObject.EMBED_ATTACHMENT) {
-														Path dest = TEMP_DIR.resolve(eo.getSource() + System.currentTimeMillis());
-														eo.extractFile(dest.toAbsolutePath().toString());
+														Path warFile = TEMP_DIR.resolve(eo.getSource() + System.currentTimeMillis());
+														eo.extractFile(warFile.toString());
 														
-														OpenLibertyRuntime.instance.deployDropin(serverName, eo.getSource(), dest, true);
+														String warName = appName + ".war"; //$NON-NLS-1$
+														OpenLibertyRuntime.instance.deployDropin(serverName, warName, warFile, true);
 													}
 												}
 											}
