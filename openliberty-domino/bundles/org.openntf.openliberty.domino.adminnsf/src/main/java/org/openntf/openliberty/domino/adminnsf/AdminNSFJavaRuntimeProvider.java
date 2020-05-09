@@ -24,9 +24,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.nio.file.attribute.PosixFilePermission;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -167,6 +170,7 @@ public class AdminNSFJavaRuntimeProvider implements JavaRuntimeProvider {
 						}
 						
 						String contentType = (String)download.get("content_type"); //$NON-NLS-1$
+						// TODO consider replacing with NIO filesystem operations, though they don't inherently support .tar.gz
 						OpenLibertyUtil.download(new URL((String)download.get("browser_download_url")), is -> { //$NON-NLS-1$
 							if("application/zip".equals(contentType)) { //$NON-NLS-1$
 								try(ZipInputStream zis = new ZipInputStream(is)) {
@@ -183,6 +187,26 @@ public class AdminNSFJavaRuntimeProvider implements JavaRuntimeProvider {
 							}
 							return null;
 						});
+						
+						// Mark files in the bin directory as executable
+						Path bin = jvmDir.resolve("bin"); //$NON-NLS-1$
+						if(Files.isDirectory(bin)) {
+							if(bin.getFileSystem().supportedFileAttributeViews().contains("posix")) { //$NON-NLS-1$
+								Files.list(bin)
+									.filter(Files::isRegularFile)
+									.forEach(p -> {
+										try {
+											Set<PosixFilePermission> perms = EnumSet.copyOf(Files.getPosixFilePermissions(p));
+											perms.add(PosixFilePermission.OWNER_EXECUTE);
+											perms.add(PosixFilePermission.GROUP_EXECUTE);
+											perms.add(PosixFilePermission.OTHERS_EXECUTE);
+											Files.setPosixFilePermissions(p, perms);
+										} catch (IOException e) {
+											throw new RuntimeException(e);
+										}
+									});
+							}
+						}
 						
 						return jvmDir;
 					}
