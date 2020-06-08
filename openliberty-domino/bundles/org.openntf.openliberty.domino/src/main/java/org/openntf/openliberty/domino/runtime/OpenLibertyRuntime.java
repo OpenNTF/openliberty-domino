@@ -39,6 +39,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -95,6 +96,8 @@ public enum OpenLibertyRuntime implements Runnable {
 	private Path javaHome;
 	private Path execDirectory;
 	private Logger log;
+	
+	private final Map<Path, Thread> watcherThreads = new HashMap<>();
 
 	@Override
 	public void run() {
@@ -397,80 +400,84 @@ public enum OpenLibertyRuntime implements Runnable {
 		return process;
 	}
 	
-	private void watchLog(Path path, String serverName) {
-		Path logs = path.resolve("usr").resolve("servers").resolve(serverName).resolve("logs"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		if(!Files.exists(logs)) {
-			try {
-				Files.createDirectories(logs);
-			} catch (IOException e) {
-				e.printStackTrace(OpenLibertyLog.instance.out);
+	private synchronized void watchLog(Path path, String serverName) {
+		if(!watcherThreads.containsKey(path)) {
+			Path logs = path.resolve("usr").resolve("servers").resolve(serverName).resolve("logs"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			if(!Files.exists(logs)) {
+				try {
+					Files.createDirectories(logs);
+				} catch (IOException e) {
+					e.printStackTrace(OpenLibertyLog.instance.out);
+				}
 			}
-		}
-		String consoleLog = "console.log"; //$NON-NLS-1$
-		DominoThreadFactory.executor.submit(() -> {
-			try(WatchService watchService = FileSystems.getDefault().newWatchService()) {
-				long pos = 0;
-				logs.register(watchService, StandardWatchEventKinds.ENTRY_MODIFY);
+			String consoleLog = "console.log"; //$NON-NLS-1$
+			DominoThreadFactory.executor.submit(() -> {
+				watcherThreads.put(path, Thread.currentThread());
 				
-				while(true) {
-					WatchKey key = watchService.poll(25, TimeUnit.MILLISECONDS);
-					if(key == null) {
-						Thread.yield();
-						continue;
-					}
+				try(WatchService watchService = FileSystems.getDefault().newWatchService()) {
+					long pos = 0;
+					logs.register(watchService, StandardWatchEventKinds.ENTRY_MODIFY);
 					
-					for(WatchEvent<?> event : key.pollEvents()) {
-						WatchEvent.Kind<?> kind = event.kind();
-						
-						@SuppressWarnings("unchecked")
-						WatchEvent<Path> ev = (WatchEvent<Path>)event;
-						Path file = ev.context();
-						
-						if(kind == StandardWatchEventKinds.OVERFLOW) {
+					while(true) {
+						WatchKey key = watchService.poll(25, TimeUnit.MILLISECONDS);
+						if(key == null) {
 							Thread.yield();
 							continue;
-						} else if(kind == StandardWatchEventKinds.ENTRY_MODIFY && file.getFileName().toString().equals(consoleLog)) {
-							// Then read whatever we haven't read
-							try(InputStream is = Files.newInputStream(logs.resolve(file), StandardOpenOption.READ)) {
-								if(pos > 0) {
-									if(is.skip(pos) < pos) {
-										// It must have been truncated
-										is.reset();
-										pos = 0;
-									}
-								}
-								
-								String newContent = StreamUtil.readString(is);
-								pos += newContent.length();
-								
-								OpenLibertyLog.instance.out.println(newContent);
-							}
 						}
 						
-						if(!key.reset()) {
-							break;
+						for(WatchEvent<?> event : key.pollEvents()) {
+							WatchEvent.Kind<?> kind = event.kind();
+							
+							@SuppressWarnings("unchecked")
+							WatchEvent<Path> ev = (WatchEvent<Path>)event;
+							Path file = ev.context();
+							
+							if(kind == StandardWatchEventKinds.OVERFLOW) {
+								Thread.yield();
+								continue;
+							} else if(kind == StandardWatchEventKinds.ENTRY_MODIFY && file.getFileName().toString().equals(consoleLog)) {
+								// Then read whatever we haven't read
+								try(InputStream is = Files.newInputStream(logs.resolve(file), StandardOpenOption.READ)) {
+									if(pos > 0) {
+										if(is.skip(pos) < pos) {
+											// It must have been truncated
+											is.reset();
+											pos = 0;
+										}
+									}
+									
+									String newContent = StreamUtil.readString(is);
+									pos += newContent.length();
+									
+									OpenLibertyLog.instance.out.println(newContent);
+								}
+							}
+							
+							if(!key.reset()) {
+								break;
+							}
 						}
 					}
+				} catch (IOException e) {
+					e.printStackTrace(OpenLibertyLog.instance.out);
+				} catch(InterruptedException e) {
+					// Then we're shutting down
+					if(OpenLibertyLog.instance.log.isLoggable(Level.FINE)) {
+						OpenLibertyLog.instance.log.fine("Terminating log monitor");
+					}
 				}
-			} catch (IOException e) {
-				e.printStackTrace(OpenLibertyLog.instance.out);
-			} catch(InterruptedException e) {
-				// Then we're shutting down
-				if(OpenLibertyLog.instance.log.isLoggable(Level.FINE)) {
-					OpenLibertyLog.instance.log.fine("Terminating log monitor");
-				}
+			});
+			
+			if(OpenLibertyUtil.IS_WINDOWS) {
+				File consoleLogPath = logs.resolve(consoleLog).toFile();
+				// Spawn a second thread to nudge the filesystem every so often, since the above polling
+				//   doesn't actually work particularly well on Windows
+				DominoThreadFactory.scheduler.scheduleWithFixedDelay(() -> {
+					if(consoleLogPath.exists()) {
+						consoleLogPath.length();
+					}
+				}, 10, 2, TimeUnit.SECONDS);
 			}
-		});
-		
-		if(OpenLibertyUtil.IS_WINDOWS) {
-			File consoleLogPath = logs.resolve(consoleLog).toFile();
-			// Spawn a second thread to nudge the filesystem every so often, since the above polling
-			//   doesn't actually work particularly well on Windows
-			DominoThreadFactory.scheduler.scheduleWithFixedDelay(() -> {
-				if(consoleLogPath.exists()) {
-					consoleLogPath.length();
-				}
-			}, 10, 2, TimeUnit.SECONDS);
 		}
 	}
 	
