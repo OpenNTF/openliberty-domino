@@ -59,6 +59,15 @@ The `DominoProxyServlet.sendWsis` property tells the proxy whether or not to sen
 
 Finally, to enable advanced proxy features, set `HTTPEnableConnectorHeaders=1` in your Domino server's notes.ini. This property allows Domino to treat proxied requests as if they were coming from the original client machine instead of the local proxy. If you enable this, it is *very important* that you ensure that the Domino server's HTTP stack is not publicly available, and ideally is bound to "localhost" only.
 
+## Domino API Access
+
+Code that uses the Notes runtime should take care to terminate all Notes-initialized threads, as leaving threads open may lead to server crashes. In practice, these steps have helped avoid trouble:
+
+- Ensure that any `ExecutorService` that contains Notes threads is shut down properly in a `ServletContextListener`
+- Run any Notes-based code in infrastructure listeners (such as `ServletContextListener`s) inside explicit `NotesThread`s and use `Thread#join` to wait for their results
+
+Additionally, deployed Open Liberty runtimes include a `usr:notesRuntime-1.0` feature that can be used to ensure that `NotesInit` and `NotesTerm` are called at server launch and shutdown.
+
 ## Building
 
 Building this project requires the presence of a p2 update site of the Domino XPages runtime. A version of this site matching Domino 9.0.1 is [available from OpenNTF](https://extlib.openntf.org/main.nsf/project.xsp?r=project/IBM%20Domino%20Update%20Site%20for%20Build%20Management/summary), and an updated version can be created from a Notes or Domino installation using the [generate-domino-update-site](https://stash.openntf.org/projects/P2T/repos/generate-domino-update-site/browse) tool. Put the file:// URL for this update site in the `notes-platform` property of your Maven configuration.

@@ -45,6 +45,8 @@
 		-->
 		<module>bundles/org.openntf.openliberty.wlp.userregistry</module>
 		<module>subsystems/dominoUserRegistry</module>
+		<module>bundles/org.openntf.openliberty.wlp.notesruntime</module>
+		<module>subsystems/notesRuntime</module>
 		
 		<!--
 			Domino Runtime 
@@ -54,6 +56,7 @@
 		<module>bundles/org.openntf.openliberty.domino.httpident</module>
 		<module>bundles/org.openntf.openliberty.domino.adminnsf</module>
 		<module>bundles/org.openntf.openliberty.domino.userregistry</module>
+		<module>bundles/org.openntf.openliberty.domino.notesruntime</module>
 		<module>bundles/org.openntf.openliberty.domino.runjava</module>
 		
 		<module>releng/org.openntf.openliberty.domino.updatesite</module>
@@ -82,6 +85,14 @@
 		<osgi.qualifier>${maven.build.timestamp}</osgi.qualifier>
 	</properties>
 
+    <repositories>
+		<repository>
+			<id>artifactory.openntf.org</id>
+			<name>artifactory.openntf.org</name>
+			<url>https://artifactory.openntf.org/openntf</url>
+		</repository>
+    </repositories>
+    
     <pluginRepositories>
 		<pluginRepository>
 			<id>artifactory.openntf.org</id>
