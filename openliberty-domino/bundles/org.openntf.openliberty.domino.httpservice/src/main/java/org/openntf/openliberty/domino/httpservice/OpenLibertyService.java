@@ -57,7 +57,7 @@ public class OpenLibertyService extends HttpService {
 	@Override
 	public Object tellCommand(String line) {
 		if(StringUtil.isNotEmpty(line) && line.toLowerCase().startsWith("wlp ")) { //$NON-NLS-1$
-			delegate.processCommand(line.substring("wlp ".length())); //$NON-NLS-1$
+			return delegate.processCommand(line.substring("wlp ".length())); //$NON-NLS-1$
 		}
 		
 		return super.tellCommand(line);
