@@ -148,8 +148,9 @@ public enum OpenLibertyRuntime implements Runnable {
 						String serverXml = (String)command.args[1];
 						String serverEnv = (String)command.args[2];
 						String jvmOptions = (String)command.args[3];
+						String bootstrapProperties = (String)command.args[4];
 						@SuppressWarnings("unchecked")
-						List<Path> additionalZips = (List<Path>)command.args[4];
+						List<Path> additionalZips = (List<Path>)command.args[5];
 						
 						if(!serverExists(wlp, serverName)) {
 							sendCommand(wlp, "create", serverName).waitFor(); //$NON-NLS-1$
@@ -165,6 +166,9 @@ public enum OpenLibertyRuntime implements Runnable {
 						}
 						if(StringUtil.isNotEmpty(jvmOptions)) {
 							deployJvmOptions(wlp, serverName, jvmOptions);
+						}
+						if(StringUtil.isNotEmpty(bootstrapProperties)) {
+							deployBootstrapProperties(wlp, serverName, bootstrapProperties);
 						}
 						break;
 					}
@@ -240,8 +244,8 @@ public enum OpenLibertyRuntime implements Runnable {
 		startedServers.remove(serverName);
 	}
 	
-	public void createServer(String serverName, String serverXml, String serverEnv, String jvmOptions, List<Path> additionalZips) {
-		taskQueue.add(new RuntimeTask(RuntimeTask.Type.CREATE_SERVER, serverName, serverXml, serverEnv, jvmOptions, additionalZips));
+	public void createServer(String serverName, String serverXml, String serverEnv, String jvmOptions, String bootstrapProperties, List<Path> additionalZips) {
+		taskQueue.add(new RuntimeTask(RuntimeTask.Type.CREATE_SERVER, serverName, serverXml, serverEnv, jvmOptions, bootstrapProperties, additionalZips));
 	}
 	
 	public void deployDropin(String serverName, String warName, Path warFile, boolean deleteAfterDeploy) {
@@ -317,6 +321,13 @@ public enum OpenLibertyRuntime implements Runnable {
 		Path file = path.resolve("usr").resolve("servers").resolve(serverName).resolve("jvm.options"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		try(Writer w = Files.newBufferedWriter(file, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
 			w.write(jvmOptions);
+		}
+	}
+	/** @since 2.0.0 */
+	private void deployBootstrapProperties(Path path, String serverName, String bootstrapProperties) throws IOException {
+		Path file = path.resolve("usr").resolve("servers").resolve(serverName).resolve("bootstrap.properties"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		try(Writer w = Files.newBufferedWriter(file, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
+			w.write(bootstrapProperties);
 		}
 	}
 	

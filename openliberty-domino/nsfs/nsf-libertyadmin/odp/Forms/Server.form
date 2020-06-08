@@ -49,7 +49,7 @@
       <par def="1"/>
       <par def="1"/>
       <table altbgcolor="white" bgcolor="#efefef" colorstyle="left"
-        columnspacing="0.0500in" refwidth="14.7396in"
+        columnspacing="0.0500in" refwidth="18.9375in"
         rowspacing="0.0500in" widthtype="fitmargins">
         <tablecolumn width="2in"/>
         <tablecolumn width="100%"/>
@@ -75,54 +75,33 @@ Yg4BAIQAAAAAAAAAAAA=
           </tablecell>
         </tablerow>
       </table>
-      <par def="1"/>
-      <table altbgcolor="white" bgcolor="#efefef" colorstyle="left"
-        columnspacing="0.0500in" refwidth="14.7396in"
+      <pardef firstlineleftmargin="1in" id="2"/>
+      <par def="2"/>
+      <table bgcolor="#ffffc2" colorstyle="solid"
+        columnspacing="0.0500in" refwidth="18.9375in"
         rowspacing="0.0500in" widthtype="fitmargins">
-        <tablecolumn width="2in"/>
         <tablecolumn width="100%"/>
         <tablerow>
           <tablecell borderwidth="0px">
-            <par def="3">server.env</par>
-          </tablecell>
-          <tablecell borderwidth="0px">
-            <par def="4">
-              <run>
-                <font name="monospace"/>
-                <field kind="editable" name="ServerEnv" type="text"/>
-              </run>
-              <compositedata afterbegincount="3" aftercontainercount="1"
-                afterparcount="6" containertype="65418" nexttype="222"
-                prevtype="65418" type="98">
-Yg4BAIQAAAAAAAAAAAA=
-</compositedata>
+            <pardef id="5" keeptogether="true" keepwithnext="true"/>
+            <par
+                def="5">Configuration documentation is available <urllink
+                href="https://www.openliberty.io/docs/ref/config/serverConfiguration.html" showborder="false">
+                <run>
+                  <font color="system"/>on openliberty.io</run>
+              </urllink>
             </par>
           </tablecell>
         </tablerow>
-        <tablerow>
-          <tablecell borderwidth="0px">
-            <par def="3">jvm.options</par>
-          </tablecell>
-          <tablecell borderwidth="0px">
-            <par def="4">
-              <run>
-                <font name="monospace"/>
-                <field kind="editable" name="JvmOptions" type="text"/>
-              </run>
-              <compositedata afterbegincount="3" aftercontainercount="1"
-                afterparcount="6" containertype="65418" nexttype="222"
-                prevtype="65418" type="98">
-Yg4BAIQAAAAAAAAAAAA=
-</compositedata>
-            </par>
-          </tablecell>
-        </tablerow>
-        <tablerow>
-          <tablecell borderwidth="0px">
-            <par def="3">server.xml</par>
-          </tablecell>
-          <tablecell borderwidth="0px">
-            <par def="4">
+      </table>
+      <par def="2"/>
+      <table columnspacing="0.0500in" refwidth="18.9361in"
+        rowdisplay="tabs" rowspacing="0.0500in" widthtype="fitmargins">
+        <tablecolumn width="100%"/>
+        <tablerow tablabel="server.xml">
+          <tablecell>
+            <pardef id="6" keeptogether="true" keepwithnext="true"/>
+            <par def="6">
               <run>
                 <font name="monospace"/>
                 <field kind="editable" name="ServerXML" type="text">
@@ -147,6 +126,21 @@ Yg4BAIQAAAAAAAAAAAA=
                 </field>
               </run>
               <compositedata afterbegincount="3" aftercontainercount="1"
+                afterparcount="7" containertype="65418" nexttype="222"
+                prevtype="65418" type="98">
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata>
+            </par>
+          </tablecell>
+        </tablerow>
+        <tablerow tablabel="server.env">
+          <tablecell>
+            <par def="6">
+              <run>
+                <font name="monospace"/>
+                <field kind="editable" name="ServerEnv" type="text"/>
+              </run>
+              <compositedata afterbegincount="3" aftercontainercount="1"
                 afterparcount="6" containertype="65418" nexttype="222"
                 prevtype="65418" type="98">
 Yg4BAIQAAAAAAAAAAAA=
@@ -154,32 +148,59 @@ Yg4BAIQAAAAAAAAAAAA=
             </par>
           </tablecell>
         </tablerow>
-        <tablerow>
-          <tablecell borderwidth="0px">
-            <par def="3">Additional deployment ZIPs</par>
+        <tablerow tablabel="jvm.options">
+          <tablecell>
+            <par def="6">
+              <run>
+                <font name="monospace"/>
+                <field kind="editable" name="JvmOptions" type="text"/>
+              </run>
+              <compositedata afterbegincount="3" aftercontainercount="1"
+                afterparcount="6" containertype="65418" nexttype="222"
+                prevtype="65418" type="98">
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata>
+            </par>
           </tablecell>
-          <tablecell borderwidth="0px">
-            <par def="4">
+        </tablerow>
+        <tablerow tablabel="bootstrap.properties">
+          <tablecell>
+            <par def="6">
+              <run>
+                <font name="monospace"/>
+                <field kind="editable" name="BootstrapProperties" type="text"/>
+              </run>
+              <compositedata afterbegincount="3" aftercontainercount="1"
+                afterparcount="6" containertype="65418" nexttype="222"
+                prevtype="65418" type="98">
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata>
+            </par>
+          </tablecell>
+        </tablerow>
+        <tablerow tablabel="Additional Deployment ZIPs">
+          <tablecell>
+            <par def="6"/>
+            <pardef hide="read print preview" id="7" keeptogether="true" keepwithnext="true"/>
+            <par def="7">
+              <run>
+                <font color="gray"/>Any attached ZIP files are expanded in the base directory of the deployed server.</run>
+            </par>
+            <par def="6"/>
+            <par def="6">
               <field firstdisplay="attachment" kind="editable"
                 name="DeploymentZIPs" onlyallow="attachment" type="richtextlite"/>
-            </par>
-            <pardef hide="read print preview" id="5" keeptogether="true" keepwithnext="true"/>
-            <par def="5">
-              <run>
-                <font color="gray" size="8pt"/>Any attached ZIP files are expanded in the base directory of the deployed server.</run>
             </par>
           </tablecell>
         </tablerow>
       </table>
-      <pardef firstlineleftmargin="1in" id="2"/>
-      <par def="2"/>
       <subformref name="Footer"/>
-      <pardef align="right" id="6">
+      <pardef align="right" id="8">
         <code event="hidewhen">
           <formula>@IsNewDoc</formula>
         </code>
       </pardef>
-      <par def="6"/>
+      <par def="8"/>
     </richtext>
   </body>
   <item name="$SubForm_RepIDs" sign="true">
