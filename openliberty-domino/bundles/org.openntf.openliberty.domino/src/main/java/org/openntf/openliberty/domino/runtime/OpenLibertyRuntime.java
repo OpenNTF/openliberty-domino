@@ -439,10 +439,11 @@ public enum OpenLibertyRuntime implements Runnable {
 								// Then read whatever we haven't read
 								try(InputStream is = Files.newInputStream(logs.resolve(file), StandardOpenOption.READ)) {
 									if(pos > 0) {
-										if(is.skip(pos) < pos) {
+										if(Files.size(logs.resolve(file)) < pos) {
 											// It must have been truncated
-											is.reset();
 											pos = 0;
+										} else {
+											is.skip(pos);
 										}
 									}
 									
