@@ -17,6 +17,7 @@ This product contains the following 3rd party code:
 	- The original NOTICE is included in the "legal" directory, but none of the referenced third-party code is included
 - Classes from Apache Commons Compress, which is available from https://commons.apache.org/proper/commons-compress/ and is licensed under the Apache License 2.0
 	- The original NOTICE is included in the "legal" directory, but none of the referenced third-party code is included
+- The Darwino Domino NAPI, which is available from https://github.com/darwino/domino-napi and is licensed under the Apache License 2.0
 
 The runtime may automatically download the following 3rd party code:
 
