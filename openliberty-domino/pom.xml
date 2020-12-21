@@ -176,6 +176,9 @@
 						<owner>Jesse Gallagher</owner>
 						<copyrightYear>2020</copyrightYear>
 					</properties>
+					<mapping>
+						<java>SLASHSTAR_STYLE</java>
+					</mapping>
 				</configuration>
 			</plugin>
 
