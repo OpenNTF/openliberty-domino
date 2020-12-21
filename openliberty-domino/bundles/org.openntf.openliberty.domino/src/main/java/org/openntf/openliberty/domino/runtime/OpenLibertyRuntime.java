@@ -46,7 +46,9 @@ import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.jar.Manifest;
 import java.util.logging.Level;
@@ -97,7 +99,8 @@ public enum OpenLibertyRuntime implements Runnable {
 	private Path execDirectory;
 	private Logger log;
 	
-	private final Map<Path, Thread> watcherThreads = new HashMap<>();
+	private final Map<Path, Future<?>> watcherThreads = new HashMap<>();
+	private final Map<Path, ScheduledFuture<?>> fileTouchThreads = new HashMap<>();
 
 	@Override
 	public void run() {
@@ -145,6 +148,7 @@ public enum OpenLibertyRuntime implements Runnable {
 						break;
 					case STOP:
 						sendCommand(wlp, "stop", command.args); //$NON-NLS-1$
+						stopWatchLogs(wlp, (String)command.args[0]);
 						break;
 					case CREATE_SERVER: {
 						String serverName = (String)command.args[0];
@@ -401,8 +405,8 @@ public enum OpenLibertyRuntime implements Runnable {
 	}
 	
 	private synchronized void watchLog(Path path, String serverName) {
-		if(!watcherThreads.containsKey(path)) {
-			Path logs = path.resolve("usr").resolve("servers").resolve(serverName).resolve("logs"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		Path logs = path.resolve("usr").resolve("servers").resolve(serverName).resolve("logs"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		if(!watcherThreads.containsKey(logs)) {
 			if(!Files.exists(logs)) {
 				try {
 					Files.createDirectories(logs);
@@ -411,9 +415,7 @@ public enum OpenLibertyRuntime implements Runnable {
 				}
 			}
 			String consoleLog = "console.log"; //$NON-NLS-1$
-			DominoThreadFactory.executor.submit(() -> {
-				watcherThreads.put(path, Thread.currentThread());
-				
+			watcherThreads.put(logs, DominoThreadFactory.executor.submit(() -> {
 				try(WatchService watchService = FileSystems.getDefault().newWatchService()) {
 					long pos = 0;
 					logs.register(watchService, StandardWatchEventKinds.ENTRY_MODIFY);
@@ -467,18 +469,29 @@ public enum OpenLibertyRuntime implements Runnable {
 						OpenLibertyLog.instance.log.fine("Terminating log monitor");
 					}
 				}
-			});
+			}));
 			
 			if(OpenLibertyUtil.IS_WINDOWS) {
 				File consoleLogPath = logs.resolve(consoleLog).toFile();
 				// Spawn a second thread to nudge the filesystem every so often, since the above polling
 				//   doesn't actually work particularly well on Windows
-				DominoThreadFactory.scheduler.scheduleWithFixedDelay(() -> {
+				fileTouchThreads.put(logs, DominoThreadFactory.scheduler.scheduleWithFixedDelay(() -> {
 					if(consoleLogPath.exists()) {
 						consoleLogPath.length();
 					}
-				}, 10, 2, TimeUnit.SECONDS);
+				}, 10, 2, TimeUnit.SECONDS));
 			}
+		}
+	}
+	
+	/** @since 2.0.0 */
+	private void stopWatchLogs(Path path, String serverName) {
+		Path logs = path.resolve("usr").resolve("servers").resolve(serverName).resolve("logs"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		if(watcherThreads.containsKey(logs)) {
+			watcherThreads.remove(logs).cancel(true);
+		}
+		if(fileTouchThreads.containsKey(logs)) {
+			fileTouchThreads.remove(logs).cancel(true);
 		}
 	}
 	
