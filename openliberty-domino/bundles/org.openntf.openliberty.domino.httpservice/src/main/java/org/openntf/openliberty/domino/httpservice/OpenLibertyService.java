@@ -24,7 +24,12 @@ import javax.servlet.ServletException;
 
 import org.openntf.openliberty.domino.log.OpenLibertyLog;
 import org.openntf.openliberty.domino.runtime.CLIManagerDelegate;
+import org.openntf.openliberty.domino.util.DominoThreadFactory;
 
+import com.darwino.domino.napi.DominoAPI;
+import com.darwino.domino.napi.DominoException;
+import com.darwino.domino.napi.wrap.NSFMessageQueue;
+import com.darwino.domino.napi.wrap.NSFSession;
 import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import com.ibm.designer.runtime.domino.adapter.HttpService;
@@ -42,6 +47,35 @@ public class OpenLibertyService extends HttpService {
 		super(env);
 		
 		delegate.start();
+		
+		DominoThreadFactory.executor.submit(() -> {
+			long hDesc = DominoAPI.get().AddInCreateStatusLine("Open Liberty");
+			DominoAPI.get().AddInSetStatusLine(hDesc, "Running");
+			try {
+				NSFSession session = new NSFSession(DominoAPI.get());
+				try {
+					NSFMessageQueue queue = session.getMessageQueue("MQ$WLP", true); //$NON-NLS-1$
+					try {
+						String message;
+						while((message = queue.take()) != null) {
+							if(StringUtil.isNotEmpty(message)) {
+								OpenLibertyLog.instance.out.println(delegate.processCommand(message));
+							}
+						}
+					} catch (InterruptedException e) {
+						// This is expected
+					} finally {
+						queue.free();
+					}
+				} catch (DominoException e) {
+					e.printStackTrace();
+				} finally {
+					session.free();
+				}
+			} finally {
+				DominoAPI.get().AddInDeleteStatusLine(hDesc);
+			}
+		});
 	}
 
 	@Override

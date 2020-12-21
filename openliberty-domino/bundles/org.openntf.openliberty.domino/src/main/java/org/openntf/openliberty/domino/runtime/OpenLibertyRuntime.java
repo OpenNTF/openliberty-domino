@@ -88,7 +88,7 @@ public enum OpenLibertyRuntime implements Runnable {
 	}
 	
 	private final BlockingQueue<RuntimeTask> taskQueue = new LinkedBlockingDeque<RuntimeTask>();
-	private List<RuntimeService> runtimeServices = StreamSupport.stream(ServiceLoader.load(RuntimeService.class, getClass().getClassLoader()).spliterator(), false).collect(Collectors.toList());
+	private final List<RuntimeService> runtimeServices = StreamSupport.stream(ServiceLoader.load(RuntimeService.class, getClass().getClassLoader()).spliterator(), false).collect(Collectors.toList());
 	
 	private Set<String> startedServers = Collections.synchronizedSet(new HashSet<>());
 	private Set<Process> subprocesses = Collections.synchronizedSet(new HashSet<>());
@@ -129,11 +129,7 @@ public enum OpenLibertyRuntime implements Runnable {
 			verifyRuntime(wlp);
 			deployExtensions(wlp);
 			
-			if(runtimeServices != null) {
-				for(RuntimeService service : runtimeServices) {
-					DominoThreadFactory.executor.submit(service);
-				}
-			}
+			runtimeServices.forEach(DominoThreadFactory.executor::submit);
 			
 			while(!Thread.interrupted()) {
 				RuntimeTask command = taskQueue.take();
@@ -142,14 +138,32 @@ public enum OpenLibertyRuntime implements Runnable {
 						log.finer(format("Received command: {0}", command));
 					}
 					switch(command.type) {
-					case START:
+					case START: {
+						// Make sure the server exists
+						
 						sendCommand(wlp, "start", command.args); //$NON-NLS-1$
-						watchLog(wlp, (String)command.args[0]);
+						String serverName = (String)command.args[0];
+						if(serverExists(wlp, serverName)) {
+							watchLog(wlp, serverName);
+							Path fwlp = wlp;
+							runtimeServices.forEach(service -> {
+								DominoThreadFactory.executor.submit(() -> service.notifyServerStart(fwlp, serverName));
+							});
+						}
 						break;
-					case STOP:
+					}
+					case STOP: {
 						sendCommand(wlp, "stop", command.args); //$NON-NLS-1$
-						stopWatchLogs(wlp, (String)command.args[0]);
+						String serverName = (String)command.args[0];
+						stopWatchLogs(wlp, serverName);
+						if(serverExists(wlp, serverName)) {
+							Path fwlp = wlp;
+							runtimeServices.forEach(service -> {
+								DominoThreadFactory.executor.submit(() -> service.notifyServerStop(fwlp, serverName));
+							});
+						}
 						break;
+					}
 					case CREATE_SERVER: {
 						String serverName = (String)command.args[0];
 						String serverXml = (String)command.args[1];
@@ -177,6 +191,10 @@ public enum OpenLibertyRuntime implements Runnable {
 						if(StringUtil.isNotEmpty(bootstrapProperties)) {
 							deployBootstrapProperties(wlp, serverName, bootstrapProperties);
 						}
+						Path fwlp = wlp;
+						runtimeServices.forEach(service -> {
+							DominoThreadFactory.executor.submit(() -> service.notifyServerDeploy(fwlp, serverName));
+						});
 						break;
 					}
 					case DEPLOY_DROPIN: {

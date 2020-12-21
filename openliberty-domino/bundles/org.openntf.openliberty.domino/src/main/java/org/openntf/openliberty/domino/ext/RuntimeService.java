@@ -15,6 +15,8 @@
  */
 package org.openntf.openliberty.domino.ext;
 
+import java.nio.file.Path;
+
 /**
  * Defines a service that will be loaded and run asynchronously after the core
  * runtime has been deployed.
@@ -27,4 +29,33 @@ package org.openntf.openliberty.domino.ext;
  */
 public interface RuntimeService extends Runnable {
 	public static final String SERVICE_ID = RuntimeService.class.getName();
+	
+	/**
+	 * This method is called asynchronously by the runtime whenever a new server is started.
+	 * 
+	 * @param wlp the path to the context Open Liberty runtime
+	 * @param serverName the name of the server that has been started
+	 * @since 2.0.0
+	 */
+	default void notifyServerStart(Path wlp, String serverName) {}
+	
+	/**
+	 * This method is called asynchronously by the runtime whenever a running server is stopped.
+	 * 
+	 * @param wlp the path to the context Open Liberty runtime
+	 * @param serverName the name of the server that has been stopped
+	 * @since 2.0.0
+	 */
+	default void notifyServerStop(Path wlp, String serverName) {}
+	
+	/**
+	 * This method is called asynchronously by the runtime whenever a server configuration is
+	 * deployed to the file system. The server is not guaranteed to be running when this is
+	 * called.
+	 * 
+	 * @param wlp the path to the context Open Liberty runtime
+	 * @param serverName the name of the server that has been deployed
+	 * @since 2.0.0
+	 */
+	default void notifyServerDeploy(Path wlp, String serverName) {}
 }
