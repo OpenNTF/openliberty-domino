@@ -59,12 +59,12 @@ public class DominoTAI implements TrustAssociationInterceptor {
 		log.setLevel(Level.FINER);
 	}
 	
-	public static final String CONFIG_PID = "org.openntf.openliberty.wlp.userregistry.DominoTAI";
-	private static final String ENV_PROXY = System.getenv("Domino_HTTP");
+	public static final String CONFIG_PID = "org.openntf.openliberty.wlp.userregistry.DominoTAI"; //$NON-NLS-1$
+	private static final String ENV_PROXY = System.getenv("Domino_HTTP"); //$NON-NLS-1$
 	private static final boolean enabled = ENV_PROXY != null && !ENV_PROXY.isEmpty();
 	
 	// TODO make this customizable
-	private static final Collection<String> COOKIES = Arrays.asList("DomAuthSessId", "LtpaToken", "LtpaToken2");
+	private static final Collection<String> COOKIES = Arrays.asList("DomAuthSessId", "LtpaToken", "LtpaToken2"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	
 	public DominoTAI() {
 	}
@@ -89,7 +89,7 @@ public class DominoTAI implements TrustAssociationInterceptor {
 
 	@Override
 	public String getVersion() {
-		return "1.0";
+		return "1.0"; //$NON-NLS-1$
 	}
 
 	@Override
@@ -122,17 +122,17 @@ public class DominoTAI implements TrustAssociationInterceptor {
 		// We must have a match - check against the Domino server
 		try {
 			URL url = new URL(ENV_PROXY);
-			url = new URL(url, "/org.openntf.openliberty.domino/whoami");
+			url = new URL(url, "/org.openntf.openliberty.domino/whoami"); //$NON-NLS-1$
 			HttpURLConnection conn = (HttpURLConnection)url.openConnection();
 			try {
-				conn.setRequestMethod("GET");
-				conn.setRequestProperty("Host", url.getHost());
+				conn.setRequestMethod("GET"); //$NON-NLS-1$
+				conn.setRequestProperty("Host", url.getHost()); //$NON-NLS-1$
 				
-				if(req.getHeader("Cookie") != null) {
-					conn.setRequestProperty("Cookie", req.getHeader("Cookie"));
+				if(req.getHeader("Cookie") != null) { //$NON-NLS-1$
+					conn.setRequestProperty("Cookie", req.getHeader("Cookie")); //$NON-NLS-1$ //$NON-NLS-2$
 				}
-				if(req.getHeader("Authorization") != null) {
-					conn.setRequestProperty("Authorization", req.getHeader("Authorization"));
+				if(req.getHeader("Authorization") != null) { //$NON-NLS-1$
+					conn.setRequestProperty("Authorization", req.getHeader("Authorization")); //$NON-NLS-1$ //$NON-NLS-2$
 				}
 				conn.connect();
 				String name;
@@ -144,8 +144,8 @@ public class DominoTAI implements TrustAssociationInterceptor {
 				if(log.isLoggable(Level.FINE)) {
 					log.fine(getClass().getSimpleName() + ": Resolved to user name " + name);
 				}
-				if("Anonymous".equals(name)) {
-					name = "anonymous";
+				if("Anonymous".equals(name)) { //$NON-NLS-1$
+					name = "anonymous"; //$NON-NLS-1$
 				}
 				return TAIResult.create(HttpServletResponse.SC_OK, name);
 			} finally {
