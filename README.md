@@ -101,6 +101,8 @@ Domino_HTTP=http://localhost:8080/
 
 This feature allows the use of Domino credentials for Liberty authentication, when applicable. It proxies authentication requests through to the backing Domino server specified by `Domino_HTTP`, and so it should allow any authentication that is configured on the Domino server.
 
+Additionally, it allows for a shared login by proxying cookies containing Domino authentication information to the backing Domino server to determine the username.
+
 ## Domino API Access
 
 Code that uses the Notes runtime should take care to terminate all Notes-initialized threads, as leaving threads open may lead to server crashes. In practice, these steps have helped avoid trouble:
@@ -112,9 +114,7 @@ Code that uses the Notes runtime should take care to terminate all Notes-initial
 
 Building this project requires the presence of a p2 update site of the Domino XPages runtime. A version of this site matching Domino 9.0.1 is [available from OpenNTF](https://extlib.openntf.org/main.nsf/project.xsp?r=project/IBM%20Domino%20Update%20Site%20for%20Build%20Management/summary), and an updated version can be created from a Notes or Domino installation using the [generate-domino-update-site](https://stash.openntf.org/projects/P2T/repos/generate-domino-update-site/browse) tool. Put the file:// URL for this update site in the `notes-platform` property of your Maven configuration.
 
-The Open Liberty projects rely on several additional plugins, which Maven finds via dependencies. When working with Eclipse, however, you will have to add them to your Target Platform. They can either be found within an existing Open Liberty installation, in the `dev/api/ibm` directory, or by running a Maven `package` goal on the included `osgi-deps` project, which will create a p2 site within its `target/repository` directory.
-
-Additionally, to compile the Admin NSF via Maven and generate the final distribution, you will need to set up and configure a compilation server using the [NSF ODP Tooling project](https://github.com/OpenNTF/org.openntf.nsfodp).
+Additionally, to compile the Admin NSF via Maven and generate the final distribution, you will need to set up and configure a compilation server or local runtime using the [NSF ODP Tooling project](https://github.com/OpenNTF/org.openntf.nsfodp).
 
 ## License
 
