@@ -89,18 +89,5 @@
 				<outputFileNameMapping>libertyadmin.ntf</outputFileNameMapping>
 			</binaries>
 		</moduleSet>
-		<moduleSet>
-			<useAllReactorProjects>true</useAllReactorProjects>
-			<includes>
-				<include>org.openntf:openliberty-domino-proxy:war</include>
-			</includes>
-			
-			<binaries>
-				<outputDirectory>.</outputDirectory>
-				<unpack>false</unpack>
-				<includeDependencies>false</includeDependencies>
-				<outputFileNameMapping>${module.artifactId}.war</outputFileNameMapping>
-			</binaries>
-		</moduleSet>
 	</moduleSets>
 </assembly>

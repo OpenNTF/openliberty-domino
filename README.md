@@ -42,22 +42,64 @@ The runtime supports several Domino console commands, all of which are prefixed 
 * `restart`: Equivalent to `stop` followed by `start`
 * `help`: Get a listing of currently-supported options
 
-### Domino Proxy Application
+## Liberty Server Extensions
 
-The distribution also comes with a proxy application, `openliberty-domino-proxy.war`, that can be used to cause any unmatched requests to the Liberty server to proxy to the equivalent URL on Domino, allowing it to serve as the main front-end HTTP server.
+Deployed Liberty servers are installed with several custom features, which can be enabled per-server in the server.xml file.
 
-To use this proxy, deploy the .war to the Liberty server, such as via a Dropin App response document. Then, configure the "server.env" field of the server configuration document to include configuration properties:
+### notesRuntime
 
+server.xml:
+
+```xml
+<features>
+	<feature>usr:notesRuntime-1.0</feature>
+</features>
 ```
-DominoProxyServlet.targetUri=http://localhost:8080/
+
+The `notesRuntime-1.0` feature handles initialization and termination of the Notes runtime for the Liberty process, allowing individual web apps to skip this step and not compete.  This feature sets the Java property `notesruntime.init` to `"true"` when enabled, so  apps can check for that and skip process initialization.
+
+### dominoProxy
+
+server.xml:
+
+```xml
+<features>
+	<feature>usr:dominoProxy-1.0</feature>
+</features>
+```
+
+bootstrap.properties or server.env:
+
+```properties
+Domino_HTTP=http://localhost:8080/
 DominoProxyServlet.sendWsis=false
 ```
 
-The `DominoProxyServlet.targetUri` property should point to your configured Domino HTTP stack. In this case, Domino can be configured to bind to HTTP on "localhost" only for security purposes.
+This feature can be used to cause any unmatched requests to the Liberty server to proxy to the equivalent URL on Domino, allowing it to serve as the main front-end HTTP server.
+
+The  property should point to your configured Domino HTTP stack. In this case, Domino can be configured to bind to HTTP on "localhost" only for security purposes.  If the proxy target should be different from `dominoUserRegistry` below, you can specify `DominoProxyServlet.targetUri` as the target instead and it will take priority.
 
 The `DominoProxyServlet.sendWsis` property tells the proxy whether or not to send the connector header to Domino that indicates whether or not the incoming connection is SSL. It's often useful to leave this as the default of "true", but it may be necessary in some cases to set it to "false" to work around the Domino HTTP stack's lack of knowledge of multiple SSL-enabled web sites.
 
 Finally, to enable advanced proxy features, set `HTTPEnableConnectorHeaders=1` in your Domino server's notes.ini. This property allows Domino to treat proxied requests as if they were coming from the original client machine instead of the local proxy. If you enable this, it is *very important* that you ensure that the Domino server's HTTP stack is not publicly available, and ideally is bound to "localhost" only.
+
+### dominoUserRegistry
+
+server.xml
+
+```xml
+<features>
+	<feature>usr:dominoUserRegistry-1.0</feature>
+</features>
+```
+
+server.env:
+
+```properties
+Domino_HTTP=http://localhost:8080/
+```
+
+This feature allows the use of Domino credentials for Liberty authentication, when applicable. It proxies authentication requests through to the backing Domino server specified by `Domino_HTTP`, and so it should allow any authentication that is configured on the Domino server.
 
 ## Domino API Access
 
@@ -65,8 +107,6 @@ Code that uses the Notes runtime should take care to terminate all Notes-initial
 
 - Ensure that any `ExecutorService` that contains Notes threads is shut down properly in a `ServletContextListener`
 - Run any Notes-based code in infrastructure listeners (such as `ServletContextListener`s) inside explicit `NotesThread`s and use `Thread#join` to wait for their results
-
-Additionally, deployed Open Liberty runtimes include a `usr:notesRuntime-1.0` feature that can be used to ensure that `NotesInit` and `NotesTerm` are called at server launch and shutdown. This feature sets the Java property `notesruntime.init` to `"true"` when enabled, so individual apps can check for that and skip process initialization.
 
 ## Building
 

@@ -1,0 +1,72 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.openntf</groupId>
+		<artifactId>openliberty-domino</artifactId>
+		<version>2.0.0-SNAPSHOT</version>
+		<relativePath>../..</relativePath>
+	</parent>
+	<artifactId>org.openntf.openliberty.wlp.dominoproxy</artifactId>
+	<packaging>bundle</packaging>
+	
+	<dependencies>
+		<dependency>
+			<groupId>org.osgi</groupId>
+			<artifactId>osgi.core</artifactId>
+			<version>7.0.0</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.ibm.websphere.appserver.api</groupId>
+			<artifactId>com.ibm.websphere.appserver.api.basics</artifactId>
+			<version>1.3.23</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>javax.servlet-api</artifactId>
+			<version>4.0.0</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.osgi</groupId>
+			<artifactId>org.osgi.service.component.annotations</artifactId>
+			<version>1.3.0</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+		</dependency>
+	</dependencies>
+	
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<extensions>true</extensions>
+				
+				<configuration>
+					<excludeDependencies>false</excludeDependencies>
+					<instructions>
+						<Export-Package/>
+						<Embed-Dependency>*;scope=compile</Embed-Dependency>
+						<Embed-Transitive>true</Embed-Transitive>
+						<Import-Package>
+							!lotus.domino,
+							!org.eclipse.core.runtime,
+							javax.servlet;version=!,
+							javax.servlet.http;version=!,
+							javax.servlet.annotation;version=!,
+							!org.apache.*,
+							*
+						</Import-Package>
+						<Web-ContextPath>/</Web-ContextPath>
+					</instructions>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>

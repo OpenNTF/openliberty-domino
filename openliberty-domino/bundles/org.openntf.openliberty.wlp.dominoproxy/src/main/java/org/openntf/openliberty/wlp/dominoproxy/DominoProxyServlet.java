@@ -32,7 +32,7 @@
  * limitations under the License.
  */
 
-package org.openntf.openliberty.proxy;
+package org.openntf.openliberty.wlp.dominoproxy;
 
 import org.apache.http.*;
 import org.apache.http.client.HttpClient;
@@ -51,6 +51,7 @@ import org.apache.http.util.EntityUtils;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -65,42 +66,44 @@ import java.util.Enumeration;
 import java.util.Formatter;
 
 @SuppressWarnings("deprecation")
+@WebServlet(urlPatterns = "/*")
 public class DominoProxyServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	
     /* INIT PARAMETER NAME CONSTANTS */
 
 	/** A boolean parameter name to enable logging of input and target URLs to the servlet log. */
-    private static final String P_LOG = "log";
+    private static final String P_LOG = "log"; //$NON-NLS-1$
 
     /** A boolean parameter name to enable forwarding of the client IP  */
-    private static final String P_FORWARDEDFOR = "forwardip";
+    private static final String P_FORWARDEDFOR = "forwardip"; //$NON-NLS-1$
 
     /** A boolean parameter name to keep HOST parameter as-is  */
-    private static final String P_PRESERVEHOST = "preserveHost";
+    private static final String P_PRESERVEHOST = "preserveHost"; //$NON-NLS-1$
 
     /** A boolean parameter name to keep COOKIES as-is  */
-    private static final String P_PRESERVECOOKIES = "preserveCookies";
+    private static final String P_PRESERVECOOKIES = "preserveCookies"; //$NON-NLS-1$
 
     /** A boolean parameter name to have auto-handle redirects */
-    private static final String P_HANDLEREDIRECTS = "http.protocol.handle-redirects"; // ClientPNames.HANDLE_REDIRECTS
+    private static final String P_HANDLEREDIRECTS = "http.protocol.handle-redirects"; // ClientPNames.HANDLE_REDIRECTS //$NON-NLS-1$
 
     /** A integer parameter name to set the socket connection timeout (millis) */
-    private static final String P_CONNECTTIMEOUT = "http.socket.timeout"; // CoreConnectionPNames.SO_TIMEOUT
+    private static final String P_CONNECTTIMEOUT = "http.socket.timeout"; // CoreConnectionPNames.SO_TIMEOUT //$NON-NLS-1$
 
     /** A integer parameter name to set the socket read timeout (millis) */
-    private static final String P_READTIMEOUT = "http.read.timeout";
+    private static final String P_READTIMEOUT = "http.read.timeout"; //$NON-NLS-1$
 
     /** A boolean parameter whether to use JVM-defined system properties to configure various networking aspects. */
-    private static final String P_USESYSTEMPROPERTIES = "useSystemProperties";
+    private static final String P_USESYSTEMPROPERTIES = "useSystemProperties"; //$NON-NLS-1$
 
     /** The parameter name for the target (destination) URI to proxy to. */
-    private static final String P_TARGET_URI = "targetUri";
+    private static final String P_TARGET_URI = "targetUri"; //$NON-NLS-1$
     private static final String ATTR_TARGET_URI =
-            DominoProxyServlet.class.getSimpleName() + ".targetUri";
+            DominoProxyServlet.class.getSimpleName() + ".targetUri"; //$NON-NLS-1$
     private static final String ATTR_TARGET_HOST =
-            DominoProxyServlet.class.getSimpleName() + ".targetHost";
-    private static final String ATTR_SEND_WSIS = DominoProxyServlet.class.getSimpleName() + ".sendWsis";
+            DominoProxyServlet.class.getSimpleName() + ".targetHost"; //$NON-NLS-1$
+    private static final String ATTR_SEND_WSIS = DominoProxyServlet.class.getSimpleName() + ".sendWsis"; //$NON-NLS-1$
+    private static final String ENV_DOMINOHTTP = "Domino_HTTP"; //$NON-NLS-1$
 
     /* MISC */
 
@@ -148,7 +151,12 @@ public class DominoProxyServlet extends HttpServlet {
         if(env != null && !env.isEmpty()) {
             return env;
         } else {
-            return getServletConfig().getInitParameter(key);
+            env = getServletConfig().getInitParameter(key);
+            if(env != null && !env.isEmpty()) {
+            	return env;
+            } else {
+            	return System.getProperty(key);
+            }
         }
     }
 
@@ -240,7 +248,10 @@ public class DominoProxyServlet extends HttpServlet {
         if(targetUri == null || targetUri.isEmpty()) {
             targetUri = getConfigParam(ATTR_TARGET_URI);
         }
-        if (targetUri == null)
+        if(targetUri == null || targetUri.isEmpty()) {
+        	targetUri = getConfigParam(ENV_DOMINOHTTP);
+        }
+        if (targetUri == null || targetUri.isEmpty())
             throw new ServletException(P_TARGET_URI+" is required.");
         //test it's valid
         try {
@@ -388,7 +399,7 @@ public class DominoProxyServlet extends HttpServlet {
 
     // Get the header value as a long in order to more correctly proxy very large requests
     private long getContentLength(HttpServletRequest request) {
-        String contentLengthHeader = request.getHeader("Content-Length");
+        String contentLengthHeader = request.getHeader("Content-Length"); //$NON-NLS-1$
         if (contentLengthHeader != null) {
             return Long.parseLong(contentLengthHeader);
         }
@@ -404,8 +415,8 @@ public class DominoProxyServlet extends HttpServlet {
     static {
         hopByHopHeaders = new HeaderGroup();
         String[] headers = new String[] {
-                "Connection", "Keep-Alive", "Proxy-Authenticate", "Proxy-Authorization",
-                "TE", "Trailers", "Transfer-Encoding", "Upgrade" };
+                "Connection", "Keep-Alive", "Proxy-Authenticate", "Proxy-Authorization", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                "TE", "Trailers", "Transfer-Encoding", "Upgrade" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
         for (String header : headers) {
             hopByHopHeaders.addHeader(new BasicHeader(header, null));
         }
@@ -457,15 +468,15 @@ public class DominoProxyServlet extends HttpServlet {
     private void setForwardingHeaders(HttpServletRequest servletRequest,
                                       HttpRequest proxyRequest) {
         if (doForwardIP) {
-            String forHeaderName = "X-Forwarded-For";
+            String forHeaderName = "X-Forwarded-For"; //$NON-NLS-1$
             String forHeader = servletRequest.getRemoteAddr();
             String existingForHeader = servletRequest.getHeader(forHeaderName);
             if (existingForHeader != null) {
-                forHeader = existingForHeader + ", " + forHeader;
+                forHeader = existingForHeader + ", " + forHeader; //$NON-NLS-1$
             }
             proxyRequest.setHeader(forHeaderName, forHeader);
 
-            String protoHeaderName = "X-Forwarded-Proto";
+            String protoHeaderName = "X-Forwarded-Proto"; //$NON-NLS-1$
             String protoHeader = servletRequest.getScheme();
             proxyRequest.setHeader(protoHeaderName, protoHeader);
         }
@@ -473,14 +484,14 @@ public class DominoProxyServlet extends HttpServlet {
         // Add WS Connector Headers - https://developer.ibm.com/wasdev/docs/nginx-websphere-application-server/
         // Skip $WSPR, since Domino wouldn't like HTTP/2.0
         // TODO $WSRU for the user?
-        proxyRequest.setHeader("Host", servletRequest.getServerName());
-        proxyRequest.setHeader("$WSRA", servletRequest.getRemoteAddr());
-        proxyRequest.setHeader("$WSRH", servletRequest.getRemoteHost());
-        proxyRequest.setHeader("$WSSN", servletRequest.getServerName());
+        proxyRequest.setHeader("Host", servletRequest.getServerName()); //$NON-NLS-1$
+        proxyRequest.setHeader("$WSRA", servletRequest.getRemoteAddr()); //$NON-NLS-1$
+        proxyRequest.setHeader("$WSRH", servletRequest.getRemoteHost()); //$NON-NLS-1$
+        proxyRequest.setHeader("$WSSN", servletRequest.getServerName()); //$NON-NLS-1$
         if(sendWsis) {
-            proxyRequest.setHeader("$WSSC", servletRequest.getScheme());
-            proxyRequest.setHeader("$WSIS", servletRequest.isSecure() ? "True" : "False");
-            proxyRequest.setHeader("$WSSP", String.valueOf(servletRequest.getServerPort()));
+            proxyRequest.setHeader("$WSSC", servletRequest.getScheme()); //$NON-NLS-1$
+            proxyRequest.setHeader("$WSIS", servletRequest.isSecure() ? "True" : "False"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            proxyRequest.setHeader("$WSSP", String.valueOf(servletRequest.getServerPort())); //$NON-NLS-1$
         }
     }
 
@@ -522,7 +533,7 @@ public class DominoProxyServlet extends HttpServlet {
         String path = servletRequest.getContextPath(); // path starts with / or is empty string
         path += servletRequest.getServletPath(); // servlet path starts with / or is empty string
         if(path.isEmpty()){
-            path = "/";
+            path = "/"; //$NON-NLS-1$
         }
 
         for (HttpCookie cookie : HttpCookie.parse(headerValue)) {
@@ -547,17 +558,17 @@ public class DominoProxyServlet extends HttpServlet {
      */
     private String getRealCookie(String cookieValue) {
         StringBuilder escapedCookie = new StringBuilder();
-        String[] cookies = cookieValue.split("[;,]");
+        String[] cookies = cookieValue.split("[;,]"); //$NON-NLS-1$
         for (String cookie : cookies) {
-            String[] cookieSplit = cookie.split("=");
+            String[] cookieSplit = cookie.split("="); //$NON-NLS-1$
             if (cookieSplit.length == 2) {
                 String cookieName = cookieSplit[0].trim();
                 if (cookieName.startsWith(getCookieNamePrefix(cookieName))) {
                     cookieName = cookieName.substring(getCookieNamePrefix(cookieName).length());
                     if (escapedCookie.length() > 0) {
-                        escapedCookie.append("; ");
+                        escapedCookie.append("; "); //$NON-NLS-1$
                     }
-                    escapedCookie.append(cookieName).append("=").append(cookieSplit[1].trim());
+                    escapedCookie.append(cookieName).append("=").append(cookieSplit[1].trim()); //$NON-NLS-1$
                 }
             }
         }
@@ -604,10 +615,10 @@ public class DominoProxyServlet extends HttpServlet {
             StringBuffer curUrl = servletRequest.getRequestURL();//no query
             int pos;
             // Skip the protocol part
-            if ((pos = curUrl.indexOf("://"))>=0) {
+            if ((pos = curUrl.indexOf("://"))>=0) { //$NON-NLS-1$
                 // Skip the authority part
                 // + 3 to skip the separator between protocol and authority
-                if ((pos = curUrl.indexOf("/", pos + 3)) >=0) {
+                if ((pos = curUrl.indexOf("/", pos + 3)) >=0) { //$NON-NLS-1$
                     // Trim everything after the authority part.
                     curUrl.setLength(pos);
                 }
@@ -661,7 +672,7 @@ public class DominoProxyServlet extends HttpServlet {
                     formatter = new Formatter(outBuf);
                 }
                 //leading %, 0 padded, width 2, capital hex
-                formatter.format("%%%02X",(int)c);//TODO
+                formatter.format("%%%02X",(int)c);//TODO //$NON-NLS-1$
             }
         }
         return outBuf != null ? outBuf : in;
@@ -669,9 +680,9 @@ public class DominoProxyServlet extends HttpServlet {
 
     private static final BitSet asciiQueryChars;
     static {
-        char[] c_unreserved = "_-!.~'()*".toCharArray();//plus alphanum
-        char[] c_punct = ",;:$&+=".toCharArray();
-        char[] c_reserved = "?/[]@".toCharArray();//plus punct
+        char[] c_unreserved = "_-!.~'()*".toCharArray();//plus alphanum //$NON-NLS-1$
+        char[] c_punct = ",;:$&+=".toCharArray(); //$NON-NLS-1$
+        char[] c_reserved = "?/[]@".toCharArray();//plus punct //$NON-NLS-1$
 
         asciiQueryChars = new BitSet(128);
         for(char c = 'a'; c <= 'z'; c++) asciiQueryChars.set((int)c);
@@ -735,7 +746,7 @@ public class DominoProxyServlet extends HttpServlet {
 
     private static String concat(String path1, String path2, char sep) {
         if(path1 == null || path1.isEmpty()) {
-            return path2 == null ? "" : path2;
+            return path2 == null ? "" : path2; //$NON-NLS-1$
         }
         if(path2 == null || path2.isEmpty()) {
             return path1;

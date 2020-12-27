@@ -1,0 +1,11 @@
+Subsystem-ManifestVersion: 1
+Subsystem-SymbolicName: dominoProxy-1.0;visibility:=public
+Subsystem-Version: 2.0.0.SNAPSHOT
+Subsystem-Name: dominoProxy
+Subsystem-Content: org.openntf.openliberty.wlp.dominoproxy;version="0.0.0",
+  com.ibm.wsspi.appserver.webBundle-1.0; type="osgi.subsystem.feature",
+  com.ibm.websphere.appserver.servlet-4.0; type="osgi.subsystem.feature"
+IBM-Feature-Version: 2
+IBM-ShortName: dominoProxy-1.0
+Manifest-Version: 1.0
+Subsystem-Type: osgi.subsystem.feature
