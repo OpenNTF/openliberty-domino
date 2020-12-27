@@ -15,6 +15,9 @@
  */
 package org.openntf.openliberty.wlp.notesruntime;
 
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -26,6 +29,7 @@ import org.osgi.framework.BundleContext;
 
 import com.darwino.domino.napi.DominoAPI;
 import com.darwino.domino.napi.DominoException;
+import com.ibm.commons.util.StringUtil;
 
 public class RuntimeActivator implements BundleActivator {
 	private static final Logger log = Logger.getLogger(RuntimeActivator.class.getName());
@@ -38,9 +42,33 @@ public class RuntimeActivator implements BundleActivator {
 			log.info("Initializing Notes runtime");
 		}
 		
+		AccessController.doPrivileged((PrivilegedAction<Void>)() -> {
+			System.setProperty("notesruntime.init", "true"); //$NON-NLS-1$ //$NON-NLS-2$
+			return null;
+		});
+		
 		notesExecutor.submit(() -> {
 			try {
-				DominoAPI.get().NotesInit();
+				String notesProgramDir = System.getenv("Notes_ExecDirectory"); //$NON-NLS-1$
+				String notesIniPath = System.getenv("NotesINI"); //$NON-NLS-1$ 
+				if (StringUtil.isNotEmpty(notesProgramDir)) {
+					String[] initArgs = new String[] {
+							notesProgramDir,
+							StringUtil.isEmpty(notesIniPath) ? "" : ("=" + notesIniPath) //$NON-NLS-1$ //$NON-NLS-2$ 
+					};
+					
+					if(log.isLoggable(Level.INFO)) {
+						log.info(StringUtil.format("Initializing Notes runtime with arguments {0}", Arrays.toString(initArgs)));
+					}
+					try {
+						DominoAPI.get().NotesInitExtended(initArgs);
+					} catch (DominoException e) {
+						throw new RuntimeException(e);
+					}
+				} else {
+					// For Windows specifically and Domino generally
+					DominoAPI.get().NotesInit();
+				}
 				DominoAPI.get().NotesInitThread();
 				DominoAPI.get().HTMLProcessInitialize();
 				
@@ -52,6 +80,7 @@ public class RuntimeActivator implements BundleActivator {
 					// Expected on shutdown
 				} finally {
 					DominoAPI.get().HTMLProcessTerminate();
+					DominoAPI.get().NotesTermThread();
 					DominoAPI.get().NotesTerm();
 					
 					if(log.isLoggable(Level.INFO)) {
