@@ -34,7 +34,7 @@ After it is installed, open the admin NSF and add at least one server document. 
 
 ### Console Commands
 
-The runtime supports several Domino console commands, all of which are prefixed by `tell http osgi wlp` when run via OSGi and `tell wlp` when run via RunJava:
+The runtime supports several Domino console commands, all of which are prefixed by `tell wlp`:
 
 * `status`: Displays the status of all running Liberty servers. This is equivalent to the `server status $name` command in the Liberty package
 * `stop`: Stops all running Liberty servers
@@ -66,7 +66,7 @@ Code that uses the Notes runtime should take care to terminate all Notes-initial
 - Ensure that any `ExecutorService` that contains Notes threads is shut down properly in a `ServletContextListener`
 - Run any Notes-based code in infrastructure listeners (such as `ServletContextListener`s) inside explicit `NotesThread`s and use `Thread#join` to wait for their results
 
-Additionally, deployed Open Liberty runtimes include a `usr:notesRuntime-1.0` feature that can be used to ensure that `NotesInit` and `NotesTerm` are called at server launch and shutdown.
+Additionally, deployed Open Liberty runtimes include a `usr:notesRuntime-1.0` feature that can be used to ensure that `NotesInit` and `NotesTerm` are called at server launch and shutdown. This feature sets the Java property `notesruntime.init` to `"true"` when enabled, so individual apps can check for that and skip process initialization.
 
 ## Building
 
