@@ -15,15 +15,10 @@
 		<finalName>openliberty-domino-proxy</finalName>
 	</build>
 
-	<properties>
-		<httpclient.version>4.5.3</httpclient.version>
-	</properties>
-
 	<dependencies>
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>
-			<version>${httpclient.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>javax.servlet</groupId>
