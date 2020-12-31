@@ -49,7 +49,7 @@
       <par def="1"/>
       <par def="1"/>
       <table altbgcolor="white" bgcolor="#efefef" colorstyle="left"
-        columnspacing="0.0500in" refwidth="18.9375in"
+        columnspacing="0.0500in" refwidth="8.8958in"
         rowspacing="0.0500in" widthtype="fitmargins">
         <tablecolumn width="2in"/>
         <tablecolumn width="100%"/>
@@ -74,11 +74,26 @@ Yg4BAIQAAAAAAAAAAAA=
             </par>
           </tablecell>
         </tablerow>
+        <tablerow>
+          <tablecell borderwidth="0px">
+            <par def="3">Domino Servers:</par>
+          </tablecell>
+          <tablecell borderwidth="0px">
+            <par def="4">
+              <field allowmultivalues="true"
+                description="Domino server names and groups that deploy this server"
+                fieldhint="*" kind="editable"
+                listdisplayseparator="comma"
+                listinputseparators="comma semicolon newline"
+                name="DominoServers" type="names"/>
+            </par>
+          </tablecell>
+        </tablerow>
       </table>
       <pardef firstlineleftmargin="1in" id="2"/>
       <par def="2"/>
       <table bgcolor="#ffffc2" colorstyle="solid"
-        columnspacing="0.0500in" refwidth="18.9375in"
+        columnspacing="0.0500in" refwidth="8.8958in"
         rowspacing="0.0500in" widthtype="fitmargins">
         <tablecolumn width="100%"/>
         <tablerow>
@@ -95,7 +110,7 @@ Yg4BAIQAAAAAAAAAAAA=
         </tablerow>
       </table>
       <par def="2"/>
-      <table columnspacing="0.0500in" refwidth="18.9361in"
+      <table columnspacing="0.0500in" refwidth="8.8944in"
         rowdisplay="tabs" rowspacing="0.0500in" widthtype="fitmargins">
         <tablecolumn width="100%"/>
         <tablerow tablabel="server.xml">
@@ -181,7 +196,7 @@ Yg4BAIQAAAAAAAAAAAA=
         <tablerow tablabel="Additional Deployment ZIPs">
           <tablecell>
             <par def="6"/>
-            <pardef hide="read print preview" id="7" keeptogether="true" keepwithnext="true"/>
+            <pardef id="7" keeptogether="true" keepwithnext="true"/>
             <par def="7">
               <run>
                 <font color="gray"/>Any attached ZIP files are expanded in the base directory of the deployed server.</run>
