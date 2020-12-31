@@ -4,7 +4,7 @@
   deleteddocs="true" evaluateactions="false" extendlastcolumn="true"
   gridcolor="white" gridstyle="solid" headerbgcolor="white"
   headerlinecount="1" headers="beveled" hidemarginborder="false"
-  marginbgcolor="white" marginwidth="0px" name="Trash" noreplace="true"
+  marginbgcolor="white" marginwidth="0px" name="Trash"
   onopengoto="lastopened" onrefresh="displayindicator"
   opencollapsed="false" publicaccess="false" rowlinecount="1"
   rowspacing="1" showhierarchies="false" showinmenu="false"
