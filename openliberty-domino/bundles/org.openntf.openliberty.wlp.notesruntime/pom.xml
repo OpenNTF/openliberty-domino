@@ -60,7 +60,13 @@
 						<Export-Package/>
 						<Bundle-Activator>org.openntf.openliberty.wlp.notesruntime.RuntimeActivator</Bundle-Activator>
 						<Embed-Dependency>*;scope=compile</Embed-Dependency>
-						<Import-Package>!lotus.domino,!org.eclipse.core.runtime,*</Import-Package>
+						<Import-Package>
+							!lotus.domino,
+							!org.eclipse.core.runtime,
+							!javax.mail,
+							!javax.mail.internet,
+							*
+						</Import-Package>
 					</instructions>
 				</configuration>
 			</plugin>
