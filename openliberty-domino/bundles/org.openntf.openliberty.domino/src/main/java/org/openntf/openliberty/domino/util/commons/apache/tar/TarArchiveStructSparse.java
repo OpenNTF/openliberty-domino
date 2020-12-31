@@ -32,6 +32,7 @@ import java.util.Objects;
  * </pre>
  * @since 1.20
  */
+@SuppressWarnings("nls")
 public final class TarArchiveStructSparse {
     private final long offset;
     private final long numbytes;

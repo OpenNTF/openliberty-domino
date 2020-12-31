@@ -56,6 +56,9 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import static java.text.MessageFormat.format;
+
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -130,7 +133,7 @@ public class DominoProxyServlet extends HttpServlet {
 
     @Override
     public String getServletInfo() {
-        return "A proxy servlet for Domino by Jesse Gallagher, based on work by David Smiley, dsmiley@apache.org";
+        return Messages.getString("DominoProxyServlet.servletInfo"); //$NON-NLS-1$
     }
 
 
@@ -243,7 +246,7 @@ public class DominoProxyServlet extends HttpServlet {
                 .build();
     }
 
-    private void initTarget() throws ServletException {
+	private void initTarget() throws ServletException {
         targetUri = getConfigParam(P_TARGET_URI);
         if(targetUri == null || targetUri.isEmpty()) {
             targetUri = getConfigParam(ATTR_TARGET_URI);
@@ -252,12 +255,12 @@ public class DominoProxyServlet extends HttpServlet {
         	targetUri = getConfigParam(ENV_DOMINOHTTP);
         }
         if (targetUri == null || targetUri.isEmpty())
-            throw new ServletException(P_TARGET_URI+" is required.");
+            throw new ServletException(format(Messages.getString("DominoProxyServlet.configPropertyRequired"), P_TARGET_URI)); //$NON-NLS-1$
         //test it's valid
         try {
             targetUriObj = new URI(targetUri);
         } catch (Exception e) {
-            throw new ServletException("Trying to process targetUri init parameter: "+e,e);
+            throw new ServletException(format(Messages.getString("DominoProxyServlet.processingTargetUri"), e),e); //$NON-NLS-1$
         }
         targetHost = URIUtils.extractHost(targetUriObj);
     }
@@ -277,14 +280,14 @@ public class DominoProxyServlet extends HttpServlet {
         return clientBuilder.build();
     }
 
-    @Override
+	@Override
     public void destroy() {
         //Usually, clients implement Closeable:
         if (proxyClient instanceof Closeable) {
             try {
                 ((Closeable) proxyClient).close();
             } catch (IOException e) {
-                log("While destroying servlet, shutting down HttpClient: "+e, e);
+                log(format(Messages.getString("DominoProxyServlet.exceptionDestroyingHttpClient"), e), e); //$NON-NLS-1$
             }
         } else {
             //Older releases require we do this:
@@ -376,11 +379,10 @@ public class DominoProxyServlet extends HttpServlet {
         throw new RuntimeException(e);
     }
 
-    private HttpResponse doExecute(HttpServletRequest servletRequest, HttpServletResponse servletResponse,
+	private HttpResponse doExecute(HttpServletRequest servletRequest, HttpServletResponse servletResponse,
                                    HttpRequest proxyRequest) throws IOException {
         if (doLog) {
-            log("proxy " + servletRequest.getMethod() + " uri: " + servletRequest.getRequestURI() + " -- " +
-                    proxyRequest.getRequestLine().getUri());
+            log(format(Messages.getString("DominoProxyServlet.proxyConfigUri"), servletRequest.getMethod(), servletRequest.getRequestURI(), proxyRequest.getRequestLine().getUri())); //$NON-NLS-1$
         }
         return proxyClient.execute(getTargetHost(servletRequest), proxyRequest);
     }
@@ -457,7 +459,7 @@ public class DominoProxyServlet extends HttpServlet {
                 HttpHost host = getTargetHost(servletRequest);
                 headerValue = host.getHostName();
                 if (host.getPort() != -1)
-                    headerValue += ":"+host.getPort();
+                    headerValue += ":"+host.getPort(); //$NON-NLS-1$
             } else if (!doPreserveCookies && headerName.equalsIgnoreCase(org.apache.http.cookie.SM.COOKIE)) {
                 headerValue = getRealCookie(headerValue);
             }
@@ -577,7 +579,7 @@ public class DominoProxyServlet extends HttpServlet {
 
     /** The string prefixing rewritten cookies. */
     private String getCookieNamePrefix(String name) {
-        return "!Proxy!" + getServletConfig().getServletName();
+        return "!Proxy!" + getServletConfig().getServletName(); //$NON-NLS-1$
     }
 
     /** Copy response body data (the entity) from the proxy to the servlet client. */

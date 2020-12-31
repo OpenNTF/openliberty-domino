@@ -90,7 +90,7 @@ public class AdminNSFJavaRuntimeProvider implements JavaRuntimeProvider {
 						}
 						boolean isJ9 = "OpenJ9".equals(javaJvm); //$NON-NLS-1$
 						if(log.isLoggable(Level.FINE)) {
-							log.fine(format("Configured to use Java runtime {0} with {1} JVM", javaVersion , javaJvm));
+							log.fine(format(Messages.getString("AdminNSFJavaRuntimeProvider.configuredJavaRuntimeWithJVM"), javaVersion , javaJvm)); //$NON-NLS-1$
 						}	
 						
 						// Check for an existing JVM
@@ -106,7 +106,7 @@ public class AdminNSFJavaRuntimeProvider implements JavaRuntimeProvider {
 						String execName = "java" + (OpenLibertyUtil.IS_WINDOWS ? ".exe" : ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 						if(Files.exists(jvmDir.resolve("bin").resolve(execName))) { //$NON-NLS-1$
 							if(log.isLoggable(Level.FINE)) {
-								log.info(format("Using already-downloaded runtime at {0}", jvmDir));
+								log.info(format(Messages.getString("AdminNSFJavaRuntimeProvider.usingDownloadedRuntime"), jvmDir)); //$NON-NLS-1$
 							}
 							// Assume the whole JVM exists
 							return jvmDir;
@@ -118,7 +118,7 @@ public class AdminNSFJavaRuntimeProvider implements JavaRuntimeProvider {
 						}
 						String releasesUrl = format(API_RELEASES, javaVersion);
 						if(log.isLoggable(Level.FINE)) {
-							log.fine(format("Downloading release list from {0}", releasesUrl));
+							log.fine(format(Messages.getString("AdminNSFJavaRuntimeProvider.downloadingReleaseListFrom"), releasesUrl)); //$NON-NLS-1$
 						}
 						@SuppressWarnings("unchecked")
 						List<Map<String, Object>> releases = OpenLibertyUtil.download(new URL(releasesUrl), is -> {
@@ -144,7 +144,7 @@ public class AdminNSFJavaRuntimeProvider implements JavaRuntimeProvider {
 							.filter(release -> release.containsKey("assets")) //$NON-NLS-1$
 							.collect(Collectors.toList());
 						if(validReleases.isEmpty()) {
-							throw new IllegalStateException("Unable to locate AdoptOpenJDK build in release list");
+							throw new IllegalStateException(Messages.getString("AdminNSFJavaRuntimeProvider.unableToLocateAdoptOpenJDKBuild")); //$NON-NLS-1$
 						}
 						
 						// HotSpot:
@@ -164,9 +164,9 @@ public class AdminNSFJavaRuntimeProvider implements JavaRuntimeProvider {
 							.filter(asset -> StringUtil.toString(asset.get("name")).contains("-" + qualifier + "_")) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 							.filter(asset -> "application/x-compressed-tar".equals(asset.get("content_type")) || "application/zip".equals(asset.get("content_type"))) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 							.findFirst()
-							.orElseThrow(() -> new IllegalStateException(format("Unable to find AdoptOpenJDK build for qualifier {0}", qualifier)));
+							.orElseThrow(() -> new IllegalStateException(format(Messages.getString("AdminNSFJavaRuntimeProvider.unableToFindAdoptOpenJDKBuildFor"), qualifier))); //$NON-NLS-1$
 						if(log.isLoggable(Level.INFO)) {
-							log.info(format("Downloading AdoptOpenJDK runtime from {0}", download.get("browser_download_url"))); //$NON-NLS-2$
+							log.info(format(Messages.getString("AdminNSFJavaRuntimeProvider.downloadingAdoptOpenJDKFrom"), download.get("browser_download_url")));  //$NON-NLS-1$//$NON-NLS-2$
 						}
 						
 						String contentType = (String)download.get("content_type"); //$NON-NLS-1$
@@ -183,7 +183,7 @@ public class AdminNSFJavaRuntimeProvider implements JavaRuntimeProvider {
 									}
 								}
 							} else {
-								throw new IllegalStateException(format("Unsupported content type {0}", contentType));
+								throw new IllegalStateException(format(Messages.getString("AdminNSFJavaRuntimeProvider.unsupportedContentType"), contentType)); //$NON-NLS-1$
 							}
 							return null;
 						});
@@ -216,7 +216,7 @@ public class AdminNSFJavaRuntimeProvider implements JavaRuntimeProvider {
 			}).get();
 		} catch (Exception e) {
 			if(log.isLoggable(Level.SEVERE)) {
-				log.log(Level.SEVERE, "Exception while locating Java runtime", e);
+				log.log(Level.SEVERE, Messages.getString("AdminNSFJavaRuntimeProvider.exceptionLocatingRuntime"), e); //$NON-NLS-1$
 				e.printStackTrace(OpenLibertyLog.instance.out);
 			}
 			throw new RuntimeException(e);
@@ -237,7 +237,7 @@ public class AdminNSFJavaRuntimeProvider implements JavaRuntimeProvider {
 				
 				if(StringUtil.isNotEmpty(name)) {
 					if(log.isLoggable(Level.FINER)) {
-						log.finer(format("Deploying file {0}", name));
+						log.finer(format(Messages.getString("AdminNSFJavaRuntimeProvider.deployingFile"), name)); //$NON-NLS-1$
 					}
 					
 					Path path = dest.resolve(name);
@@ -270,7 +270,7 @@ public class AdminNSFJavaRuntimeProvider implements JavaRuntimeProvider {
 				
 				if(StringUtil.isNotEmpty(name)) {
 					if(log.isLoggable(Level.FINER)) {
-						log.finer(format("Deploying file {0}", name));
+						log.finer(format(Messages.getString("AdminNSFJavaRuntimeProvider.deployingFile"), name)); //$NON-NLS-1$
 					}
 					
 					Path path = dest.resolve(name);

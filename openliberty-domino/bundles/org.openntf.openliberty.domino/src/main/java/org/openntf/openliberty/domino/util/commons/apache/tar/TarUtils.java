@@ -35,6 +35,7 @@ import org.openntf.openliberty.domino.util.commons.apache.zip.ZipEncodingHelper;
  *
  */
 // CheckStyle:HideUtilityClassConstructorCheck OFF (bc)
+@SuppressWarnings("nls")
 public class TarUtils {
 
     private static final int BYTE_MASK = 255;

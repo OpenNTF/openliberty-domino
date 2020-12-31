@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 
+@SuppressWarnings("nls")
 public class FastStringBuffer {
 
    /** The value is used for character storage. */

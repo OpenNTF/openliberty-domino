@@ -39,7 +39,7 @@ public class RuntimeActivator implements BundleActivator {
 	@Override
 	public void start(BundleContext context) throws Exception {
 		if(log.isLoggable(Level.INFO)) {
-			log.info("Initializing Notes runtime");
+			log.info(Messages.getString("RuntimeActivator.initializingRuntime")); //$NON-NLS-1$
 		}
 		
 		AccessController.doPrivileged((PrivilegedAction<Void>)() -> {
@@ -58,7 +58,7 @@ public class RuntimeActivator implements BundleActivator {
 					};
 					
 					if(log.isLoggable(Level.INFO)) {
-						log.info(StringUtil.format("Initializing Notes runtime with arguments {0}", Arrays.toString(initArgs)));
+						log.info(StringUtil.format(Messages.getString("RuntimeActivator.initializingRuntimeWithArgs"), Arrays.toString(initArgs))); //$NON-NLS-1$
 					}
 					try {
 						DominoAPI.get().NotesInitExtended(initArgs);
@@ -84,7 +84,7 @@ public class RuntimeActivator implements BundleActivator {
 					DominoAPI.get().NotesTerm();
 					
 					if(log.isLoggable(Level.INFO)) {
-						log.info("Terminated Notes runtime");
+						log.info(Messages.getString("RuntimeActivator.terminatedRuntime")); //$NON-NLS-1$
 					}
 				}
 			} catch (DominoException e) {

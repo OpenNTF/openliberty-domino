@@ -25,6 +25,7 @@ package org.openntf.openliberty.domino.util.commons.apache.tar;
  * <I>tar.h</I> type <I>enum archive_format</I>
  */
 // CheckStyle:InterfaceIsTypeCheck OFF (bc)
+@SuppressWarnings("nls")
 public interface TarConstants {
 
     /** Default record size */

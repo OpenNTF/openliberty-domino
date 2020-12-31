@@ -81,7 +81,7 @@ public class AdminNSFRuntimeDeployment implements RuntimeDeploymentTask {
 				if(!Files.isDirectory(wlp)) {
 					// If it doesn't yet exist, download and deploy a new runtime
 					if(log.isLoggable(Level.INFO)) {
-						log.info("Deploying new runtime");
+						log.info(Messages.getString("AdminNSFRuntimeDeployment.deployingNewRuntime")); //$NON-NLS-1$
 					}
 					
 					String artifact = config.getItemValueString(ITEM_ARTIFACT);
@@ -101,10 +101,10 @@ public class AdminNSFRuntimeDeployment implements RuntimeDeploymentTask {
 						}
 						URL url = buildDownloadURL(mavenRepo, artifact, version);
 						if(log.isLoggable(Level.INFO)) {
-							log.info(format("Downloading runtime from {0}", url));
+							log.info(format(Messages.getString("AdminNSFRuntimeDeployment.downloadingRuntimeFrom"), url)); //$NON-NLS-1$
 						}
 						if(log.isLoggable(Level.INFO)) {
-							log.info(format("Storing runtime download at {0}", wlpPackage));
+							log.info(format(Messages.getString("AdminNSFRuntimeDeployment.storingRuntimeAt"), wlpPackage)); //$NON-NLS-1$
 						}
 						try(OutputStream os = Files.newOutputStream(wlpPackage, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE)) {
 							OpenLibertyUtil.download(url, is -> {
@@ -128,7 +128,7 @@ public class AdminNSFRuntimeDeployment implements RuntimeDeploymentTask {
 								
 								if(StringUtil.isNotEmpty(name)) {
 									if(log.isLoggable(Level.FINER)) {
-										log.finer(format("Deploying file {0}", name));
+										log.finer(format(Messages.getString("AdminNSFRuntimeDeployment.deployingFile"), name)); //$NON-NLS-1$
 									}
 									
 									Path path = wlp.resolve(name);
@@ -201,7 +201,7 @@ public class AdminNSFRuntimeDeployment implements RuntimeDeploymentTask {
 	private static String getArtifactId(String artifact) {
 		int colonIndex = artifact.indexOf(':');
 		if(colonIndex < 1 || colonIndex == artifact.length()+1) {
-			throw new IllegalArgumentException(format("Illegal Maven artifact ID: {0}", artifact));
+			throw new IllegalArgumentException(format(Messages.getString("AdminNSFRuntimeDeployment.illegalArtifactId"), artifact)); //$NON-NLS-1$
 		}
 		return artifact.substring(colonIndex+1);
 	}

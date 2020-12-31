@@ -66,25 +66,25 @@ public class CLIManagerDelegate implements AutoCloseable {
 		if(argv.length > 0) {
 			Command command = parseCommand(argv[0]);
 			if(command == null) {
-				return MessageFormat.format("Unknown command: {0}", argv[0]);
+				return MessageFormat.format(Messages.getString("CLIManagerDelegate.unknownCommand"), argv[0]); //$NON-NLS-1$
 			}
 			switch(command) {
 			case STATUS:
 				OpenLibertyRuntime.instance.showStatus();
-				return "Status of running server(s):";
+				return Messages.getString("CLIManagerDelegate.statusOfRunningServers"); //$NON-NLS-1$
 			case START:
 				if(this.runner != null) {
-					return "Open Liberty server is already running";
+					return Messages.getString("CLIManagerDelegate.serverAlreadyRunning"); //$NON-NLS-1$
 				} else {
 					start();
-					return "Starting Open Libery server";
+					return Messages.getString("CLIManagerDelegate.startingServer"); //$NON-NLS-1$
 				}
 			case STOP:
 				if(this.runner == null) {
-					return "Open Liberty server is not running";
+					return Messages.getString("CLIManagerDelegate.serverIsNotRunning"); //$NON-NLS-1$
 				} else {
 					close();
-					return "Stopped Open Liberty server";
+					return Messages.getString("CLIManagerDelegate.stoppedServer"); //$NON-NLS-1$
 				}
 			case RESTART:
 				if(this.runner != null) {
@@ -94,16 +94,16 @@ public class CLIManagerDelegate implements AutoCloseable {
 					} catch (InterruptedException e) {
 					}
 					start();
-					return "Restarted Open Libery server";
+					return Messages.getString("CLIManagerDelegate.restartedServer"); //$NON-NLS-1$
 				} else {
 					start();
-					return "Starting Open Liberty server";
+					return Messages.getString("CLIManagerDelegate.startingServer"); //$NON-NLS-1$
 				}
 			case HELP:
 				emitHelp();
 				return ""; //$NON-NLS-1$
 			default:
-				return MessageFormat.format("Command not yet implemented: {0}", command);
+				return MessageFormat.format(Messages.getString("CLIManagerDelegate.commandNotYetImplemented"), command); //$NON-NLS-1$
 			}
 		} else {
 			emitHelp();
@@ -113,7 +113,7 @@ public class CLIManagerDelegate implements AutoCloseable {
 	}
 	
 	private void emitHelp() {
-		OpenLibertyLog.instance.out.println("Available commands:");
+		OpenLibertyLog.instance.out.println(Messages.getString("CLIManagerDelegate.availableCommands")); //$NON-NLS-1$
 		for(Command command : Command.values()) {
 			OpenLibertyLog.instance.out.println("- " + command.toString()); //$NON-NLS-1$
 		}

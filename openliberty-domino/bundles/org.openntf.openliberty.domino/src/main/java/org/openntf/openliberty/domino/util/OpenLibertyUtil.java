@@ -23,6 +23,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.concurrent.ExecutionException;
 
+import org.openntf.openliberty.domino.runtime.Messages;
 import org.openntf.openliberty.domino.util.commons.ibm.StringUtil;
 
 import lotus.domino.NotesFactory;
@@ -78,7 +79,7 @@ public enum OpenLibertyUtil {
 			int responseCode = conn.getResponseCode();
 			try {
 				if(responseCode != HttpURLConnection.HTTP_OK) {
-					throw new IOException(format("Received unexpected response code {0} from URL {1}", responseCode, url));
+					throw new IOException(format(Messages.getString("OpenLibertyUtil.unexpectedResponseCodeFromUrl"), responseCode, url)); //$NON-NLS-1$
 				}
 				try(InputStream is = conn.getInputStream()) {
 					return consumer.apply(is);

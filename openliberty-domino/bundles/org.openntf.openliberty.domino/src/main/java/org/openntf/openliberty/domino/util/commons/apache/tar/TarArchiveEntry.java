@@ -145,6 +145,7 @@ import org.openntf.openliberty.domino.util.commons.apache.zip.ZipEncoding;
  *
  */
 
+@SuppressWarnings("nls")
 public class TarArchiveEntry implements ArchiveEntry, TarConstants {
     private static final TarArchiveEntry[] EMPTY_TAR_ARCHIVE_ENTRIES = new TarArchiveEntry[0];
 

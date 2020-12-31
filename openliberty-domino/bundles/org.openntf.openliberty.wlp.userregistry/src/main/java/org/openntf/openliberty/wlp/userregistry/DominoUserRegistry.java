@@ -26,6 +26,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.rmi.RemoteException;
 import java.security.cert.X509Certificate;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -60,11 +61,11 @@ public class DominoUserRegistry implements UserRegistry {
 	static {
 		log.setLevel(Level.FINER);
 	}
-	public static final String CONFIG_PID = "dominoUserRegistry";
+	public static final String CONFIG_PID = "dominoUserRegistry"; //$NON-NLS-1$
 
 	public DominoUserRegistry() {
 		if(log.isLoggable(Level.FINER)) {
-			log.finer(getClass().getSimpleName() + " construct");
+			log.finer(MessageFormat.format(Messages.getString("DominoUserRegistry.construct"), getClass().getSimpleName())); //$NON-NLS-1$
 		}
 	}
 
@@ -72,7 +73,7 @@ public class DominoUserRegistry implements UserRegistry {
 	public void initialize(Properties props) throws CustomRegistryException, RemoteException {
 		// Nothing to do here
 		if(log.isLoggable(Level.FINER)) {
-			log.finer(getClass().getSimpleName() + " initialize " + props);
+			log.finer(MessageFormat.format(Messages.getString("DominoUserRegistry.initializeWithProps"), getClass().getSimpleName(), props)); //$NON-NLS-1$
 		}
 	}
 	
@@ -80,11 +81,11 @@ public class DominoUserRegistry implements UserRegistry {
 	public String checkPassword(String userSecurityName, String password)
 			throws PasswordCheckFailedException, CustomRegistryException, RemoteException {
 		if(log.isLoggable(Level.FINE)) {
-			log.fine(getClass().getSimpleName() + " checking password for user \"" + userSecurityName + "\"");
+			log.fine(MessageFormat.format(Messages.getString("DominoUserRegistry.checkingPasswordForUser"), getClass().getSimpleName(), userSecurityName)); //$NON-NLS-1$
 		}
 		
 		try {
-			List<String> result = call("checkPassword", toMap("userSecurityName", userSecurityName, "password", password));
+			List<String> result = call("checkPassword", toMap("userSecurityName", userSecurityName, "password", password)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			if(isEmpty(result)) {
 				return null;
 			} else {
@@ -106,13 +107,13 @@ public class DominoUserRegistry implements UserRegistry {
 
 	@Override
 	public String getRealm() throws CustomRegistryException, RemoteException {
-		return "defaultRealm";
+		return "defaultRealm"; //$NON-NLS-1$
 	}
 
 	@Override
 	public Result getUsers(String pattern, int limit) throws CustomRegistryException, RemoteException {
 		try {
-			List<String> users = call("getUsers", toMap("pattern", pattern, "limit", String.valueOf(limit)));
+			List<String> users = call("getUsers", toMap("pattern", pattern, "limit", String.valueOf(limit))); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			Result result = new Result();
 			if(limit > users.size()) {
 				users = users.subList(0, limit);
@@ -129,10 +130,10 @@ public class DominoUserRegistry implements UserRegistry {
 	public String getUserDisplayName(String userSecurityName)
 			throws EntryNotFoundException, CustomRegistryException, RemoteException {
 		if(log.isLoggable(Level.FINE)) {
-			log.fine(getClass().getSimpleName() + " getting display name user \"" + userSecurityName + "\"");
+			log.fine(MessageFormat.format(Messages.getString("DominoUserRegistry.gettingDisplayNameForUser"), getClass().getSimpleName(), userSecurityName)); //$NON-NLS-1$
 		}
 		try {
-			List<String> result = call("getUserDisplayName", toMap("userSecurityName", userSecurityName));
+			List<String> result = call("getUserDisplayName", toMap("userSecurityName", userSecurityName)); //$NON-NLS-1$ //$NON-NLS-2$
 			if(result == null || result.isEmpty()) {
 				return null;
 			} else {
@@ -146,7 +147,7 @@ public class DominoUserRegistry implements UserRegistry {
 	@Override
 	public String getUniqueUserId(String userSecurityName) throws EntryNotFoundException, CustomRegistryException, RemoteException {
 		try {
-			List<String> result = call("getUniqueUserId", toMap("userSecurityName", userSecurityName));
+			List<String> result = call("getUniqueUserId", toMap("userSecurityName", userSecurityName)); //$NON-NLS-1$ //$NON-NLS-2$
 			if(result == null || result.isEmpty()) {
 				return null;
 			} else {
@@ -161,7 +162,7 @@ public class DominoUserRegistry implements UserRegistry {
 	public String getUserSecurityName(String uniqueUserId)
 			throws EntryNotFoundException, CustomRegistryException, RemoteException {
 		try {
-			List<String> result = call("getUserSecurityName", toMap("uniqueUserId", uniqueUserId));
+			List<String> result = call("getUserSecurityName", toMap("uniqueUserId", uniqueUserId)); //$NON-NLS-1$ //$NON-NLS-2$
 			if(result == null || result.isEmpty()) {
 				return null;
 			} else {
@@ -187,7 +188,7 @@ public class DominoUserRegistry implements UserRegistry {
 	@Override
 	public Result getGroups(String pattern, int limit) throws CustomRegistryException, RemoteException {
 		try {
-			List<String> users = call("getGroups", toMap("pattern", pattern, "limit", String.valueOf(limit)));
+			List<String> users = call("getGroups", toMap("pattern", pattern, "limit", String.valueOf(limit))); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			Result result = new Result();
 			if(limit > users.size()) {
 				users = users.subList(0, limit);
@@ -218,7 +219,7 @@ public class DominoUserRegistry implements UserRegistry {
 	public List<String> getUniqueGroupIds(String uniqueUserId)
 			throws EntryNotFoundException, CustomRegistryException, RemoteException {
 		try {
-			return call("getUniqueGroupIds", toMap("uniqueUserId", uniqueUserId));
+			return call("getUniqueGroupIds", toMap("uniqueUserId", uniqueUserId)); //$NON-NLS-1$ //$NON-NLS-2$
 		} catch (IOException e) {
 			throw new CustomRegistryException(e);
 		}
@@ -234,7 +235,7 @@ public class DominoUserRegistry implements UserRegistry {
 	@Override
 	public boolean isValidGroup(String groupSecurityName) throws CustomRegistryException, RemoteException {
 		try {
-			List<String> result = call("isValidGroup", toMap("groupSecurityName", groupSecurityName));
+			List<String> result = call("isValidGroup", toMap("groupSecurityName", groupSecurityName)); //$NON-NLS-1$ //$NON-NLS-2$
 			if(isEmpty(result)) {
 				return false;
 			} else {
@@ -255,7 +256,7 @@ public class DominoUserRegistry implements UserRegistry {
 	public Result getUsersForGroup(String groupSecurityName, int limit)
 			throws NotImplementedException, EntryNotFoundException, CustomRegistryException, RemoteException {
 		try {
-			List<String> users = call("getUsersForGroup", toMap("groupSecurityName", groupSecurityName, "limit", String.valueOf(limit)));
+			List<String> users = call("getUsersForGroup", toMap("groupSecurityName", groupSecurityName, "limit", String.valueOf(limit))); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			Result result = new Result();
 			if(limit > users.size()) {
 				users = users.subList(0, limit);
@@ -280,16 +281,16 @@ public class DominoUserRegistry implements UserRegistry {
 	// *******************************************************************************
 	
 	private List<String> call(String methodName, Map<String, String> param) throws IOException {
-		param.put("method", methodName);
-		String base = System.getenv("Domino_HTTP");
+		param.put("method", methodName); //$NON-NLS-1$
+		String base = System.getenv("Domino_HTTP"); //$NON-NLS-1$
 		if(base == null || base.isEmpty()) {
 			return null;
 		}
-		if(!base.endsWith("/")) {
-			base += "/";
+		if(!base.endsWith("/")) { //$NON-NLS-1$
+			base += "/"; //$NON-NLS-1$
 		}
 		URL url = new URL(base);
-		url = new URL(url, "/org.openntf.openliberty.domino/whoami");
+		url = new URL(url, "/org.openntf.openliberty.domino/whoami"); //$NON-NLS-1$
 		
 		StringBuilder payload = new StringBuilder();
 		for(Map.Entry<String, String> entry : param.entrySet()) {
@@ -302,8 +303,8 @@ public class DominoUserRegistry implements UserRegistry {
 		}
 		
 		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-		conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-		conn.setRequestProperty("Accept", "*/*");
+		conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded"); //$NON-NLS-1$ //$NON-NLS-2$
+		conn.setRequestProperty("Accept", "*/*"); //$NON-NLS-1$ //$NON-NLS-2$
 		conn.setDoOutput(true);
 		try(OutputStream os = conn.getOutputStream()) {
 			os.write(payload.toString().getBytes());
@@ -331,7 +332,7 @@ public class DominoUserRegistry implements UserRegistry {
 	}
 	
 	private boolean isEmpty(List<String> result) {
-		return result == null || result.isEmpty() || (result.size() == 1 && "".equals(result.get(0)));
+		return result == null || result.isEmpty() || (result.size() == 1 && "".equals(result.get(0))); //$NON-NLS-1$
 	}
 
 }

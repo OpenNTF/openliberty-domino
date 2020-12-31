@@ -32,6 +32,7 @@ import java.nio.channels.ReadableByteChannel;
 /**
  * Utility functions
  */
+@SuppressWarnings("nls")
 public final class IOUtils {
 
     private static final int COPY_BUF_SIZE = 8024;

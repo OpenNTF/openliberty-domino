@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Properties;
@@ -72,7 +73,7 @@ public class DominoTAI implements TrustAssociationInterceptor {
 	@Override
 	public int initialize(Properties props) throws WebTrustAssociationFailedException {
 		if(log.isLoggable(Level.FINER)) {
-			log.finer(getClass().getSimpleName() + ": Enabled? " + enabled);
+			log.finer(MessageFormat.format(Messages.getString("DominoTAI.TAIEnabled"), getClass().getSimpleName(), enabled)); //$NON-NLS-1$
 		}
 		return 0;
 	}
@@ -105,13 +106,13 @@ public class DominoTAI implements TrustAssociationInterceptor {
 		
 		if(Arrays.stream(cookies).map(Cookie::getName).anyMatch(COOKIES::contains)) {
 			if(log.isLoggable(Level.FINE)) {
-				log.fine(getClass().getSimpleName() + ": Found a matching request");
+				log.fine(MessageFormat.format(Messages.getString("DominoTAI.foundMatchingRequest"), getClass().getSimpleName())); //$NON-NLS-1$
 			}
 			return true;
 		}
 		
 		if(log.isLoggable(Level.FINER)) {
-			log.finer(getClass().getSimpleName() + ": Skipping non-matching request");
+			log.finer(MessageFormat.format(Messages.getString("DominoTAI.skippedNonMatchingRequest"), getClass().getSimpleName())); //$NON-NLS-1$
 		}
 		return false;
 	}
@@ -142,7 +143,7 @@ public class DominoTAI implements TrustAssociationInterceptor {
 					}
 				}
 				if(log.isLoggable(Level.FINE)) {
-					log.fine(getClass().getSimpleName() + ": Resolved to user name " + name);
+					log.fine(MessageFormat.format(Messages.getString("DominoTAI.resolvedToUserName"), getClass().getSimpleName(), name)); //$NON-NLS-1$
 				}
 				if("Anonymous".equals(name)) { //$NON-NLS-1$
 					name = "anonymous"; //$NON-NLS-1$

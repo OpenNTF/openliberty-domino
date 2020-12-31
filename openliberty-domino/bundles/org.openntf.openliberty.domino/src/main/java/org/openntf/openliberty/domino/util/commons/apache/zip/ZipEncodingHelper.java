@@ -31,7 +31,7 @@ public abstract class ZipEncodingHelper {
     /**
      * name of the encoding UTF-8
      */
-    static final String UTF8 = "UTF8";
+    static final String UTF8 = "UTF8"; //$NON-NLS-1$
 
     /**
      * the encoding UTF-8

@@ -107,16 +107,16 @@ public enum OpenLibertyRuntime implements Runnable {
 		log = OpenLibertyLog.instance.log;
 		
 		if(log.isLoggable(Level.INFO)) {
-			log.info(format("Startup"));
+			log.info(format(Messages.getString("OpenLibertyRuntime.0"))); //$NON-NLS-1$
 		}
 		
 		JavaRuntimeProvider javaRuntimeProvider = ServiceLoader.load(JavaRuntimeProvider.class, getClass().getClassLoader()).iterator().next();
 		if(javaRuntimeProvider == null) {
-			throw new IllegalStateException(format("Unable to find service providing {0}", JavaRuntimeProvider.SERVICE_ID));
+			throw new IllegalStateException(format(Messages.getString("OpenLibertyRuntime.unableToFindServiceProviding"), JavaRuntimeProvider.SERVICE_ID)); //$NON-NLS-1$
 		}
 		javaHome = javaRuntimeProvider.getJavaHome();
 		if(log.isLoggable(Level.INFO)) {
-			log.info(format("Using Java runtime located at {0}", javaHome));
+			log.info(format(Messages.getString("OpenLibertyRuntime.usingJavaRuntimeAt"), javaHome)); //$NON-NLS-1$
 		}
 		execDirectory = Paths.get(OpenLibertyUtil.getDominoProgramDirectory());
 		
@@ -124,7 +124,7 @@ public enum OpenLibertyRuntime implements Runnable {
 		try {
 			wlp = deployRuntime();
 			if(log.isLoggable(Level.INFO)) {
-				log.info(format("Using runtime deployed to {0}", wlp));
+				log.info(format(Messages.getString("OpenLibertyRuntime.usingRuntimeAt"), wlp)); //$NON-NLS-1$
 			}
 			verifyRuntime(wlp);
 			deployExtensions(wlp);
@@ -135,7 +135,7 @@ public enum OpenLibertyRuntime implements Runnable {
 				RuntimeTask command = taskQueue.take();
 				if(command != null) {
 					if(log.isLoggable(Level.FINER)) {
-						log.finer(format("Received command: {0}", command));
+						log.finer(format(Messages.getString("OpenLibertyRuntime.receivedCommand"), command)); //$NON-NLS-1$
 					}
 					switch(command.type) {
 					case START: {
@@ -226,7 +226,7 @@ public enum OpenLibertyRuntime implements Runnable {
 			// That's fine
 		} catch(Throwable t) {
 			if(log.isLoggable(Level.SEVERE)) {
-				log.log(Level.SEVERE, "Encountered unexpected exception", t);
+				log.log(Level.SEVERE, Messages.getString("OpenLibertyRuntime.unexpectedException"), t); //$NON-NLS-1$
 				t.printStackTrace(OpenLibertyLog.instance.out);
 			}
 		} finally {
@@ -235,7 +235,7 @@ public enum OpenLibertyRuntime implements Runnable {
 				for(String serverName : startedServers) {
 					try {
 						if(log.isLoggable(Level.INFO)) {
-							log.info("Shutting down server " + serverName);
+							log.info(format(Messages.getString("OpenLibertyRuntime.shuttingDownServer"), serverName)); //$NON-NLS-1$
 						}
 						sendCommand(wlp, "stop", serverName); //$NON-NLS-1$
 					} catch (IOException | NotesException e) {
@@ -254,7 +254,7 @@ public enum OpenLibertyRuntime implements Runnable {
 			}
 			
 			if(log.isLoggable(Level.INFO)) {
-				log.info("Shutdown");
+				log.info(Messages.getString("OpenLibertyRuntime.shutdown")); //$NON-NLS-1$
 			}
 		}
 	}
@@ -310,7 +310,7 @@ public enum OpenLibertyRuntime implements Runnable {
 	private Path deployRuntime() throws IOException {
 		RuntimeDeploymentTask deploymentService = ServiceLoader.load(RuntimeDeploymentTask.class, getClass().getClassLoader()).iterator().next();
 		if(deploymentService == null) {
-			throw new IllegalStateException(format("Unable to find any services providing {0}", RuntimeDeploymentTask.SERVICE_ID));
+			throw new IllegalStateException(format(Messages.getString("OpenLibertyRuntime.unableToFindServiceProviding"), RuntimeDeploymentTask.SERVICE_ID)); //$NON-NLS-1$
 		}
 		return deploymentService.call();
 	}
@@ -366,7 +366,7 @@ public enum OpenLibertyRuntime implements Runnable {
 					
 					if(StringUtil.isNotEmpty(name)) {
 						if(OpenLibertyLog.instance.log.isLoggable(Level.FINE)) {
-							OpenLibertyLog.instance.log.fine(format("Deploying file {0}", name));
+							OpenLibertyLog.instance.log.fine(format(Messages.getString("OpenLibertyRuntime.deployingFile"), name)); //$NON-NLS-1$
 						}
 						
 						Path outputPath = serverBase.resolve(name);
@@ -409,7 +409,7 @@ public enum OpenLibertyRuntime implements Runnable {
 		env.put("Domino_HTTP", getServerBase()); //$NON-NLS-1$
 		
 		if(log.isLoggable(Level.FINE)) {
-			OpenLibertyLog.getLog().fine(format("Executing command {0}", pb.command()));
+			OpenLibertyLog.getLog().fine(format(Messages.getString("OpenLibertyRuntime.executingCommand"), pb.command())); //$NON-NLS-1$
 		}
 		Process process = pb.start();
 		subprocesses.add(process);
@@ -484,7 +484,7 @@ public enum OpenLibertyRuntime implements Runnable {
 				} catch(InterruptedException e) {
 					// Then we're shutting down
 					if(OpenLibertyLog.instance.log.isLoggable(Level.FINE)) {
-						OpenLibertyLog.instance.log.fine("Terminating log monitor");
+						OpenLibertyLog.instance.log.fine(Messages.getString("OpenLibertyRuntime.terminatingLogMonitor")); //$NON-NLS-1$
 					}
 				}
 			}));
@@ -534,7 +534,7 @@ public enum OpenLibertyRuntime implements Runnable {
 			Files.copy(warFile, dest, StandardCopyOption.REPLACE_EXISTING);
 		} catch(IOException e) {
 			if(OpenLibertyLog.instance.log.isLoggable(Level.SEVERE)) {
-				OpenLibertyLog.instance.log.log(Level.SEVERE, format("Encountered exception when deploying dropin: {0}", e), e);
+				OpenLibertyLog.instance.log.log(Level.SEVERE, format(Messages.getString("OpenLibertyRuntime.exceptionDeployingDropin"), e), e); //$NON-NLS-1$
 			}
 		}
 	}
@@ -568,7 +568,7 @@ public enum OpenLibertyRuntime implements Runnable {
 								String shortName = mf.getMainAttributes().getValue("IBM-ShortName"); //$NON-NLS-1$
 								if(StringUtil.isEmpty(shortName)) {
 									throw new IllegalArgumentException(format(
-											"ESA subsystem manifest provided by {0} doesn''t contain an IBM-ShortName",
+											Messages.getString("OpenLibertyRuntime.esaSubsystemNoShortName"), //$NON-NLS-1$
 											ext));
 								}
 								Path mfDest = features.resolve(shortName + ".mf"); //$NON-NLS-1$

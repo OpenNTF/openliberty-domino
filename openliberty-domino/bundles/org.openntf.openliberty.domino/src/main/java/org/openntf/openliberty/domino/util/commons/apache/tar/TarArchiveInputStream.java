@@ -47,6 +47,7 @@ import org.openntf.openliberty.domino.util.commons.apache.zip.ZipEncodingHelper;
  * the archive, and the read each entry as a normal input stream
  * using read().
  */
+@SuppressWarnings("nls")
 public class TarArchiveInputStream extends ArchiveInputStream {
 
     private static final int SMALL_BUFFER_SIZE = 256;

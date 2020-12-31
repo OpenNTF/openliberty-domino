@@ -79,13 +79,13 @@ public class AdminNSFService implements Runnable {
 				if(!needsUpdate(adminNsf)) {
 					// Then we can end now
 					if(log.isLoggable(Level.FINER)) {
-						log.finer(format("{0}: Admin NSF is unchanged", getClass().getSimpleName()));
+						log.finer(format(Messages.getString("AdminNSFService.adminNSFUnchanged"), getClass().getSimpleName())); //$NON-NLS-1$
 					}
 					lastRun = System.currentTimeMillis();
 					return;
 				}
 				if(log.isLoggable(Level.FINE)) {
-					log.fine(format("{0}: Admin NSF has changed - looking for updates", getClass().getSimpleName()));
+					log.fine(format(Messages.getString("AdminNSFService.adminNSFChanged"), getClass().getSimpleName())); //$NON-NLS-1$
 				}
 				
 				View servers = adminNsf.getView(VIEW_SERVERS);
@@ -100,7 +100,7 @@ public class AdminNSFService implements Runnable {
 						if(StringUtil.isNotEmpty(serverName)) {
 							if(needsUpdate(serverDoc)) {
 								if(log.isLoggable(Level.INFO)) {
-									log.info(format("{0}: Deploying NSF-defined server \"{1}\"", getClass().getSimpleName(), serverName));
+									log.info(format(Messages.getString("AdminNSFService.deployingDefinedServer"), getClass().getSimpleName(), serverName)); //$NON-NLS-1$
 								}
 								String serverXml = serverDoc.getItemValueString(ITEM_SERVERXML);
 								String serverEnv = serverDoc.getItemValueString(ITEM_SERVERENV);
@@ -125,7 +125,7 @@ public class AdminNSFService implements Runnable {
 								OpenLibertyRuntime.instance.startServer(serverName);
 							} else {
 								if(log.isLoggable(Level.FINER)) {
-									log.finer(format("{0}: Skipping unchanged server \"{1}\"", getClass().getSimpleName(), serverName));
+									log.finer(format(Messages.getString("AdminNSFService.skippingUnchangedServer"), getClass().getSimpleName(), serverName)); //$NON-NLS-1$
 								}
 							}
 							
@@ -137,7 +137,7 @@ public class AdminNSFService implements Runnable {
 									String appName = dropinDoc.getItemValueString(ITEM_APPNAME);
 									if(needsUpdate(dropinDoc)) {
 										if(log.isLoggable(Level.INFO)) {
-											log.info(format("{0}: Deploying NSF-defined app \"{1}\"", getClass().getSimpleName(), appName));
+											log.info(format(Messages.getString("AdminNSFService.deployingDefinedApp"), getClass().getSimpleName(), appName)); //$NON-NLS-1$
 										}
 										if(dropinDoc.hasItem(ITEM_WAR)) {
 											Item warItem = dropinDoc.getFirstItem(ITEM_WAR);
@@ -159,7 +159,7 @@ public class AdminNSFService implements Runnable {
 										}
 									} else {
 										if(log.isLoggable(Level.FINER)) {
-											log.finer(format("{0}: Skipping unchanged dropin app \"{1}\"", getClass().getSimpleName(), appName));
+											log.finer(format(Messages.getString("AdminNSFService.skippingUnchangedApp"), getClass().getSimpleName(), appName)); //$NON-NLS-1$
 										}
 									}
 								} finally {
@@ -186,7 +186,7 @@ public class AdminNSFService implements Runnable {
 			}
 		} catch(Throwable t) {
 			if(log.isLoggable(Level.SEVERE)) {
-				log.log(Level.SEVERE, MessageFormat.format("Encountered exception in {0}", getClass().getSimpleName()), t);
+				log.log(Level.SEVERE, MessageFormat.format(Messages.getString("AdminNSFService.encounteredExceptionIn"), getClass().getSimpleName()), t); //$NON-NLS-1$
 				t.printStackTrace();
 			}
 		}

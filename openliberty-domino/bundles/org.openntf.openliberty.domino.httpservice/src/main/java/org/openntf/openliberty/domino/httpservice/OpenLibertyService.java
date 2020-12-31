@@ -49,8 +49,8 @@ public class OpenLibertyService extends HttpService {
 		delegate.start();
 		
 		DominoThreadFactory.executor.submit(() -> {
-			long hDesc = DominoAPI.get().AddInCreateStatusLine("Open Liberty");
-			DominoAPI.get().AddInSetStatusLine(hDesc, "Running");
+			long hDesc = DominoAPI.get().AddInCreateStatusLine(Messages.getString("OpenLibertyService.taskName")); //$NON-NLS-1$
+			DominoAPI.get().AddInSetStatusLine(hDesc, Messages.getString("OpenLibertyService.statusRunning")); //$NON-NLS-1$
 			try {
 				NSFSession session = new NSFSession(DominoAPI.get());
 				try {
@@ -83,7 +83,7 @@ public class OpenLibertyService extends HttpService {
 		super.destroyService();
 		
 		if(log.isLoggable(Level.INFO)) {
-			log.info("Shutting down Open Liberty service");
+			log.info(Messages.getString("OpenLibertyService.shuttingDown")); //$NON-NLS-1$
 		}
 		delegate.close();
 	}

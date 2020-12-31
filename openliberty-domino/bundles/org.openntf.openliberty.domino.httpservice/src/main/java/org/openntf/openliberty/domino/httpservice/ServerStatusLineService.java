@@ -64,8 +64,8 @@ public class ServerStatusLineService implements RuntimeService {
 			Path serverXml = wlp.resolve("usr").resolve("servers").resolve(serverName).resolve("server.xml"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			if(Files.isRegularFile(serverXml)) {
 				statusLines.computeIfAbsent(serverXml, p -> {
-					long result = DominoAPI.get().AddInCreateStatusLine("Open Liberty");
-					DominoAPI.get().AddInSetStatusLine(result, MessageFormat.format("{0}: Running", serverName));
+					long result = DominoAPI.get().AddInCreateStatusLine(Messages.getString("ServerStatusLineService.serverTaskName")); //$NON-NLS-1$
+					DominoAPI.get().AddInSetStatusLine(result, MessageFormat.format(Messages.getString("ServerStatusLineService.serverRunning"), serverName)); //$NON-NLS-1$
 					return result;
 				});
 				
@@ -127,7 +127,7 @@ public class ServerStatusLineService implements RuntimeService {
 							.filter(p -> !"-1".equals(p)) //$NON-NLS-1$
 							.collect(Collectors.joining(",")); //$NON-NLS-1$
 						if(StringUtil.isNotEmpty(ports)) {
-							String status = MessageFormat.format("{0}: Listening on {1}:{2}", serverName, host, ports);
+							String status = MessageFormat.format(Messages.getString("ServerStatusLineService.serverListeningOn"), serverName, host, ports); //$NON-NLS-1$
 							DominoAPI.get().AddInSetStatusLine(hDesc, status);
 						}
 					}

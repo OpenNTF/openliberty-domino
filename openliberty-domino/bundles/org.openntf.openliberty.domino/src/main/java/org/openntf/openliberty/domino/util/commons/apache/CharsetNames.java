@@ -50,6 +50,7 @@ package org.openntf.openliberty.domino.util.commons.apache;
  * @see <a href="https://download.oracle.com/javase/6/docs/api/java/nio/charset/Charset.html">Standard charsets</a>
  * @since 1.4
  */
+@SuppressWarnings("nls")
 public class CharsetNames {
     /**
      * CharEncodingISO Latin Alphabet No. 1, a.k.a. ISO-LATIN-1.
