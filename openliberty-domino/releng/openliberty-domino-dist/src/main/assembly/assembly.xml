@@ -31,7 +31,7 @@
 			<directory>${project.basedir}/../../..</directory>
 			<includes>
 				<include>LICENSE</include>
-				<include>NOTICE</include>
+				<include>NOTICE.md</include>
 				<include>README.md</include>
 			</includes>
 			<outputDirectory>.</outputDirectory>
