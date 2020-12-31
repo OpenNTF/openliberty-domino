@@ -21,7 +21,7 @@ This product contains the following 3rd party code:
 - XML classes from the OpenNTF Domino API, which is available from https://github.com/OpenNTF/org.openntf.domino, is copyright 2013-2020 the OpenNTF Domino API Team, and is licensed under the Apache License 2.0
 	- The original LICENSE and NOTICE are included in the "legal" directory with the "-ODA" suffix, but none of the referenced third-party code is included
 
-The runtime may automatically download the following 3rd party code:
+The runtime may automatically download and execute the following 3rd party code:
 
 - Open Liberty, which is available from https://openliberty.io and is licensed under the Eclipse Public License 1.0
 - AdoptOpenJDK, which is available from https://adoptopenjdk.net and is licensed as:
