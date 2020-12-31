@@ -579,7 +579,7 @@ public class DominoProxyServlet extends HttpServlet {
 
     /** The string prefixing rewritten cookies. */
     private String getCookieNamePrefix(String name) {
-        return "!Proxy!" + getServletConfig().getServletName(); //$NON-NLS-1$
+        return "!Proxy!"; //$NON-NLS-1$
     }
 
     /** Copy response body data (the entity) from the proxy to the servlet client. */
@@ -625,10 +625,15 @@ public class DominoProxyServlet extends HttpServlet {
                     curUrl.setLength(pos);
                 }
             }
+            int len = curUrl.length();
             // Context path starts with a / if it is not blank
             curUrl.append(servletRequest.getContextPath());
             // Servlet path starts with a / if it is not blank
             curUrl.append(servletRequest.getServletPath());
+            if(curUrl.length() == len) {
+            	// Then both the context and servlet paths were empty - add a "/" to create legal URLs
+            	curUrl.append('/');
+            }
             curUrl.append(theUrl, targetUri.length(), theUrl.length());
             return curUrl.toString();
         }
