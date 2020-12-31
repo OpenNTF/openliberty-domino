@@ -28,6 +28,10 @@ import lotus.notes.addins.DominoServer;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -37,6 +41,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
@@ -46,10 +51,33 @@ import javax.servlet.http.HttpServletResponse;
 public class IdentityServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	
+	public static final String INI_LOCALONLY = "WLP_IdentityServlet_LocalOnly"; //$NON-NLS-1$
+	
 	// Set up a poor man's API
 	public enum Method {
 		Identity, checkPassword, getUsers, getUserDisplayName, getUniqueUserId, getUserSecurityName, getGroups,
 		getUniqueGroupIds, isValidGroup, getUsersForGroup
+	}
+	
+	private boolean localOnly = true;
+	
+	@Override
+	public void init(ServletConfig config) throws ServletException {
+		super.init(config);
+		
+		try {
+			Session session = NotesFactory.createSession();
+			try {
+				String localOnlyConfig = session.getEnvironmentString(INI_LOCALONLY, true);
+				if("0".equals(localOnlyConfig)) { //$NON-NLS-1$
+					localOnly = false;
+				}
+			} finally {
+				session.recycle();
+			}
+		} catch(NotesException e) {
+			throw new ServletException(e);
+		}
 	}
 	
 	@Override
@@ -63,6 +91,11 @@ public class IdentityServlet extends HttpServlet {
 	}
 	
 	protected void handle(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		if(localOnly && !isLocal(req.getRemoteAddr())) {
+			resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+			return;
+		}
+		
 		try(ServletOutputStream os = resp.getOutputStream()) {
 			resp.setContentType("text/plain"); //$NON-NLS-1$
 			
@@ -307,5 +340,21 @@ public class IdentityServlet extends HttpServlet {
 		}
 		
 		return result;
+	}
+	
+	private boolean isLocal(String ipAddress) {
+		try {
+			InetAddress addr = InetAddress.getByName(ipAddress);
+			if(addr.isAnyLocalAddress() || addr.isLoopbackAddress()) {
+				return true;
+			}
+			try {
+				return NetworkInterface.getByInetAddress(addr) != null;
+			} catch(SocketException e) {
+				return false;
+			}
+		} catch (IOException e) {
+			throw new UncheckedIOException(e);
+		}
 	}
 }

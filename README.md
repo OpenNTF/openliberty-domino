@@ -103,6 +103,8 @@ This feature allows the use of Domino credentials for Liberty authentication, wh
 
 Additionally, it allows for a shared login by proxying cookies containing Domino authentication information to the backing Domino server to determine the username.
 
+This uses a servlet on the Domino side that responds to local requests only by default. To allow this service to respond to non-local requests, set the notes.ini property `WLP_IdentityServlet_LocalOnly` to `0`.
+
 ## Domino API Access
 
 Code that uses the Notes runtime should take care to terminate all Notes-initialized threads, as leaving threads open may lead to server crashes. In practice, these steps have helped avoid trouble:
