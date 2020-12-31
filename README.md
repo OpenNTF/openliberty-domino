@@ -44,29 +44,13 @@ The runtime supports several Domino console commands, all of which are prefixed 
 
 ## Liberty Server Extensions
 
-Deployed Liberty servers are installed with several custom features, which can be enabled per-server in the server.xml file.
+Deployed Liberty servers are installed with several custom features, which can be enabled per-server in the server configuration document in the NSF.
 
-### notesRuntime
-
-server.xml:
-
-```xml
-<features>
-	<feature>usr:notesRuntime-1.0</feature>
-</features>
-```
+### Notes Runtime
 
 The `notesRuntime-1.0` feature handles initialization and termination of the Notes runtime for the Liberty process, allowing individual web apps to skip this step and not compete.  This feature sets the Java property `notesruntime.init` to `"true"` when enabled, so  apps can check for that and skip process initialization.
 
-### dominoProxy
-
-server.xml:
-
-```xml
-<features>
-	<feature>usr:dominoProxy-1.0</feature>
-</features>
-```
+### Domino Proxy
 
 bootstrap.properties or server.env:
 
@@ -83,15 +67,7 @@ The `DominoProxyServlet.sendWsis` property tells the proxy whether or not to sen
 
 Finally, to enable advanced proxy features, set `HTTPEnableConnectorHeaders=1` in your Domino server's notes.ini. This property allows Domino to treat proxied requests as if they were coming from the original client machine instead of the local proxy. If you enable this, it is *very important* that you ensure that the Domino server's HTTP stack is not publicly available, and ideally is bound to "localhost" only.
 
-### dominoUserRegistry
-
-server.xml
-
-```xml
-<features>
-	<feature>usr:dominoUserRegistry-1.0</feature>
-</features>
-```
+### Domino User Registry
 
 server.env:
 

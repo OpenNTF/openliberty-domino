@@ -21,8 +21,8 @@ import java.io.InputStream;
  * Defines a service that provides an ESA-packaged Liberty feature file
  * to be deployed alongside the servers.
  * 
- * <p>These services should be registered as an IBM Commons extension using the
- * <code>org.openntf.openliberty.domino.ext.ExtensionDeployer</code> extension point.</p>
+ * <p>These services should be registered as a {@code ServiceLoader} service using the
+ * {@code org.openntf.openliberty.domino.ext.ExtensionDeployer} name.</p>
  * 
  * @author Jesse Gallagher
  * @since 1.18004
@@ -35,4 +35,16 @@ public interface ExtensionDeployer {
 	 * @since 1.2.0
 	 */
 	InputStream getEsaData();
+	
+	/**
+	 * @return the short name of the feature, e.g. {@code "notesRuntime"}
+	 * @since 2.0.0
+	 */
+	String getShortName();
+	
+	/**
+	 * @return the short version of the feature, e.g. {@code "1.0"}
+	 * @since 2.0.0
+	 */
+	String getFeatureVersion();
 }

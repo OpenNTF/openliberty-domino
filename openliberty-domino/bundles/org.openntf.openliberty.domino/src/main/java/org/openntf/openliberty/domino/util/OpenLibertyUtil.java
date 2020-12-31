@@ -21,7 +21,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.List;
+import java.util.Optional;
+import java.util.ServiceLoader;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import org.openntf.openliberty.domino.runtime.Messages;
 import org.openntf.openliberty.domino.util.commons.ibm.StringUtil;
@@ -109,5 +114,29 @@ public enum OpenLibertyUtil {
 		} catch (InterruptedException | ExecutionException e) {
 			throw new RuntimeException(e);
 		}
+	}
+	
+	/**
+	 * Loads extensions for the given service class, using the service class's ClassLoader.
+	 * 
+	 * @param <T> the service type to load
+	 * @param extensionClass a {@link Class} object representing {@code <T>}
+	 * @return a {@link List} of extension implementations
+	 * @since 2.0.0
+	 */
+	public static <T> List<T> findExtensions(Class<T> extensionClass) {
+		return StreamSupport.stream(ServiceLoader.load(extensionClass, extensionClass.getClassLoader()).spliterator(), false).collect(Collectors.toList());
+	}
+	
+	/**
+	 * Loads a single extension for the given service class, using the service class's ClassLoader.
+	 * 
+	 * @param <T> the service type to load
+	 * @param extensionClass a {@link Class} object representing {@code <T>}
+	 * @return an {@link Optional} containing the first implementation, or an empty one if none are provided
+	 * @since 2.0.0
+	 */
+	public static <T> Optional<T> findExtension(Class<T> extensionClass) {
+		return Optional.ofNullable(ServiceLoader.load(extensionClass, extensionClass.getClassLoader()).iterator().next());
 	}
 }

@@ -24,7 +24,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.AccessController;
 import java.security.PrivilegedExceptionAction;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -32,11 +31,18 @@ import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.xml.parsers.ParserConfigurationException;
+
 import org.openntf.openliberty.domino.adminnsf.util.AdminNSFUtil;
+import org.openntf.openliberty.domino.ext.ExtensionDeployer;
 import org.openntf.openliberty.domino.log.OpenLibertyLog;
 import org.openntf.openliberty.domino.runtime.OpenLibertyRuntime;
 import org.openntf.openliberty.domino.util.OpenLibertyUtil;
 import org.openntf.openliberty.domino.util.commons.ibm.StringUtil;
+import org.openntf.openliberty.domino.util.xml.XMLDocument;
+import org.openntf.openliberty.domino.util.xml.XMLNode;
+import org.openntf.openliberty.domino.util.xml.XMLNodeList;
+import org.xml.sax.SAXException;
 
 import lotus.domino.Database;
 import lotus.domino.DateTime;
@@ -74,6 +80,7 @@ public class AdminNSFService implements Runnable {
 	public static final String ITEM_BOOTSTRAPPROPS = "BootstrapProperties"; //$NON-NLS-1$
 	/** @since 2.0.0 */
 	public static final String ITEM_DOMINOSERVERS = "DominoServers"; //$NON-NLS-1$
+	public static final String ITEM_INTEGRATIONFEATURES = "IntegrationFeatures"; //$NON-NLS-1$
 	
 	private long lastRun = -1;
 	
@@ -136,13 +143,13 @@ public class AdminNSFService implements Runnable {
 			}
 		} catch(Throwable t) {
 			if(log.isLoggable(Level.SEVERE)) {
-				log.log(Level.SEVERE, MessageFormat.format(Messages.getString("AdminNSFService.encounteredExceptionIn"), getClass().getSimpleName()), t); //$NON-NLS-1$
+				log.log(Level.SEVERE, format(Messages.getString("AdminNSFService.encounteredExceptionIn"), getClass().getSimpleName()), t); //$NON-NLS-1$
 				t.printStackTrace();
 			}
 		}
 	}
 	
-	private void processServerDocEntry(ViewEntry entry, Collection<String> namesList) throws NotesException, IOException {
+	private void processServerDocEntry(ViewEntry entry, Collection<String> namesList) throws NotesException, IOException, SAXException, ParserConfigurationException {
 		Document serverDoc = entry.getDocument();
 		try {
 			@SuppressWarnings("unchecked")
@@ -169,7 +176,7 @@ public class AdminNSFService implements Runnable {
 					if(log.isLoggable(Level.INFO)) {
 						log.info(format(Messages.getString("AdminNSFService.deployingDefinedServer"), getClass().getSimpleName(), serverName)); //$NON-NLS-1$
 					}
-					String serverXml = serverDoc.getItemValueString(ITEM_SERVERXML);
+					String serverXml = generateServerXml(serverDoc);
 					String serverEnv = serverDoc.getItemValueString(ITEM_SERVERENV);
 					String jvmOptions = serverDoc.getItemValueString(ITEM_JVMOPTIONS);
 					String bootstrapProperties = serverDoc.getItemValueString(ITEM_BOOTSTRAPPROPS);
@@ -219,7 +226,7 @@ public class AdminNSFService implements Runnable {
 											Path warFile = TEMP_DIR.resolve(eo.getSource() + System.currentTimeMillis());
 											eo.extractFile(warFile.toString());
 											
-											String warName = MessageFormat.format("{0}-{1}.war", dropinDoc.getNoteID(), appName); //$NON-NLS-1$
+											String warName = format("{0}-{1}.war", dropinDoc.getNoteID(), appName); //$NON-NLS-1$
 											OpenLibertyRuntime.instance.deployDropin(serverName, warName, warFile, true);
 										}
 									}
@@ -242,6 +249,41 @@ public class AdminNSFService implements Runnable {
 		} finally {
 			serverDoc.recycle();
 		}
+	}
+	
+	private String generateServerXml(Document serverDoc) throws NotesException, SAXException, IOException, ParserConfigurationException {
+		String serverXmlString = serverDoc.getItemValueString(ITEM_SERVERXML);
+		XMLDocument serverXml = new XMLDocument(serverXmlString);
+		
+		@SuppressWarnings("unchecked")
+		List<String> integrationFeatures = serverDoc.getItemValue(ITEM_INTEGRATIONFEATURES);
+		integrationFeatures.remove(null);
+		integrationFeatures.remove(""); //$NON-NLS-1$
+		if(!integrationFeatures.isEmpty()) {
+			List<ExtensionDeployer> extensions = OpenLibertyUtil.findExtensions(ExtensionDeployer.class);
+			XMLNode featuresElement = serverXml.selectSingleNode("/server/featureManager"); //$NON-NLS-1$
+			if(featuresElement == null) {
+				featuresElement = serverXml.getDocumentElement().addChildElement("featureManager"); //$NON-NLS-1$
+			}
+			
+			for(String featureName : integrationFeatures) {
+				// Map the feature to the right version from the current runtime
+				String version = extensions.stream()
+					.filter(ext -> featureName.equals(ext.getShortName()))
+					.map(ExtensionDeployer::getFeatureVersion)
+					.findFirst()
+					.orElse(""); //$NON-NLS-1$
+				if(!version.isEmpty()) {
+					String feature = format("usr:{0}-{1}", featureName, version); //$NON-NLS-1$
+					XMLNodeList result = featuresElement.selectNodes(format("./feature[starts-with(text(), ''usr:{0}-'')]", featureName)); //$NON-NLS-1$
+					if(result.isEmpty()) {
+						featuresElement.addChildElement("feature").setTextContent(feature); //$NON-NLS-1$
+					}
+				}
+			}
+		}
+		
+		return serverXml.getXml();
 	}
 	
 	private boolean needsUpdate(Database adminNsf) throws NotesException {

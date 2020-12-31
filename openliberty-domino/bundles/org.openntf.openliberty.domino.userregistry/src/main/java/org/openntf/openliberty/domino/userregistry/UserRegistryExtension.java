@@ -24,4 +24,14 @@ public class UserRegistryExtension implements ExtensionDeployer {
 	public InputStream getEsaData() {
 		return getClass().getResourceAsStream("/ext/dominoUserRegistry-1.0.esa"); //$NON-NLS-1$
 	}
+	
+	@Override
+	public String getShortName() {
+		return "dominoUserRegistry"; //$NON-NLS-1$
+	}
+	
+	@Override
+	public String getFeatureVersion() {
+		return "1.0"; //$NON-NLS-1$
+	}
 }

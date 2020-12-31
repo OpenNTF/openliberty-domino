@@ -21,8 +21,8 @@ import java.nio.file.Path;
  * Defines a service that will be loaded and run asynchronously after the core
  * runtime has been deployed.
  * 
- * <p>These services should be registered as an IBM Commons extension using the
- * <code>org.openntf.openliberty.domino.ext.RuntimeService</code> extension point.</p>
+ * <p>These services should be registered as {@code ServiceLoader} service using the
+ * <code>org.openntf.openliberty.domino.ext.RuntimeService</code> name.</p>
  * 
  * @author Jesse Gallagher
  * @since 1.18004

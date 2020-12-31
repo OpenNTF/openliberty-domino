@@ -43,7 +43,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Future;
@@ -53,8 +52,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.jar.Manifest;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -88,7 +85,7 @@ public enum OpenLibertyRuntime implements Runnable {
 	}
 	
 	private final BlockingQueue<RuntimeTask> taskQueue = new LinkedBlockingDeque<RuntimeTask>();
-	private final List<RuntimeService> runtimeServices = StreamSupport.stream(ServiceLoader.load(RuntimeService.class, getClass().getClassLoader()).spliterator(), false).collect(Collectors.toList());
+	private final List<RuntimeService> runtimeServices = OpenLibertyUtil.findExtensions(RuntimeService.class);
 	
 	private Set<String> startedServers = Collections.synchronizedSet(new HashSet<>());
 	private Set<Process> subprocesses = Collections.synchronizedSet(new HashSet<>());
@@ -110,10 +107,8 @@ public enum OpenLibertyRuntime implements Runnable {
 			log.info(format(Messages.getString("OpenLibertyRuntime.0"))); //$NON-NLS-1$
 		}
 		
-		JavaRuntimeProvider javaRuntimeProvider = ServiceLoader.load(JavaRuntimeProvider.class, getClass().getClassLoader()).iterator().next();
-		if(javaRuntimeProvider == null) {
-			throw new IllegalStateException(format(Messages.getString("OpenLibertyRuntime.unableToFindServiceProviding"), JavaRuntimeProvider.SERVICE_ID)); //$NON-NLS-1$
-		}
+		JavaRuntimeProvider javaRuntimeProvider = OpenLibertyUtil.findExtension(JavaRuntimeProvider.class)
+			.orElseThrow(() -> new IllegalStateException(format(Messages.getString("OpenLibertyRuntime.unableToFindServiceProviding"), JavaRuntimeProvider.SERVICE_ID))); //$NON-NLS-1$
 		javaHome = javaRuntimeProvider.getJavaHome();
 		if(log.isLoggable(Level.INFO)) {
 			log.info(format(Messages.getString("OpenLibertyRuntime.usingJavaRuntimeAt"), javaHome)); //$NON-NLS-1$
@@ -308,10 +303,8 @@ public enum OpenLibertyRuntime implements Runnable {
 	}
 	
 	private Path deployRuntime() throws IOException {
-		RuntimeDeploymentTask deploymentService = ServiceLoader.load(RuntimeDeploymentTask.class, getClass().getClassLoader()).iterator().next();
-		if(deploymentService == null) {
-			throw new IllegalStateException(format(Messages.getString("OpenLibertyRuntime.unableToFindServiceProviding"), RuntimeDeploymentTask.SERVICE_ID)); //$NON-NLS-1$
-		}
+		RuntimeDeploymentTask deploymentService = OpenLibertyUtil.findExtension(RuntimeDeploymentTask.class)
+			.orElseThrow(() -> new IllegalStateException(format(Messages.getString("OpenLibertyRuntime.unableToFindServiceProviding"), RuntimeDeploymentTask.SERVICE_ID))); //$NON-NLS-1$
 		return deploymentService.call();
 	}
 	
@@ -545,7 +538,7 @@ public enum OpenLibertyRuntime implements Runnable {
 		Path features = lib.resolve("features"); //$NON-NLS-1$
 		Files.createDirectories(features);
 		
-		List<ExtensionDeployer> extensions = StreamSupport.stream(ServiceLoader.load(ExtensionDeployer.class, getClass().getClassLoader()).spliterator(), false).collect(Collectors.toList());
+		List<ExtensionDeployer> extensions = OpenLibertyUtil.findExtensions(ExtensionDeployer.class);
 		if(extensions != null) {
 			for(ExtensionDeployer ext : extensions) {
 				try(InputStream is = ext.getEsaData()) {

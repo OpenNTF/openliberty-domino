@@ -25,5 +25,15 @@ public class DominoProxyExtension implements ExtensionDeployer {
 	public InputStream getEsaData() {
 		return getClass().getResourceAsStream("/ext/dominoProxy-1.0.esa"); //$NON-NLS-1$
 	}
+	
+	@Override
+	public String getShortName() {
+		return "dominoProxy"; //$NON-NLS-1$
+	}
+	
+	@Override
+	public String getFeatureVersion() {
+		return "1.0"; //$NON-NLS-1$
+	}
 
 }

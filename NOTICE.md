@@ -18,6 +18,8 @@ This product contains the following 3rd party code:
 - Classes from Apache Commons Compress, which is available from https://commons.apache.org/proper/commons-compress/ and is licensed under the Apache License 2.0
 	- The original NOTICE is included in the "legal" directory, but none of the referenced third-party code is included
 - The Darwino Domino NAPI, which is available from https://github.com/darwino/domino-napi and is licensed under the Apache License 2.0
+- XML classes from the OpenNTF Domino API, which is available from https://github.com/OpenNTF/org.openntf.domino, is copyright 2013-2020 the OpenNTF Domino API Team, and is licensed under the Apache License 2.0
+	- The original LICENSE and NOTICE are included in the "legal" directory with the "-ODA" suffix, but none of the referenced third-party code is included
 
 The runtime may automatically download the following 3rd party code:
 

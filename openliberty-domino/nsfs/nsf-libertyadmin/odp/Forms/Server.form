@@ -49,7 +49,7 @@
       <par def="1"/>
       <par def="1"/>
       <table altbgcolor="white" bgcolor="#efefef" colorstyle="left"
-        columnspacing="0.0500in" refwidth="8.8958in"
+        columnspacing="0.0500in" refwidth="8.7292in"
         rowspacing="0.0500in" widthtype="fitmargins">
         <tablecolumn width="2in"/>
         <tablecolumn width="100%"/>
@@ -93,7 +93,7 @@ Yg4BAIQAAAAAAAAAAAA=
       <pardef firstlineleftmargin="1in" id="2"/>
       <par def="2"/>
       <table bgcolor="#ffffc2" colorstyle="solid"
-        columnspacing="0.0500in" refwidth="8.8958in"
+        columnspacing="0.0500in" refwidth="8.7292in"
         rowspacing="0.0500in" widthtype="fitmargins">
         <tablecolumn width="100%"/>
         <tablerow>
@@ -110,12 +110,46 @@ Yg4BAIQAAAAAAAAAAAA=
         </tablerow>
       </table>
       <par def="2"/>
-      <table columnspacing="0.0500in" refwidth="8.8944in"
+      <table columnspacing="0.0500in" refwidth="8.7278in"
         rowdisplay="tabs" rowspacing="0.0500in" widthtype="fitmargins">
         <tablecolumn width="100%"/>
         <tablerow tablabel="server.xml">
           <tablecell>
             <pardef id="6" keeptogether="true" keepwithnext="true"/>
+            <par def="6"/>
+            <table altbgcolor="white" bgcolor="#efefef"
+              colorstyle="left" columnspacing="0.0500in" leftmargin="0"
+              refwidth="8.6174in" rowspacing="0.0500in" widthtype="fitmargins">
+              <tablecolumn width="2in"/>
+              <tablecolumn width="100%"/>
+              <tablerow>
+                <tablecell borderwidth="0px">
+                  <pardef id="7" keeptogether="true" keepwithnext="true"/>
+                  <par def="7">Integration Features:</par>
+                </tablecell>
+                <tablecell borderwidth="0px">
+                  <pardef id="8" keeptogether="true" keepwithnext="true"/>
+                  <par def="8">
+                    <field allowmultivalues="true"
+                      description="Domino server names and groups that deploy this server"
+                      fieldhint="*" kind="editable"
+                      listdisplayseparator="comma"
+                      listinputseparators="comma semicolon newline"
+                      name="IntegrationFeatures" type="keyword">
+                      <keywords ui="dialoglist">
+                        <textlist>
+                          <text>Notes Runtime|notesRuntime</text>
+                          <text>Domino Proxy|dominoProxy</text>
+                          <text>Domino User Registry|dominoUserRegistry</text>
+                        </textlist>
+                      </keywords>
+                    </field>
+                  </par>
+                </tablecell>
+              </tablerow>
+            </table>
+            <par def="6"/>
+            <par def="6"/>
             <par def="6">
               <run>
                 <font name="monospace"/>
@@ -141,7 +175,7 @@ Yg4BAIQAAAAAAAAAAAA=
                 </field>
               </run>
               <compositedata afterbegincount="3" aftercontainercount="1"
-                afterparcount="7" containertype="65418" nexttype="222"
+                afterparcount="6" containertype="65418" nexttype="222"
                 prevtype="65418" type="98">
 Yg4BAIQAAAAAAAAAAAA=
 </compositedata>
@@ -196,8 +230,8 @@ Yg4BAIQAAAAAAAAAAAA=
         <tablerow tablabel="Additional Deployment ZIPs">
           <tablecell>
             <par def="6"/>
-            <pardef id="7" keeptogether="true" keepwithnext="true"/>
-            <par def="7">
+            <pardef id="9" keeptogether="true" keepwithnext="true"/>
+            <par def="9">
               <run>
                 <font color="gray"/>Any attached ZIP files are expanded in the base directory of the deployed server.</run>
             </par>
@@ -210,12 +244,12 @@ Yg4BAIQAAAAAAAAAAAA=
         </tablerow>
       </table>
       <subformref name="Footer"/>
-      <pardef align="right" id="8">
+      <pardef align="right" id="10">
         <code event="hidewhen">
           <formula>@IsNewDoc</formula>
         </code>
       </pardef>
-      <par def="8"/>
+      <par def="10"/>
     </richtext>
   </body>
   <item name="$SubForm_RepIDs" sign="true">
