@@ -1,46 +1,64 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<note xmlns="http://www.lotus.com/dxl" class="form">
+<page bgcolor="#b9c5d2" hide="mobile" name="Navigation Header"
+  publicaccess="false" renderpassthrough="true" xmlns="http://www.lotus.com/dxl">
+  <actionbar bgcolor="#d4d0c8" bordercolor="black">
+    <actionbuttonstyle bgcolor="#d4d0c8"/>
+    <font color="system"/>
+    <border style="solid" width="0px 0px 1px"/>
+  </actionbar>
+  <body>
+    <richtext>
+      <pardef id="1" leftmargin="0.9000in"/>
+      <par def="1">
+        <run>
+          <font size="4pt"/>
+        </run>
+      </par>
+      <table leftmargin="0.9000in" refwidth="9.9319in" widthtype="fixedleft">
+        <tablecolumn width="9.9319in"/>
+        <tablerow>
+          <tablecell borderwidth="0px">
+            <pardef id="2" keeptogether="true" keepwithnext="true"/>
+            <par def="2">
+              <run>
+                <font size="12pt" style="bold"/>
+              </run>
+              <run>
+                <font size="12pt" style="bold"/>
+                <computedtext>
+                  <code event="value">
+                    <formula>@DbTitle</formula>
+                  </code>
+                </computedtext>
+              </run>
+              <run>
+                <font size="12pt" style="bold"/>
+              </run>
+            </par>
+            <par def="2">
+              <run>
+                <font size="8pt"/>On </run>
+              <run>
+                <font size="8pt"/>
+                <computedtext>
+                  <code event="value">
+                    <formula>server := @Name([Abbreviate]; @DbName[1]);
+@If(server=""; "Local"; server)</formula>
+                  </code>
+                </computedtext>
+              </run>
+              <run>
+                <font size="8pt"/>
+              </run>
+            </par>
+          </tablecell>
+        </tablerow>
+      </table>
+      <par def="1"/>
+      <par def="1"/>
+    </richtext>
+  </body>
   <item name="OriginalModTime" sign="true">
     <datetime>20061107T120130,82-05</datetime>
   </item>
-  <item name="$HTMLCode" sign="true">
-    <rawitemdata type="1">
-X/8QAAIADwAHAAAAAAAAAA==
-</rawitemdata>
-  </item>
-  <item name="$TITLE">
-    <text>Navigation Header</text>
-  </item>
-  <item name="$Info" sign="true">
-    <rawitemdata type="1">
-hhgBAIAAAAAAgAAADwABALnF0gAQAAAA
-</rawitemdata>
-  </item>
-  <item name="$Flags">
-    <text>C34WQ1</text>
-  </item>
-  <item name="$Body" sign="true">
-    <rawitemdata type="1">
-gQKC/1oAAQAAAAAAAAAAABAFAAAQBQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAABAAAAAJSEEAUHABAFBwAAAAAAAQAAAAQAAACDBAEAhf8IAAEAAASBAoMEAQDdBgEA
-+//7/ywAAAAAAAEBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAFz/PgAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOAAAAAAAAAAEAAAoAAAAAAQAAAAAA3gYBAPv/
-ow4QBSgAPAAAAAAAAgCkEgAAEAXuPAAAAAIAAAEBAACBAoL/WgACAAAAAAAAAAAAEAXuPBAFAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAhgEAAAAAVIcAAAAAAAAAAAAA
-AAABAAAABAAAAIMEAgCF/wgAAQEADN0GAACt/6n/FgABABgABAAKAAoAAAAIAJwAAwCF/wgAAQEA
-DKoC3gYAAK4Ahf8IAAEBAAyBAoMEAgCF/wsAAQAACE9uIADdBgAArf+p/4wAAQAYAAQAgACAAAEA
-KAAGAHNlcnZlcgIABQAAAAAAAACLAAAAAAAAAAAA8D8gArQCAwAHAA4ABwAJMVMyUzZTAAAAOgAF
-AAYAc2VydmVyAQAAAAoCrwAiABAAAQAFAExvY2FsAK4AEgAFAAYAc2VydmVyrgAEALUDAwAHAA4A
-BwAJMFI2UzhTAIX/CAABAAAIqgLeBgAArgCF/wgAAQAACKUGAAAAAIECgwQBAIX/CAABAAAKgQKD
-BAEAhf8IAAEAAAo=
-</rawitemdata>
-  </item>
-  <item name="$V5ACTIONS" sign="true">
-    <rawitemdata type="1">
-vRwjAAAAAQABAAAAAQAAAAAAAAAAAAAACAACAHn/bAABANTQyAABAAAAAAAJAAAAAAABANTQyAAA
-AB8AAAAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAPz/OgAAAAAAAQAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAEAAAAAAAAAAAAAAAAAAAA=
-</rawitemdata>
-  </item>
-</note>
+</page>

@@ -4,9 +4,64 @@
 	<parent>
 		<groupId>org.openntf</groupId>
 		<artifactId>openliberty-domino</artifactId>
-		<version>1.2.0</version>
+		<version>2.0.0</version>
 		<relativePath>../..</relativePath>
 	</parent>
 	<artifactId>org.openntf.openliberty.domino.httpident</artifactId>
-	<packaging>eclipse-plugin</packaging>
+	<packaging>bundle</packaging>
+	
+	<dependencies>
+		<dependency>
+			<groupId>com.ibm.sbt</groupId>
+			<artifactId>com.ibm.commons</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.hcl.xsp.p2</groupId>
+			<artifactId>com.ibm.notes.java.api.win32.linux</artifactId>
+			<classifier>Notes</classifier>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.hcl.xsp.p2</groupId>
+			<artifactId>com.ibm.domino.osgi.core</artifactId>
+			<version>[10.0.0,)</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
+			<version>2.4</version>
+			<scope>provided</scope>
+		</dependency>
+	</dependencies>
+	
+	<build>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+			</resource>
+			<resource>
+				<directory>.</directory>
+				<includes>
+					<include>plugin.xml</include>
+				</includes>
+			</resource>
+		</resources>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<extensions>true</extensions>
+				
+				<configuration>
+					<instructions>
+						<Bundle-SymbolicName>${project.artifactId};singleton:=true</Bundle-SymbolicName>
+						<Require-Bundle>org.eclipse.equinox.http.servlet</Require-Bundle>
+						<Export-Package/>
+					</instructions>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 </project>

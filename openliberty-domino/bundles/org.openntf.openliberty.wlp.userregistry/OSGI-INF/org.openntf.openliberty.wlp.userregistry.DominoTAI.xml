@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.2.0" configuration-pid="org.openntf.openliberty.wlp.userregistry.DominoTAI" name="org.openntf.openliberty.wlp.userregistry.DominoTAI">
-   <property name="invokeBeforeSSO" type="Boolean" value="true"/>
-   <property name="id" value="org.openntf.openliberty.wlp.userregistry.DominoTAI"/>
-   <service>
-      <provide interface="com.ibm.wsspi.security.tai.TrustAssociationInterceptor"/>
-   </service>
-   <implementation class="org.openntf.openliberty.wlp.userregistry.DominoTAI"/>
-</scr:component>

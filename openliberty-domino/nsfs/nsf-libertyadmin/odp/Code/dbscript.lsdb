@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databasescript xmlns="http://www.lotus.com/dxl">
+  <code event="options">
+    <lotusscript>%REM
+	Database Script Database Script
+	Created Feb 19, 2020 by Jesse Gallagher/IKSG
+	Description: Comments for Database Script
+%END REM
+Option Declare
+
+
+</lotusscript>
+  </code>
+  <code event="declarations">
+    <lotusscript/>
+  </code>
+</databasescript>

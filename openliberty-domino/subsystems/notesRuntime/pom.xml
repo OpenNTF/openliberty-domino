@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<project
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.openntf</groupId>
+		<artifactId>openliberty-domino</artifactId>
+		<version>2.0.0</version>
+		<relativePath>../..</relativePath>
+	</parent>
+	<artifactId>notesRuntime</artifactId>
+	<packaging>esa</packaging>
+	
+	<dependencies>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>org.openntf.openliberty.wlp.notesruntime</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+	</dependencies>
+	
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.aries</groupId>
+				<artifactId>esa-maven-plugin</artifactId>
+				
+				<configuration>
+					<generateManifest>true</generateManifest>
+					<instructions>
+						<Manifest-Version>1.0</Manifest-Version>
+						<Subsystem-SymbolicName>notesRuntime-1.0;visibility:=public</Subsystem-SymbolicName>
+						<Subsystem-Type>osgi.subsystem.feature</Subsystem-Type>
+						<IBM-ShortName>notesRuntime-1.0</IBM-ShortName>
+						<IBM-Feature-Version>2</IBM-Feature-Version>
+					</instructions>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>

@@ -4,9 +4,82 @@
 	<parent>
 		<groupId>org.openntf</groupId>
 		<artifactId>openliberty-domino</artifactId>
-		<version>1.2.0</version>
+		<version>2.0.0</version>
 		<relativePath>../..</relativePath>
 	</parent>
 	<artifactId>org.openntf.openliberty.domino.httpservice</artifactId>
-	<packaging>eclipse-plugin</packaging>
+	<packaging>bundle</packaging>
+	
+	<dependencies>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>org.openntf.openliberty.domino</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.ibm.sbt</groupId>
+			<artifactId>com.ibm.commons</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.ibm.sbt</groupId>
+			<artifactId>com.ibm.commons.xml</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.darwino.domino</groupId>
+			<artifactId>com.darwino.domino.napi</artifactId>
+			<version>2.6.0-SNAPSHOT</version>
+		</dependency>
+		
+		<!-- p2 dependencies -->
+		<dependency>
+			<groupId>com.hcl.xsp.p2</groupId>
+			<artifactId>com.ibm.domino.xsp.adapter</artifactId>
+			<version>[10.0.0,)</version>
+			<classifier>lwpd.domino.adapter</classifier>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.hcl.xsp.p2</groupId>
+			<artifactId>com.ibm.domino.xsp.bootstrap</artifactId>
+			<version>[10.0.0,)</version>
+			<classifier>xsp.domino.bridge</classifier>
+			<scope>provided</scope>
+		</dependency>
+	</dependencies>
+	
+	<build>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+			</resource>
+			<resource>
+				<directory>.</directory>
+				<includes>
+					<include>fragment.xml</include>
+				</includes>
+			</resource>
+		</resources>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				
+				<configuration>
+					<excludeDependencies>false</excludeDependencies>
+					<instructions>
+						<Bundle-SymbolicName>${project.artifactId};singleton:=true</Bundle-SymbolicName>
+						<Require-Bundle>
+							com.ibm.domino.xsp.adapter,
+							com.ibm.domino.xsp.bootstrap
+						</Require-Bundle>
+						<Export-Package/>
+						<Fragment-Host>org.openntf.openliberty.domino</Fragment-Host>
+						<Embed-Dependency>*;artifactId=com.darwino.domino.napi</Embed-Dependency>
+					</instructions>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 </project>

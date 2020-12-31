@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.openntf</groupId>
 		<artifactId>openliberty-domino</artifactId>
-		<version>1.2.0</version>
+		<version>2.0.0</version>
 		<relativePath>../..</relativePath>
 	</parent>
 	<artifactId>openliberty-domino-dist</artifactId>
@@ -17,7 +17,15 @@
 			<groupId>${project.groupId}</groupId>
 			<artifactId>org.openntf.openliberty.domino.updatesite</artifactId>
 			<version>${project.version}</version>
-			<type>eclipse-update-site</type>
+			<classifier>site</classifier>
+			<type>jar</type>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>org.openntf.openliberty.domino.source.updatesite</artifactId>
+			<version>${project.version}</version>
+			<classifier>site</classifier>
+			<type>jar</type>
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
@@ -27,9 +35,8 @@
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>openliberty-domino-proxy</artifactId>
+			<artifactId>org.openntf.openliberty.domino.runjava</artifactId>
 			<version>${project.version}</version>
-			<type>war</type>
 		</dependency>
 	</dependencies>
 

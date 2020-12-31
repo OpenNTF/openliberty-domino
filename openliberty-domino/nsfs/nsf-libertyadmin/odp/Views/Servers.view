@@ -1,56 +1,56 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<note xmlns="http://www.lotus.com/dxl" class="view">
-  <item name="$FormatNote" summary="true">
-    <rawitemdata type="4">
-AQCU7G6FoWlsP/FjaADvdyWF
-</rawitemdata>
-  </item>
-  <item name="$FormulaClass" sign="true">
-    <text>1</text>
-  </item>
-  <item name="$TITLE" sign="true">
-    <text>Servers</text>
-  </item>
-  <item name="$Index" sign="true">
-    <text/>
-  </item>
-  <item name="$Formula" summary="true" sign="true">
-    <formula compiled="true">
-egAFACgAJAAEAAcABAAJAAQAQXBwTmFtZU5hbWUkQ29uZmxpY3QkUkVGBAAEAAAAPgAFAAQARm9y
-bQEABgBTZXJ2ZXIBAAkARHJvcGluQXBwAB8CCgIFAAkAJENvbmZsaWN0AGgBHgEcAgMABwAOAAgA
-CUwxUzZTN1M=
-</formula>
-  </item>
-  <item name="$Collation" summary="true">
-    <rawitemdata type="2">
-EQABAABEgGYAAAAEAE5hbWU=
-</rawitemdata>
-  </item>
-  <item name="$ViewFormat" summary="true" sign="true">
-    <rawitemdata type="5">
-AQACAAQAiEAAAFZDEAAHAAAAAAAAAAkAAQAACgAAAAAAAAAAAAICAAAAVkMBAAQABAAAAAAAlwAB
-AAAKAAAAAAAAAAAAAgIAAABBcHBOYW1lTmFtZU5hbWUmAAEAAAABAQAJAQAACgEBDgoAAD8ArSsB
-AAEAAQAAAAAAAAAAAFdDAQEACQAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAP//AAAAAAAAAAAAAAAA
-AABXQwEFAAkAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAD//wAAAAAAAAAAAAAAAAAAQgARAAAAAQD/
-//8AAQDv7+8AAQD///8AAAAAAAAAAAABAP///wABAP///wAAAAEAAAAAAAEAAAAAAAEAAAAAAAAA
-CAAAAAAAAQA=
-</rawitemdata>
-  </item>
-  <item name="$Comment" sign="true">
-    <text/>
-  </item>
-  <item name="$Flags">
-    <text>PY</text>
-  </item>
-  <item name="$V5ACTIONS" sign="true">
-    <rawitemdata type="1">
-vRwjAAAAAQABAAAAAQAAAAAAAAAAAAAACAACAHn/bAABANTQyAABAAAAAAAJAAAAAAABANTQyAAA
-AB8AAAAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAPz/OgAAAAAAAQAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAEAAAAAAAAAAAAAAAAAAAC+/0wAAAABAAAAnwEAAA0AAAAAAAAAQ3JlYXRlXFNlcnZl
-cgAoAAAAHAACAOgDAAAAAAAAAQAGAFNlcnZlcu0CAwAHAAoAAwAJNFMAvv9UAAAAAQAAAJ8BAAAR
-AAAAAAAAAENyZWF0ZVxEcm9waW4gQXBwACwAAAAgAAIA6AMAAAAAAAABAAkARHJvcGluQXBwAO0C
-AwAHAAoAAwAJNFMA
-</rawitemdata>
-  </item>
-</note>
+<view allowcustomizations="false" allownewdocuments="false"
+  altrowcolor="#efefef" bgcolor="white" boldunreadrows="false"
+  evaluateactions="false" extendlastcolumn="true" gridcolor="white"
+  gridstyle="solid" headerbgcolor="white" headerlinecount="1"
+  headers="beveled" hidemarginborder="false" marginbgcolor="white"
+  marginwidth="0px" name="Servers" onopengoto="lastopened"
+  onrefresh="displayindicator" opencollapsed="false"
+  publicaccess="false" rowlinecount="1" rowspacing="1"
+  showhierarchies="false" showinmenu="false" showmargin="true"
+  showresponsehierarchy="true" shrinkrows="false" totalscolor="black"
+  uniquekeys="false" unreadcolor="black" unreadmarks="none" xmlns="http://www.lotus.com/dxl">
+  <code event="selection">
+    <formula>SELECT Form="Server":"DropinApp" &amp; !@IsAvailable($Conflict)</formula>
+  </code>
+  <actionbar bgcolor="#d4d0c8" bordercolor="black">
+    <actionbuttonstyle bgcolor="#d4d0c8"/>
+    <font color="system"/>
+    <border style="solid" width="0px 0px 1px"/>
+    <action title="Create\Server">
+      <code event="click">
+        <formula>@Command([Compose]; "Server")</formula>
+      </code>
+    </action>
+    <action title="Create\Dropin App">
+      <code event="click">
+        <formula>@Command([Compose]; "DropinApp")</formula>
+      </code>
+    </action>
+  </actionbar>
+  <column hidedetailrows="false" itemname="AppName" resizable="true"
+    responsesonly="true" separatemultiplevalues="false"
+    showaslinks="false" sortnoaccent="false" sortnocase="true" width="1.1250">
+    <columnheader>
+      <font size="9pt" style="bold"/>
+    </columnheader>
+  </column>
+  <column hidedetailrows="false" itemname="Name" resizable="true"
+    separatemultiplevalues="false" showaslinks="false" sort="ascending"
+    sortnoaccent="false" sortnocase="true" width="18.8750">
+    <columnheader title="Name">
+      <font size="9pt" style="bold underline"/>
+    </columnheader>
+  </column>
+  <column hidedetailrows="false" itemname="$4" resizable="true"
+    separatemultiplevalues="false" showaslinks="false"
+    sortnoaccent="false" sortnocase="true" width="30.7500">
+    <columnheader title="Servers">
+      <font size="9pt" style="bold"/>
+    </columnheader>
+    <columnnamesformat columncontainsname="true" showonline="false"/>
+    <code event="value">
+      <formula>@If(@Trim(DominoServers)=""; "*"; @Name([Abbreviate]; DominoServers))</formula>
+    </code>
+  </column>
+</view>

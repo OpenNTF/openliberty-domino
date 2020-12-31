@@ -1,6 +1,6 @@
 <!--
 
-    Copyright © 2018-2019 Jesse Gallagher
+    Copyright © 2018-2020 Jesse Gallagher
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -31,38 +31,51 @@
 			<directory>${project.basedir}/../../..</directory>
 			<includes>
 				<include>LICENSE</include>
-				<include>NOTICE</include>
+				<include>NOTICE.md</include>
 				<include>README.md</include>
 			</includes>
 			<outputDirectory>.</outputDirectory>
 		</fileSet>
+		<fileSet>
+			<directory>${project.basedir}/../../../legal</directory>
+			<includes>
+				<include>*</include>
+			</includes>
+			<outputDirectory>legal</outputDirectory>
+		</fileSet>
 	</fileSets>
 	
+	<dependencySets>
+		<dependencySet>
+			<includes>
+				<include>org.openntf:org.openntf.openliberty.domino.updatesite:*</include>
+			</includes>
+			
+			<outputDirectory>UpdateSite</outputDirectory>
+			<unpack>true</unpack>
+			<useTransitiveDependencies>false</useTransitiveDependencies>
+		</dependencySet>
+		<dependencySet>
+			<includes>
+				<include>org.openntf:org.openntf.openliberty.domino.source.updatesite:*</include>
+			</includes>
+			
+			<outputDirectory>SourceUpdateSite</outputDirectory>
+			<unpack>true</unpack>
+			<useTransitiveDependencies>false</useTransitiveDependencies>
+		</dependencySet>
+		<dependencySet>
+			<includes>
+				<include>org.openntf:org.openntf.openliberty.domino.runjava:*</include>
+			</includes>
+			
+			<outputDirectory>RunJava</outputDirectory>
+			<unpack>false</unpack>
+			<useTransitiveDependencies>false</useTransitiveDependencies>
+		</dependencySet>
+	</dependencySets>
+	
 	<moduleSets>
-		<moduleSet>
-			<useAllReactorProjects>true</useAllReactorProjects>
-			<includes>
-				<include>org.openntf:org.openntf.openliberty.domino.updatesite</include>
-			</includes>
-			
-			<binaries>
-				<outputDirectory>UpdateSite</outputDirectory>
-				<unpack>true</unpack>
-				<includeDependencies>false</includeDependencies>
-			</binaries>
-		</moduleSet>
-		<moduleSet>
-			<useAllReactorProjects>true</useAllReactorProjects>
-			<includes>
-				<include>org.openntf:org.openntf.openliberty.domino.source.updatesite</include>
-			</includes>
-			
-			<binaries>
-				<outputDirectory>SourceUpdateSite</outputDirectory>
-				<unpack>true</unpack>
-				<includeDependencies>false</includeDependencies>
-			</binaries>
-		</moduleSet>
 		<moduleSet>
 			<useAllReactorProjects>true</useAllReactorProjects>
 			<includes>
@@ -74,19 +87,6 @@
 				<unpack>false</unpack>
 				<includeDependencies>false</includeDependencies>
 				<outputFileNameMapping>libertyadmin.ntf</outputFileNameMapping>
-			</binaries>
-		</moduleSet>
-		<moduleSet>
-			<useAllReactorProjects>true</useAllReactorProjects>
-			<includes>
-				<include>org.openntf:openliberty-domino-proxy:war</include>
-			</includes>
-			
-			<binaries>
-				<outputDirectory>.</outputDirectory>
-				<unpack>false</unpack>
-				<includeDependencies>false</includeDependencies>
-				<outputFileNameMapping>${module.artifactId}.war</outputFileNameMapping>
 			</binaries>
 		</moduleSet>
 	</moduleSets>
