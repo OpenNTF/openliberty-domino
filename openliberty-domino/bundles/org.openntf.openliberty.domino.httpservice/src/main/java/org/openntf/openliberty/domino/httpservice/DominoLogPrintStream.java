@@ -15,6 +15,8 @@
  */
 package org.openntf.openliberty.domino.httpservice;
 
+import java.util.regex.Pattern;
+
 import org.openntf.openliberty.domino.ext.LoggerPrintStream;
 import org.openntf.openliberty.domino.util.commons.ibm.StringUtil;
 
@@ -23,6 +25,8 @@ import com.ibm.commons.util.io.NullOutputStream;
 
 public class DominoLogPrintStream extends LoggerPrintStream {
 	
+	public static final Pattern ERROR_PATTERN = Pattern.compile("^(\\[ERROR\\s*\\]|ERROR)\\s.*$"); //$NON-NLS-1$
+	
 	public DominoLogPrintStream() {
 		super(new NullOutputStream());
 	}
@@ -30,12 +34,17 @@ public class DominoLogPrintStream extends LoggerPrintStream {
 	@Override
 	protected void _line(String message) {
 		String prefix = getPrefix();
+		boolean isError = ERROR_PATTERN.matcher(message).matches();
 		String msg;
 		if(StringUtil.isEmpty(prefix)) {
 			msg = StringUtil.toString(message).replace("%", "%%") + '\n'; //$NON-NLS-1$ //$NON-NLS-2$
 		} else {
 			msg = prefix + ": " + StringUtil.toString(message).replace("%", "%%") + '\n'; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}
-		DominoAPI.get().AddInLogMessageText(msg, DominoAPI.NOERROR);
+		if(isError) {
+			DominoAPI.get().AddInLogErrorText(msg, DominoAPI.NOERROR);
+		} else {
+			DominoAPI.get().AddInLogMessageText(msg, DominoAPI.NOERROR);
+		}
 	}
 }
