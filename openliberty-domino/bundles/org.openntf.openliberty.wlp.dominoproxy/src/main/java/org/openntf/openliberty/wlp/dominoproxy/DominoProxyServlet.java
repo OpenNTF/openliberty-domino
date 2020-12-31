@@ -107,6 +107,15 @@ public class DominoProxyServlet extends HttpServlet {
             DominoProxyServlet.class.getSimpleName() + ".targetHost"; //$NON-NLS-1$
     private static final String ATTR_SEND_WSIS = DominoProxyServlet.class.getSimpleName() + ".sendWsis"; //$NON-NLS-1$
     private static final String ENV_DOMINOHTTP = "Domino_HTTP"; //$NON-NLS-1$
+    
+	/**
+	 * Request paths that are blocked from proxying to the backing server.
+	 * 
+	 * @since 2.0.0
+	 */
+	public static final String[] FORBIDDEN_PREFIXES = {
+		"/org.openntf.openliberty.domino" //$NON-NLS-1$
+	};
 
     /* MISC */
 
@@ -307,11 +316,21 @@ public class DominoProxyServlet extends HttpServlet {
         if (servletRequest.getAttribute(ATTR_TARGET_HOST) == null) {
             servletRequest.setAttribute(ATTR_TARGET_HOST, targetHost);
         }
+        
+        // Block forbidden requests
+        String proxyPathInfo = rewritePathInfoFromRequest(servletRequest);
+        for(String prefix : FORBIDDEN_PREFIXES) {
+        	if(proxyPathInfo.startsWith(prefix)) {
+        		servletResponse.sendError(HttpServletResponse.SC_FORBIDDEN);
+        		return;
+        	}
+        }
 
         // Make the Request
         //note: we won't transfer the protocol version because I'm not sure it would truly be compatible
         String method = servletRequest.getMethod();
         String proxyRequestUri = rewriteUrlFromRequest(servletRequest);
+        
         HttpRequest proxyRequest;
         //spec: RFC 2616, sec 4.3: either of these two headers signal that there is a message body.
         if (servletRequest.getHeader(HttpHeaders.CONTENT_LENGTH) != null ||
