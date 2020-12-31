@@ -15,15 +15,11 @@
  */
 package org.openntf.openliberty.domino.httpservice;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 import org.openntf.openliberty.domino.ext.LoggerPrintStream;
 import org.openntf.openliberty.domino.util.commons.ibm.StringUtil;
 
+import com.darwino.domino.napi.DominoAPI;
 import com.ibm.commons.util.io.NullOutputStream;
-import com.ibm.domino.napi.c.Os;
 
 public class DominoLogPrintStream extends LoggerPrintStream {
 	
@@ -31,17 +27,15 @@ public class DominoLogPrintStream extends LoggerPrintStream {
 		super(new NullOutputStream());
 	}
 	
-	// TODO non-US support
-	private static final ThreadLocal<DateFormat> DT_FORMAT = ThreadLocal.withInitial(() -> new SimpleDateFormat("MM/dd/yyy hh:mm:ss a")); //$NON-NLS-1$
-	
 	@Override
 	protected void _line(String message) {
 		String prefix = getPrefix();
-		String time = DT_FORMAT.get().format(new Date());
+		String msg;
 		if(StringUtil.isEmpty(prefix)) {
-			Os.OSConsoleWrite(time + "  " + StringUtil.toString(message).replace("%", "%%") + '\n'); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			msg = StringUtil.toString(message).replace("%", "%%") + '\n'; //$NON-NLS-1$ //$NON-NLS-2$
 		} else {
-			Os.OSConsoleWrite(time + "  " + prefix + ": " + StringUtil.toString(message).replace("%", "%%") + '\n'); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			msg = prefix + ": " + StringUtil.toString(message).replace("%", "%%") + '\n'; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}
+		DominoAPI.get().AddInLogMessageText(msg, DominoAPI.NOERROR);
 	}
 }
