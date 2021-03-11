@@ -7,8 +7,7 @@
 		<version>2.1.0-SNAPSHOT</version>
 		<relativePath>../..</relativePath>
 	</parent>
-	<artifactId>org.openntf.openliberty.domino.adminnsf</artifactId>
-	<name>Domino Open Liberty Runtime Admin NSF Adapter</name>
+	<artifactId>org.openntf.openliberty.domino.reverseproxy</artifactId>
 	<packaging>bundle</packaging>
 	
 	<dependencies>
@@ -17,16 +16,30 @@
 			<artifactId>org.openntf.openliberty.domino</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		
 		<dependency>
-			<groupId>com.hcl.xsp.p2</groupId>
-			<artifactId>com.ibm.notes.java.api.win32.linux</artifactId>
-			<classifier>Notes</classifier>
-			<scope>provided</scope>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>org.openntf.openliberty.domino.adminnsf</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>org.openntf.openliberty.domino.reverseproxy.undertow</artifactId>
+			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
 	
 	<build>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+			</resource>
+			<resource>
+				<directory>.</directory>
+				<includes>
+					<include>plugin.xml</include>
+				</includes>
+			</resource>
+		</resources>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.felix</groupId>
@@ -35,11 +48,10 @@
 				
 				<configuration>
 					<instructions>
-						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-						<Export-Package>
-							org.openntf.openliberty.domino.adminnsf.util
-						</Export-Package>
+						<Bundle-SymbolicName>${project.artifactId};singleton:=true</Bundle-SymbolicName>
 						<Fragment-Host>org.openntf.openliberty.domino</Fragment-Host>
+						<Require-Bundle>org.openntf.openliberty.domino.reverseproxy.undertow</Require-Bundle>
+						<Export-Package/>
 					</instructions>
 				</configuration>
 			</plugin>

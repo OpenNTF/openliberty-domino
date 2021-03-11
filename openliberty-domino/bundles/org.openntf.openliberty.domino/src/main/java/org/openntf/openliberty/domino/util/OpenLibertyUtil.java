@@ -21,6 +21,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 import java.util.ServiceLoader;
@@ -138,5 +140,29 @@ public enum OpenLibertyUtil {
 	 */
 	public static <T> Optional<T> findExtension(Class<T> extensionClass) {
 		return Optional.ofNullable(ServiceLoader.load(extensionClass, extensionClass.getClassLoader()).iterator().next());
+	}
+	
+	/**
+	 * Recursively deletes the named file or directory.
+	 * 
+	 * @param path the file or directory to delete
+	 * @throws IOException if there is a problem deleting the target
+	 * @since 2.1.0
+	 */
+	public static void deltree(Path path) throws IOException {
+		if(Files.isDirectory(path)) {
+			Files.list(path)
+			    .forEach(t -> {
+					try {
+						deltree(t);
+					} catch (IOException e) {
+						throw new RuntimeException(e);
+					}
+				});
+		}
+		try {
+			Files.deleteIfExists(path);
+		} catch(IOException e) {
+		}
 	}
 }
