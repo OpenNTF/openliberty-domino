@@ -22,18 +22,21 @@
         <formula>@Command([Compose]; "Server")</formula>
       </code>
     </action>
-    <action title="Create\Dropin App">
+    <action title="Create\Application">
       <code event="click">
         <formula>@Command([Compose]; "DropinApp")</formula>
       </code>
     </action>
   </actionbar>
-  <column hidedetailrows="false" itemname="AppName" resizable="true"
+  <column hidedetailrows="false" itemname="$5" resizable="true"
     responsesonly="true" separatemultiplevalues="false"
     showaslinks="false" sortnoaccent="false" sortnocase="true" width="1.1250">
     <columnheader>
       <font size="9pt" style="bold"/>
     </columnheader>
+    <code event="value">
+      <formula>AppName + " - " + @If(ContextRoot=""; AppName; ContextRoot)</formula>
+    </code>
   </column>
   <column hidedetailrows="false" itemname="Name" resizable="true"
     separatemultiplevalues="false" showaslinks="false" sort="ascending"

@@ -20,6 +20,7 @@ public class ReverseProxyService implements RuntimeService {
 			try {
 				Database adminNsf = AdminNSFUtil.getAdminDatabase(session);
 				Document config = AdminNSFUtil.getConfigurationDocument(adminNsf);
+				// TODO look up HTTP port in server config (or parse "sh ta"? It's probably internationalized)
 				
 				UndertowReverseProxy proxy = new UndertowReverseProxy();
 				DominoThreadFactory.executor.submit(proxy);

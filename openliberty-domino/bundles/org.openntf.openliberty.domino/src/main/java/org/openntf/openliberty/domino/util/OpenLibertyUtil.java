@@ -19,10 +19,12 @@ import static java.text.MessageFormat.format;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 import java.util.ServiceLoader;
@@ -46,6 +48,7 @@ public enum OpenLibertyUtil {
 		IS_WINDOWS = os.toLowerCase().contains("windows"); //$NON-NLS-1$
 		IS_LINUX = os.toLowerCase().contains("linux"); //$NON-NLS-1$
 	}
+	private static Path tempDirectory;
 	
 	/**
 	 * Returns an appropriate temp directory for the system. On Windows, this is
@@ -55,12 +58,21 @@ public enum OpenLibertyUtil {
 	 *
 	 * @return an appropriate temp directory for the system
 	 */
-	public static String getTempDirectory() {
-		if (!IS_WINDOWS) {
-			return "/tmp"; //$NON-NLS-1$
-		} else {
-			return System.getProperty("java.io.tmpdir"); //$NON-NLS-1$
+	public static synchronized Path getTempDirectory() {
+		if(tempDirectory == null) {
+			String base;
+			if (!IS_WINDOWS) {
+				base = "/tmp"; //$NON-NLS-1$
+			} else {
+				base = System.getProperty("java.io.tmpdir"); //$NON-NLS-1$
+			}
+			try {
+				tempDirectory = Files.createTempDirectory(Paths.get(base), OpenLibertyUtil.class.getPackage().getName());
+			} catch (IOException e) {
+				throw new UncheckedIOException(e);
+			}
 		}
+		return tempDirectory;
 	}
 	
 	@FunctionalInterface
@@ -163,6 +175,22 @@ public enum OpenLibertyUtil {
 		try {
 			Files.deleteIfExists(path);
 		} catch(IOException e) {
+		}
+	}
+	
+	/**
+	 * Performs shutdown cleanup, such as deleting temporary files. This should be called when
+	 * the runtime is stopping.
+	 * 
+	 * @since 2.1.0
+	 */
+	public static void performShutdownCleanup() {
+		DominoThreadFactory.term();
+		if(tempDirectory != null) {
+			try {
+				deltree(tempDirectory);
+			} catch (IOException e) {
+			}
 		}
 	}
 }

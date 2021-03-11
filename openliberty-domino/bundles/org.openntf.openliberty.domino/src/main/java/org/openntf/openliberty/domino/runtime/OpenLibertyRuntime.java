@@ -15,6 +15,8 @@
  */
 package org.openntf.openliberty.domino.runtime;
 
+import static java.text.MessageFormat.format;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -27,7 +29,6 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
@@ -69,8 +70,6 @@ import lotus.domino.NotesException;
 import lotus.domino.NotesFactory;
 import lotus.domino.Session;
 import lotus.domino.View;
-
-import static java.text.MessageFormat.format;
 
 public enum OpenLibertyRuntime implements Runnable {
 	instance;
@@ -192,19 +191,10 @@ public enum OpenLibertyRuntime implements Runnable {
 						});
 						break;
 					}
-					case DEPLOY_DROPIN: {
+					case UPDATE_SERVERXML: {
 						String serverName = (String)command.args[0];
-						String warName = (String)command.args[1];
-						Path warFile = (Path)command.args[2];
-						boolean deleteAfterDeploy = (Boolean)command.args[3];
-						
-						if(Files.isRegularFile(warFile)) {
-							deployWar(wlp, serverName, warName, warFile);
-						}
-						if(deleteAfterDeploy) {
-							Files.deleteIfExists(warFile);
-						}
-						
+						String serverXml = (String)command.args[1];
+						deployServerXml(wlp, serverName, serverXml);
 						break;
 					}
 					case STATUS: {
@@ -268,8 +258,8 @@ public enum OpenLibertyRuntime implements Runnable {
 		taskQueue.add(new RuntimeTask(RuntimeTask.Type.CREATE_SERVER, serverName, serverXml, serverEnv, jvmOptions, bootstrapProperties, additionalZips));
 	}
 	
-	public void deployDropin(String serverName, String warName, Path warFile, boolean deleteAfterDeploy) {
-		taskQueue.add(new RuntimeTask(RuntimeTask.Type.DEPLOY_DROPIN, serverName, warName, warFile, deleteAfterDeploy));
+	public void deployServerXml(String serverName, String serverXml) {
+		taskQueue.add(new RuntimeTask(RuntimeTask.Type.UPDATE_SERVERXML, serverName, serverXml));
 	}
 	
 	/**
@@ -286,7 +276,7 @@ public enum OpenLibertyRuntime implements Runnable {
 	
 	private static class RuntimeTask {
 		enum Type {
-			START, STOP, CREATE_SERVER, DEPLOY_DROPIN, STATUS
+			START, STOP, CREATE_SERVER, STATUS, UPDATE_SERVERXML
 		}
 		private final Type type;
 		private final Object[] args;
@@ -510,26 +500,6 @@ public enum OpenLibertyRuntime implements Runnable {
 		// TODO change to ask Liberty for a list of servers
 		Path server = path.resolve("usr").resolve("servers").resolve(serverName); //$NON-NLS-1$ //$NON-NLS-2$
 		return Files.isDirectory(server);
-	}
-	
-	private void deployWar(Path wlp, String serverName, String warName, Path warFile) {
-		Path dropins = wlp.resolve("usr").resolve("servers").resolve(serverName).resolve("dropins"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		
-		String name;
-		if(StringUtil.isNotEmpty(warName)) {
-			name = warName;
-		} else {
-			name = warFile.getFileName().toString();
-		}
-		
-		Path dest = dropins.resolve(name);
-		try {
-			Files.copy(warFile, dest, StandardCopyOption.REPLACE_EXISTING);
-		} catch(IOException e) {
-			if(OpenLibertyLog.instance.log.isLoggable(Level.SEVERE)) {
-				OpenLibertyLog.instance.log.log(Level.SEVERE, format(Messages.getString("OpenLibertyRuntime.exceptionDeployingDropin"), e), e); //$NON-NLS-1$
-			}
-		}
 	}
 	
 	private void deployExtensions(Path wlp) throws IOException {

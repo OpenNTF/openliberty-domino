@@ -21,6 +21,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.openntf.openliberty.domino.log.OpenLibertyLog;
 import org.openntf.openliberty.domino.util.DominoThreadFactory;
+import org.openntf.openliberty.domino.util.OpenLibertyUtil;
 
 /**
  * This class handles shared code for CLI-based runtime managers.
@@ -52,7 +53,7 @@ public class CLIManagerDelegate implements AutoCloseable {
 			this.runner.cancel(true);
 			this.runner = null;
 		}
-		DominoThreadFactory.term();
+		OpenLibertyUtil.performShutdownCleanup();
 	}
 	
 	/**

@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.security.AccessController;
 import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
@@ -74,6 +73,8 @@ public class AdminNSFService implements Runnable {
 	public static final String ITEM_DEPLOYMENTZIPS = "DeploymentZIPs"; //$NON-NLS-1$
 	public static final String ITEM_APPNAME = "AppName"; //$NON-NLS-1$
 	public static final String ITEM_WAR = "WarFile"; //$NON-NLS-1$
+	/** @since 2.1.0 */
+	public static final String ITEM_CONTEXTPATH = "ContextRoot"; //$NON-NLS-1$
 	/** @since 2.0.0 */
 	public static final String ITEM_JVMOPTIONS = "JvmOptions"; //$NON-NLS-1$
 	/** @since 2.0.0 */
@@ -84,7 +85,8 @@ public class AdminNSFService implements Runnable {
 	
 	private long lastRun = -1;
 	
-	private static final Path TEMP_DIR = Paths.get(OpenLibertyUtil.getTempDirectory());
+	private static final Path TEMP_DIR = OpenLibertyUtil.getTempDirectory();
+	private static final Path APP_DIR = TEMP_DIR.resolve("apps");
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -98,7 +100,6 @@ public class AdminNSFService implements Runnable {
 					if(log.isLoggable(Level.FINER)) {
 						log.finer(format(Messages.getString("AdminNSFService.adminNSFUnchanged"), getClass().getSimpleName())); //$NON-NLS-1$
 					}
-					lastRun = System.currentTimeMillis();
 					return;
 				}
 				if(log.isLoggable(Level.FINE)) {
@@ -136,8 +137,6 @@ public class AdminNSFService implements Runnable {
 					entry = nav.getNextSibling(entry);
 					tempEntry.recycle();
 				}
-				
-				lastRun = System.currentTimeMillis();
 			} finally {
 				session.recycle();
 			}
@@ -146,6 +145,8 @@ public class AdminNSFService implements Runnable {
 				log.log(Level.SEVERE, format(Messages.getString("AdminNSFService.encounteredExceptionIn"), getClass().getSimpleName()), t); //$NON-NLS-1$
 				t.printStackTrace();
 			}
+		} finally {
+			lastRun = System.currentTimeMillis();
 		}
 	}
 	
@@ -172,11 +173,13 @@ public class AdminNSFService implements Runnable {
 			
 			String serverName = serverDoc.getItemValueString(ITEM_SERVERNAME);
 			if(StringUtil.isNotEmpty(serverName)) {
+				XMLDocument serverXml = null;
+				
 				if(needsUpdate(serverDoc)) {
 					if(log.isLoggable(Level.INFO)) {
 						log.info(format(Messages.getString("AdminNSFService.deployingDefinedServer"), getClass().getSimpleName(), serverName)); //$NON-NLS-1$
 					}
-					String serverXml = generateServerXml(serverDoc);
+					serverXml = generateServerXml(serverDoc);
 					String serverEnv = serverDoc.getItemValueString(ITEM_SERVERENV);
 					String jvmOptions = serverDoc.getItemValueString(ITEM_JVMOPTIONS);
 					String bootstrapProperties = serverDoc.getItemValueString(ITEM_BOOTSTRAPPROPS);
@@ -195,7 +198,7 @@ public class AdminNSFService implements Runnable {
 						}
 					}
 					
-					OpenLibertyRuntime.instance.createServer(serverName, serverXml, serverEnv, jvmOptions, bootstrapProperties, additionalZips);
+					OpenLibertyRuntime.instance.createServer(serverName, serverXml.getXml(), serverEnv, jvmOptions, bootstrapProperties, additionalZips);
 					OpenLibertyRuntime.instance.startServer(serverName);
 				} else {
 					if(log.isLoggable(Level.FINER)) {
@@ -210,10 +213,27 @@ public class AdminNSFService implements Runnable {
 					Document dropinDoc = dropinEntry.getDocument();
 					try {
 						String appName = dropinDoc.getItemValueString(ITEM_APPNAME);
-						if(needsUpdate(dropinDoc)) {
+						String contextPath = dropinDoc.getItemValueString(ITEM_CONTEXTPATH);
+						if(StringUtil.isEmpty(contextPath)) {
+							contextPath = appName;
+						}
+						
+						// Generate a name based on the modification time, to avoid Windows file-locking trouble
+						// Shave off the last digit, to avoid trouble with Domino TIMEDATE limitations
+						long docMod = dropinDoc.getLastModified().toJavaDate().getTime();
+						docMod = docMod / 10 * 10;
+						Path appDir = APP_DIR.resolve(dropinDoc.getNoteID());
+						if(!Files.exists(appDir)) {
+							Files.createDirectories(appDir);
+						}
+						Path warPath = appDir.resolve(docMod + ".war");
+						
+						// See if we need to deploy the file
+						if(!Files.exists(warPath)) {
 							if(log.isLoggable(Level.INFO)) {
-								log.info(format(Messages.getString("AdminNSFService.deployingDefinedApp"), getClass().getSimpleName(), appName)); //$NON-NLS-1$
+								log.info(format(Messages.getString("AdminNSFService.deployingDefinedApp"), getClass().getSimpleName(), appName, contextPath)); //$NON-NLS-1$
 							}
+							
 							if(dropinDoc.hasItem(ITEM_WAR)) {
 								Item warItem = dropinDoc.getFirstItem(ITEM_WAR);
 								if(warItem.getType() == Item.RICHTEXT) {
@@ -223,20 +243,25 @@ public class AdminNSFService implements Runnable {
 									for(EmbeddedObject eo : objects) {
 										// Deploy all attached files
 										if(eo.getType() == EmbeddedObject.EMBED_ATTACHMENT) {
-											Path warFile = TEMP_DIR.resolve(eo.getSource() + System.currentTimeMillis());
-											eo.extractFile(warFile.toString());
-											
-											String warName = format("{0}-{1}.war", dropinDoc.getNoteID(), appName); //$NON-NLS-1$
-											OpenLibertyRuntime.instance.deployDropin(serverName, warName, warFile, true);
+											eo.extractFile(warPath.toString());
+											break;
 										}
 									}
 								}
 							}
-						} else {
-							if(log.isLoggable(Level.FINER)) {
-								log.finer(format(Messages.getString("AdminNSFService.skippingUnchangedApp"), getClass().getSimpleName(), appName)); //$NON-NLS-1$
-							}
 						}
+						
+						// Add a webApplication entry
+						
+						if(serverXml == null) {
+							serverXml = generateServerXml(serverDoc);
+						}
+						XMLNode webApplication = serverXml.selectSingleNode("/server").addChildElement("webApplication");
+						webApplication.setAttribute("contextRoot", contextPath);
+						webApplication.setAttribute("id", "app-" + dropinDoc.getNoteID());
+						webApplication.setAttribute("location", warPath.toString());
+						webApplication.setAttribute("name", appName);
+						
 					} finally {
 						dropinDoc.recycle();
 					}
@@ -245,13 +270,17 @@ public class AdminNSFService implements Runnable {
 					dropinEntry = nav.getNextSibling(dropinEntry);
 					tempDropin.recycle();
 				}
+				
+				if(serverXml != null) {
+					OpenLibertyRuntime.instance.deployServerXml(serverName, serverXml.toString());
+				}
 			}
 		} finally {
 			serverDoc.recycle();
 		}
 	}
 	
-	private String generateServerXml(Document serverDoc) throws NotesException, SAXException, IOException, ParserConfigurationException {
+	private XMLDocument generateServerXml(Document serverDoc) throws NotesException, SAXException, IOException, ParserConfigurationException {
 		String serverXmlString = serverDoc.getItemValueString(ITEM_SERVERXML);
 		XMLDocument serverXml = new XMLDocument(serverXmlString);
 		
@@ -283,7 +312,7 @@ public class AdminNSFService implements Runnable {
 			}
 		}
 		
-		return serverXml.getXml();
+		return serverXml;
 	}
 	
 	private boolean needsUpdate(Database adminNsf) throws NotesException {
