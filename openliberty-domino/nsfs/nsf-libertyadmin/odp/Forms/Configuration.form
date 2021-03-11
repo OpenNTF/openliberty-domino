@@ -47,20 +47,34 @@
     <richtext>
       <pardef id="1"/>
       <par def="1"/>
+      <par def="1">
+        <run>
+          <font size="18pt" style="bold"/>Configuration</run>
+      </par>
+      <par def="1"/>
+      <pardef id="2" leftmargin="1in" spaceafter="1.5">
+        <parstyle alldocuments="true" incyclekey="true" name="Headline" username="Jesse Gallagher-">
+          <font color="purple" name="sans-serif" size="12pt" style="bold"/>
+        </parstyle>
+      </pardef>
+      <par def="2">
+        <run>
+          <font color="purple" size="12pt" style="bold"/>Liberty Runtime</run>
+      </par>
       <par def="1"/>
       <table altbgcolor="white" bgcolor="#efefef" colorstyle="left"
-        columnspacing="0.0500in" refwidth="14.7396in"
+        columnspacing="0.0500in" refwidth="8.7292in"
         rowspacing="0.0500in" widthtype="fitmargins">
         <tablecolumn width="2in"/>
         <tablecolumn width="100%"/>
         <tablerow>
           <tablecell borderwidth="0px">
-            <pardef id="3" keeptogether="true" keepwithnext="true"/>
-            <par def="3">Base Directory</par>
+            <pardef id="4" keeptogether="true" keepwithnext="true"/>
+            <par def="4">Base Directory</par>
           </tablecell>
           <tablecell borderwidth="0px">
-            <pardef id="4" keeptogether="true" keepwithnext="true"/>
-            <par def="4">
+            <pardef id="5" keeptogether="true" keepwithnext="true"/>
+            <par def="5">
               <field kind="editable" name="BaseDirectory" type="text"/>
               <compositedata afterbegincount="3" aftercontainercount="1"
                 afterparcount="7" containertype="65418" nexttype="222"
@@ -68,8 +82,8 @@
 Yg4BAIQAAAAAAAAAAAA=
 </compositedata>
             </par>
-            <pardef hide="read print preview" id="5" keeptogether="true" keepwithnext="true"/>
-            <par def="5">
+            <pardef hide="read print preview" id="6" keeptogether="true" keepwithnext="true"/>
+            <par def="6">
               <run>
                 <font color="gray" size="8pt"/>Default: (program directory)/wlp</run>
             </par>
@@ -77,10 +91,10 @@ Yg4BAIQAAAAAAAAAAAA=
         </tablerow>
         <tablerow>
           <tablecell borderwidth="0px">
-            <par def="3">Version</par>
+            <par def="4">Version</par>
           </tablecell>
           <tablecell borderwidth="0px">
-            <par def="4">
+            <par def="5">
               <field kind="editable" name="Version" type="keyword">
                 <keywords allownew="true" ui="dialoglist">
                   <textlist>
@@ -96,12 +110,12 @@ Yg4BAIQAAAAAAAAAAAA=
         </tablerow>
         <tablerow>
           <tablecell borderwidth="0px">
-            <par def="3">Artifact <run>
+            <par def="4">Artifact <run>
                 <font color="gray" size="8pt"/>(advanced)</run>
             </par>
           </tablecell>
           <tablecell borderwidth="0px">
-            <par def="4">
+            <par def="5">
               <field kind="editable" name="Artfiact" type="text"/>
               <compositedata afterbegincount="3" aftercontainercount="1"
                 afterparcount="6" containertype="65418" nexttype="222"
@@ -109,7 +123,7 @@ Yg4BAIQAAAAAAAAAAAA=
 Yg4BAIQAAAAAAAAAAAA=
 </compositedata>
             </par>
-            <par def="5">
+            <par def="6">
               <run>
                 <font color="gray" size="8pt"/>Default: io.openliberty:openliberty-runtime</run>
             </par>
@@ -117,12 +131,12 @@ Yg4BAIQAAAAAAAAAAAA=
         </tablerow>
         <tablerow>
           <tablecell borderwidth="0px">
-            <par def="3">Maven Repo <run>
+            <par def="4">Maven Repo <run>
                 <font color="gray" size="8pt"/>(advanced)</run>
             </par>
           </tablecell>
           <tablecell borderwidth="0px">
-            <par def="4">
+            <par def="5">
               <field kind="editable" name="MavenRepo" type="text"/>
               <compositedata afterbegincount="3" aftercontainercount="1"
                 afterparcount="6" containertype="65418" nexttype="222"
@@ -130,7 +144,7 @@ Yg4BAIQAAAAAAAAAAAA=
 Yg4BAIQAAAAAAAAAAAA=
 </compositedata>
             </par>
-            <par def="5">
+            <par def="6">
               <run>
                 <font color="gray" size="8pt"/>Default: https://repo.maven.apache.org/maven2/</run>
             </par>
@@ -138,11 +152,11 @@ Yg4BAIQAAAAAAAAAAAA=
         </tablerow>
         <tablerow>
           <tablecell borderwidth="0px">
-            <par def="3">Java Runtime</par>
+            <par def="4">Java Runtime</par>
           </tablecell>
           <tablecell borderwidth="0px">
-            <pardef id="6" keeptogether="true" keepwithnext="true" linespacing="1.5"/>
-            <par def="6">
+            <pardef id="7" keeptogether="true" keepwithnext="true" linespacing="1.5"/>
+            <par def="7">
               <field kind="editable" lookupaddressonrefresh="false"
                 lookupeachchar="false" name="JavaVersion" type="keyword">
                 <keywords allownew="true" columns="1"
@@ -159,12 +173,12 @@ Yg4BAIQAAAAAAAAAAAA=
                 </code>
               </field>
             </par>
-            <pardef id="7" keeptogether="true" keepwithnext="true" linespacing="1.5">
+            <pardef id="8" keeptogether="true" keepwithnext="true" linespacing="1.5">
               <code event="hidewhen">
                 <formula>JavaVersion="":"Domino"</formula>
               </code>
             </pardef>
-            <par def="7">
+            <par def="8">
               <field borderstyle="none" kind="editable"
                 lookupaddressonrefresh="false" lookupeachchar="false"
                 name="JavaJVM" type="keyword">
@@ -179,7 +193,7 @@ Yg4BAIQAAAAAAAAAAAA=
                 </code>
               </field>
             </par>
-            <par def="7">
+            <par def="8">
               <run>
                 <font color="gray" size="8pt"/>More Information: </run>
               <urllink href="https://adoptopenjdk.net/" showborder="false">
@@ -193,15 +207,104 @@ Yg4BAIQAAAAAAAAAAAA=
           </tablecell>
         </tablerow>
       </table>
-      <pardef firstlineleftmargin="1in" id="2"/>
-      <par def="2"/>
+      <pardef firstlineleftmargin="1in" id="3"/>
+      <par def="3"/>
+      <par def="2">
+        <run>
+          <font color="purple" size="12pt" style="bold"/>Reverse Proxy</run>
+      </par>
+      <par def="1"/>
+      <table altbgcolor="white" bgcolor="#efefef" colorstyle="left"
+        columnspacing="0.0500in" refwidth="8.7292in"
+        rowspacing="0.0500in" widthtype="fitmargins">
+        <tablecolumn width="2in"/>
+        <tablecolumn width="100%"/>
+        <tablerow>
+          <tablecell borderwidth="0px">
+            <par def="4">Enable Reverse Proxy</par>
+          </tablecell>
+          <tablecell borderwidth="0px">
+            <par def="6">
+              <run>
+                <font color="gray" size="8pt"/>
+              </run>
+              <field borderstyle="none" kind="editable"
+                lookupaddressonrefresh="false" lookupeachchar="false"
+                name="ReverseProxyEnable" type="keyword">
+                <keywords columns="2" helperbutton="false" ui="radiobutton">
+                  <textlist>
+                    <text>Yes|Y</text>
+                    <text>No|N</text>
+                  </textlist>
+                </keywords>
+              </field>
+              <run>
+                <font color="gray" size="8pt"/>
+              </run>
+            </par>
+          </tablecell>
+        </tablerow>
+        <tablerow>
+          <tablecell borderwidth="0px">
+            <par def="4">Bind to Host</par>
+          </tablecell>
+          <tablecell borderwidth="0px">
+            <par def="5">
+              <field fieldhint="*" kind="editable"
+                name="ReverseProxyHostName" type="text"/>
+              <compositedata afterbegincount="4" aftercontainercount="2"
+                afterparcount="7" containertype="65418" nexttype="222"
+                prevtype="65513" type="98">
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata>
+            </par>
+          </tablecell>
+        </tablerow>
+        <tablerow>
+          <tablecell borderwidth="0px">
+            <par def="4">Port</par>
+          </tablecell>
+          <tablecell borderwidth="0px">
+            <par def="5">
+              <field kind="editable" name="ReverseProxyPort" type="number">
+                <numberformat bytes="false" digits="2" format="general"
+                  parens="false" percent="false" punctuated="false"/>
+                <code event="defaultvalue">
+                  <formula>8080</formula>
+                </code>
+              </field>
+            </par>
+          </tablecell>
+        </tablerow>
+        <tablerow>
+          <tablecell borderwidth="0px">
+            <par def="4">Use Connector Headers for Domino</par>
+          </tablecell>
+          <tablecell borderwidth="0px">
+            <par def="6">
+              <field borderstyle="none" kind="editable"
+                lookupaddressonrefresh="false" lookupeachchar="false"
+                name="ReverseProxyConnectorHeaders" type="keyword">
+                <keywords columns="2" helperbutton="false" ui="radiobutton">
+                  <textlist>
+                    <text>Yes|Y</text>
+                    <text>No|N</text>
+                  </textlist>
+                </keywords>
+              </field>
+            </par>
+          </tablecell>
+        </tablerow>
+      </table>
+      <par def="3"/>
+      <par def="3"/>
       <subformref name="Footer"/>
-      <pardef align="right" id="8">
+      <pardef align="right" id="9">
         <code event="hidewhen">
           <formula>@IsNewDoc</formula>
         </code>
       </pardef>
-      <par def="8"/>
+      <par def="9"/>
     </richtext>
   </body>
   <item name="$SubForm_RepIDs" sign="true">
@@ -216,5 +319,8 @@ AAAAAAAAAAA=
     <rawitemdata type="400">
 AAAAAAAAAAA=
 </rawitemdata>
+  </item>
+  <item name="ReverseProxyPort" summary="false">
+    <number>0</number>
   </item>
 </form>

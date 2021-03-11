@@ -35,7 +35,8 @@
       <font size="9pt" style="bold"/>
     </columnheader>
     <code event="value">
-      <formula>AppName + " - " + @If(ContextRoot=""; AppName; ContextRoot)</formula>
+      <formula>ctx := @If(ContextRoot=""; AppName; ContextRoot);
+"/" + ctx + @If(AppName=ctx; ""; " (" + AppName + ")")</formula>
     </code>
   </column>
   <column hidedetailrows="false" itemname="Name" resizable="true"

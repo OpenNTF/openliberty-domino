@@ -18,11 +18,6 @@
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>org.openntf.openliberty.domino.adminnsf</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
 			<artifactId>org.openntf.openliberty.domino.reverseproxy.undertow</artifactId>
 			<version>${project.version}</version>
 		</dependency>
@@ -51,7 +46,6 @@
 						<Bundle-SymbolicName>${project.artifactId};singleton:=true</Bundle-SymbolicName>
 						<Fragment-Host>org.openntf.openliberty.domino</Fragment-Host>
 						<Require-Bundle>org.openntf.openliberty.domino.reverseproxy.undertow</Require-Bundle>
-						<Export-Package/>
 					</instructions>
 				</configuration>
 			</plugin>

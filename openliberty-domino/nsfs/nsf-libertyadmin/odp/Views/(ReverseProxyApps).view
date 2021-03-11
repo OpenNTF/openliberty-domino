@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<view allowcustomizations="false" allownewdocuments="false"
+  altrowcolor="#efefef" bgcolor="white" boldunreadrows="false"
+  evaluateactions="false" extendlastcolumn="true" gridcolor="white"
+  gridstyle="solid" headerbgcolor="white" headerlinecount="1"
+  headers="beveled" hidemarginborder="false" marginbgcolor="white"
+  marginwidth="0px" name="(ReverseProxyApps)" noreplace="true"
+  onopengoto="lastopened" onrefresh="displayindicator"
+  opencollapsed="false" publicaccess="false" rowlinecount="1"
+  rowspacing="1" showhierarchies="false" showinmenu="false"
+  showmargin="true" showresponsehierarchy="false" shrinkrows="false"
+  totalscolor="black" uniquekeys="false" unreadcolor="black"
+  unreadmarks="none" xmlns="http://www.lotus.com/dxl">
+  <code event="selection">
+    <formula>SELECT Form="DropinApp" &amp; IncludeInReverseProxy="Y"</formula>
+  </code>
+  <actionbar bgcolor="#d4d0c8" bordercolor="black">
+    <actionbuttonstyle bgcolor="#d4d0c8"/>
+    <font color="system"/>
+    <border style="solid" width="0px 0px 1px"/>
+  </actionbar>
+  <column hidedetailrows="false" itemname="$2" resizable="true"
+    separatemultiplevalues="false" showaslinks="false"
+    sortnoaccent="false" sortnocase="true" width="29.7500">
+    <columnheader title="$REF">
+      <font size="9pt" style="bold"/>
+    </columnheader>
+    <code event="value">
+      <formula>@Text($REF)</formula>
+    </code>
+  </column>
+  <column hidedetailrows="false" itemname="ContextRoot" resizable="true"
+    separatemultiplevalues="false" showaslinks="false"
+    sortnoaccent="false" sortnocase="true" width="22.2500">
+    <columnheader title="ContextRoot">
+      <font size="9pt" style="bold"/>
+    </columnheader>
+  </column>
+</view>

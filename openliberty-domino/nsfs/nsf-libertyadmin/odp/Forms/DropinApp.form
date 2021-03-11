@@ -92,6 +92,28 @@ Yg4BAIQAAAAAAAAAAAA=
         </tablerow>
         <tablerow>
           <tablecell borderwidth="0px">
+            <par def="3">Include in Reverse Proxy</par>
+          </tablecell>
+          <tablecell borderwidth="0px">
+            <par def="4">
+              <field borderstyle="none" kind="editable"
+                lookupaddressonrefresh="false" lookupeachchar="false"
+                name="IncludeInReverseProxy" type="keyword">
+                <keywords columns="2" helperbutton="false" ui="radiobutton">
+                  <textlist>
+                    <text>Yes|Y</text>
+                    <text>No|N</text>
+                  </textlist>
+                </keywords>
+                <code event="defaultvalue">
+                  <formula>"No"</formula>
+                </code>
+              </field>
+            </par>
+          </tablecell>
+        </tablerow>
+        <tablerow>
+          <tablecell borderwidth="0px">
             <par def="3">WAR</par>
           </tablecell>
           <tablecell borderwidth="0px">

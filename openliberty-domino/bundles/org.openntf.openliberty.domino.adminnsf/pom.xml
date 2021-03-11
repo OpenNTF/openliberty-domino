@@ -17,6 +17,11 @@
 			<artifactId>org.openntf.openliberty.domino</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>org.openntf.openliberty.domino.reverseproxy</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 		
 		<dependency>
 			<groupId>com.hcl.xsp.p2</groupId>
