@@ -34,13 +34,6 @@
 			<artifactId>xnio-nio</artifactId>
 			<version>3.8.0.Final</version>
 		</dependency>
-
-		<dependency>
-			<groupId>org.osgi</groupId>
-			<artifactId>org.osgi.framework</artifactId>
-			<version>1.8.0</version>
-			<scope>provided</scope>
-		</dependency>
 	</dependencies>
 	
 	<build>
