@@ -20,6 +20,7 @@ This product contains the following 3rd party code:
 - The Darwino Domino NAPI, which is available from https://github.com/darwino/domino-napi and is licensed under the Apache License 2.0
 - XML classes from the OpenNTF Domino API, which is available from https://github.com/OpenNTF/org.openntf.domino, is copyright 2013-2020 the OpenNTF Domino API Team, and is licensed under the Apache License 2.0
 	- The original LICENSE and NOTICE are included in the "legal" directory with the "-ODA" suffix, but none of the referenced third-party code is included
+- Undertow, which is available from https://github.com/undertow-io/undertow, is copyright 2014-2021 Red Hat, Inc., and individual contributors, and is licensed under the Apache License 2.0
 
 The runtime may automatically download and execute the following 3rd party code:
 
