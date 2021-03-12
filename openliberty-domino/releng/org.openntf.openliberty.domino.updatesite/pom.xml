@@ -37,7 +37,7 @@
 									<providerName>OpenNTF</providerName>
 									<description>Open Liberty Runtime managed by the Domino server</description>
 									<generateSourceFeature>false</generateSourceFeature>
-									<copyright>Copyright 2018-2020 Jesse Gallagher</copyright>
+									<copyright>Copyright 2018-2021 Jesse Gallagher</copyright>
 									<license>      Apache License
                            Version 2.0, January 2004
                         http://www.apache.org/licenses/
