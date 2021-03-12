@@ -233,6 +233,7 @@ public class AdminNSFProxyConfigProvider implements ReverseProxyConfigProvider {
 							if(maxEntitySize == 0) {
 								maxEntitySize = Long.MAX_VALUE;
 							}
+							result.maxEntitySize = maxEntitySize;
 							
 						} finally {
 							session.recycle();
