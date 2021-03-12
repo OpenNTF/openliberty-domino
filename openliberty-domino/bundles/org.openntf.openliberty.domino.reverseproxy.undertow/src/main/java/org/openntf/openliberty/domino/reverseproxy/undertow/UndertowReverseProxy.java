@@ -27,7 +27,14 @@ import javax.net.ssl.SSLContext;
 import io.undertow.Undertow;
 import io.undertow.UndertowOptions;
 import io.undertow.attribute.ExchangeAttribute;
+import io.undertow.attribute.LocalPortAttribute;
 import io.undertow.attribute.ReadOnlyAttributeException;
+import io.undertow.attribute.RemoteHostAttribute;
+import io.undertow.attribute.RemoteIPAttribute;
+import io.undertow.attribute.RequestProtocolAttribute;
+import io.undertow.attribute.RequestSchemeAttribute;
+import io.undertow.attribute.SecureExchangeAttribute;
+import io.undertow.attribute.SslSessionIdAttribute;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.handlers.PathHandler;
 import io.undertow.server.handlers.proxy.LoadBalancingProxyClient;
@@ -137,6 +144,12 @@ public class UndertowReverseProxy implements Runnable {
             		.setProxyClient(dominoProxy);
 			if(useDominoConnectorHeaders) {
 				proxyHandler.addRequestHeader(HttpString.tryFromString("X-ConnectorHeaders-Secret"), new StringAttribute(dominoConnectorHeadersSecret));
+				proxyHandler.addRequestHeader(HttpString.tryFromString("$WSRH"), RemoteHostAttribute.INSTANCE);
+				proxyHandler.addRequestHeader(HttpString.tryFromString("$WSRA"), RemoteIPAttribute.INSTANCE);
+				proxyHandler.addRequestHeader(HttpString.tryFromString("$WSSC"), RequestSchemeAttribute.INSTANCE);
+				proxyHandler.addRequestHeader(HttpString.tryFromString("$WSPR"), RequestProtocolAttribute.INSTANCE);
+				proxyHandler.addRequestHeader(HttpString.tryFromString("$WSSP"), LocalPortAttribute.INSTANCE);
+				proxyHandler.addRequestHeader(HttpString.tryFromString("$WSIS"), SecureExchangeAttribute.INSTANCE);
 			}
 			pathHandler.addPrefixPath("/", proxyHandler.build());
 		}
