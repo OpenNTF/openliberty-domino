@@ -81,6 +81,7 @@ public class AdminNSFService implements Runnable {
 	public static final String ITEM_BOOTSTRAPPROPS = "BootstrapProperties"; //$NON-NLS-1$
 	/** @since 2.0.0 */
 	public static final String ITEM_DOMINOSERVERS = "DominoServers"; //$NON-NLS-1$
+	/** @since 2.0.0 */
 	public static final String ITEM_INTEGRATIONFEATURES = "IntegrationFeatures"; //$NON-NLS-1$
 	
 	private long lastRun = -1;
