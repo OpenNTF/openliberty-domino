@@ -25,6 +25,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.ServiceLoader;
@@ -151,7 +152,12 @@ public enum OpenLibertyUtil {
 	 * @since 2.0.0
 	 */
 	public static <T> Optional<T> findExtension(Class<T> extensionClass) {
-		return Optional.ofNullable(ServiceLoader.load(extensionClass, extensionClass.getClassLoader()).iterator().next());
+		Iterator<T> iter = ServiceLoader.load(extensionClass, extensionClass.getClassLoader()).iterator();
+		if(iter.hasNext()) {
+			return Optional.of(iter.next());
+		} else {
+			return Optional.empty();
+		}
 	}
 	
 	/**
