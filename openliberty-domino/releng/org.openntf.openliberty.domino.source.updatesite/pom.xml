@@ -272,6 +272,11 @@
 											<transitive>false</transitive>
 											<source>true</source>
 										</artifact>
+										<artifact>
+											<id>${project.groupId}:org.openntf.openliberty.domino.reverseproxy:${project.version}</id>
+											<transitive>false</transitive>
+											<source>true</source>
+										</artifact>
 									</artifacts>
 							    </feature>
 							</featureDefinitions>
