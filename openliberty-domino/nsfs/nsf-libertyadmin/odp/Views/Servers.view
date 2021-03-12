@@ -41,15 +41,36 @@
   </column>
   <column hidedetailrows="false" itemname="Name" resizable="true"
     separatemultiplevalues="false" showaslinks="false" sort="ascending"
-    sortnoaccent="false" sortnocase="true" width="18.8750">
+    sortnoaccent="false" sortnocase="true" width="16.2500">
     <columnheader title="Name">
       <font size="9pt" style="bold underline"/>
     </columnheader>
   </column>
+  <column hidedetailrows="false" itemname="HTTPHost" resizable="true"
+    separatemultiplevalues="false" showaslinks="false"
+    sortnoaccent="false" sortnocase="true" width="14.5000">
+    <columnheader title="Host">
+      <font size="9pt" style="bold"/>
+    </columnheader>
+  </column>
+  <column hidedetailrows="false" itemname="HTTPPort" resizable="true"
+    separatemultiplevalues="false" showaslinks="false"
+    sortnoaccent="false" sortnocase="true" width="8">
+    <columnheader title="HTTP Port">
+      <font size="9pt" style="bold"/>
+    </columnheader>
+  </column>
+  <column hidedetailrows="false" itemname="HTTPSPort" resizable="true"
+    separatemultiplevalues="false" showaslinks="false"
+    sortnoaccent="false" sortnocase="true" width="8">
+    <columnheader title="HTTPS Port">
+      <font size="9pt" style="bold"/>
+    </columnheader>
+  </column>
   <column hidedetailrows="false" itemname="$4" resizable="true"
     separatemultiplevalues="false" showaslinks="false"
-    sortnoaccent="false" sortnocase="true" width="30.7500">
-    <columnheader title="Servers">
+    sortnoaccent="false" sortnocase="true" width="20.1250">
+    <columnheader title="Domino Servers">
       <font size="9pt" style="bold"/>
     </columnheader>
     <columnnamesformat columncontainsname="true" showonline="false"/>

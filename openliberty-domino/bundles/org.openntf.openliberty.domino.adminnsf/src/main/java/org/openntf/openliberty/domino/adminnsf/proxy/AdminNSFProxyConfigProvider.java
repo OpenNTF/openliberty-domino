@@ -1,11 +1,34 @@
 package org.openntf.openliberty.domino.adminnsf.proxy;
 
-import java.text.MessageFormat;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.net.URI;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.KeyFactory;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateFactory;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.text.MessageFormat;
+import java.util.Base64;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 import java.util.concurrent.ExecutionException;
+
+import javax.crypto.NoSuchPaddingException;
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
 
 import org.openntf.openliberty.domino.adminnsf.AdminNSFService;
 import org.openntf.openliberty.domino.adminnsf.util.AdminNSFUtil;
@@ -19,7 +42,6 @@ import org.openntf.openliberty.domino.util.xml.XMLNode;
 
 import lotus.domino.Database;
 import lotus.domino.Document;
-import lotus.domino.NotesException;
 import lotus.domino.NotesFactory;
 import lotus.domino.Session;
 import lotus.domino.View;
@@ -27,6 +49,18 @@ import lotus.domino.ViewEntry;
 import lotus.domino.ViewNavigator;
 
 public class AdminNSFProxyConfigProvider implements ReverseProxyConfigProvider {
+	public static final String ITEM_REVERSEPROXYENABLE = "ReverseProxyEnable";
+	public static final String ITEM_REVERSEPROXYHOST = "ReverseProxyHostName";
+	public static final String ITEM_REVERSEPROXYCONNECTORHEADERS = "ReverseProxyConnectorHeaders";
+	
+	public static final String ITEM_REVERSEPROXYHTTP = "ReverseProxyHTTP";
+	public static final String ITEM_REVERSEPROXYHTTPPORT = "ReverseProxyHTTPPort";
+	public static final String ITEM_REVERSEPROXYHTTPS = "ReverseProxyHTTPS";
+	public static final String ITEM_REVERSEPROXYHTTPSPORT = "ReverseProxyHTTPSPort";
+	public static final String ITEM_REVERSEPROXYHTTPSKEY = "ReverseProxyHTTPSKey";
+	public static final String ITEM_REVERSEPROXYHTTPSCERT = "ReverseProxyHTTPSChain";
+	
+	public static final String VIEW_REVERSEPROXYAPPS = "ReverseProxyApps";
 
 	@Override
 	public ReverseProxyConfig createConfiguration(ReverseProxyService service) {
@@ -42,34 +76,64 @@ public class AdminNSFProxyConfigProvider implements ReverseProxyConfigProvider {
 						Database adminNsf = AdminNSFUtil.getAdminDatabase(session);
 						Document config = AdminNSFUtil.getConfigurationDocument(adminNsf);
 						
-						boolean enable = "Y".equals(config.getItemValueString("ReverseProxyEnable"));
-						result.setEnabled(enable);
+						boolean enable = "Y".equals(config.getItemValueString(ITEM_REVERSEPROXYENABLE));
+						result.enabled = enable;
 						if(!enable) {
 							return;
 						}
 						
-						String hostName = config.getItemValueString("ReverseProxyHostName");
+						String hostName = config.getItemValueString(ITEM_REVERSEPROXYHOST);
 						if(hostName == null || hostName.isEmpty()) {
 							hostName = "0.0.0.0";
 						}
-						result.setProxyHostName(hostName);
-						int port = config.getItemValueInteger("ReverseProxyPort");
-						if(port == 0) {
-							port = 8080;
-						}
-						result.setProxyHttpPort(port);
-						
-						boolean connectorHeaders = "Y".equals(config.getItemValueString("ReverseProxyConnectorHeaders"));
+						result.proxyHostName = hostName;
+						boolean connectorHeaders = "Y".equals(config.getItemValueString(ITEM_REVERSEPROXYCONNECTORHEADERS));
 						if(connectorHeaders) {
-							result.setUseDominoConnectorHeaders(connectorHeaders);
+							result.useDominoConnectorHeaders = connectorHeaders;
 							String secret = session.getEnvironmentString("HTTPConnectorHeadersSecret", true);
-							result.setDominoConnectorHeadersSecret(secret);
+							result.dominoConnectorHeadersSecret = secret;
 						}
 						
+						// Check for HTTP
+						boolean enableHttp = "Y".equals(config.getItemValueString(ITEM_REVERSEPROXYHTTP));
+						if(enableHttp) {
+							if(enableHttp) {
+								int port = config.getItemValueInteger(ITEM_REVERSEPROXYHTTPPORT);
+								result.proxyHttpPort = port;
+							}
+						}
+						
+						// Check for HTTPS
+						boolean enableHttps = "Y".equals(config.getItemValueString(ITEM_REVERSEPROXYHTTPS));
+						if(enableHttps) {
+							int port = config.getItemValueInteger(ITEM_REVERSEPROXYHTTPSPORT);
+							result.proxyHttpsPort = port;
+							
+							String privateKeyPem = config.getItemValueString(ITEM_REVERSEPROXYHTTPSKEY);
+							char[] password = Long.toString(System.currentTimeMillis()).toCharArray();
+							RSAPrivateKey privateKey = readPrivateKey(privateKeyPem);
+							
+							String certsPem = config.getItemValueString(ITEM_REVERSEPROXYHTTPSCERT);
+							CertificateFactory fac = CertificateFactory.getInstance("X.509");
+							Collection<? extends Certificate> certs;
+							try(ByteArrayInputStream bais = new ByteArrayInputStream(certsPem.getBytes())) {
+								certs = fac.generateCertificates(bais);
+							}
+							
+							KeyStore keystore = KeyStore.getInstance("PKCS12");
+							keystore.load(null, password);
+							keystore.setKeyEntry("default", privateKey, password, certs.toArray(new Certificate[certs.size()]));
+							TrustManager[] trustManagers = buildTrustManagers(keystore);
+							KeyManager[] keyManagers = buildKeyManagers(keystore, password);
+							
+							SSLContext sslContext = SSLContext.getInstance("TLS");
+							sslContext.init(keyManagers, trustManagers, null);
+							result.proxyHttpsContext = sslContext;
+						}
 						
 						// Look for proxy-enabled webapps
 						Map<String, XMLDocument> serverXmls = new HashMap<>();
-						View apps = adminNsf.getView("ReverseProxyApps");
+						View apps = adminNsf.getView(VIEW_REVERSEPROXYAPPS);
 						apps.setAutoUpdate(false);
 						ViewNavigator nav = apps.createViewNav();
 						ViewEntry entry = nav.getFirst();
@@ -82,7 +146,8 @@ public class AdminNSFProxyConfigProvider implements ReverseProxyConfigProvider {
 								contextRoot = contextRoot.substring(1);
 							}
 
-							// TODO participate in any random-numbering scheme available - could read from the filesystem
+							// TODO participate in any random-numbering scheme available - could read from the filesystem.
+							//   Alternatively, this could read from the fields in the server doc, if not using randomized ports
 							XMLDocument serverXml = serverXmls.computeIfAbsent(ref, unid -> {
 								try {
 									Document server = adminNsf.getDocumentByUNID(ref);
@@ -126,9 +191,9 @@ public class AdminNSFProxyConfigProvider implements ReverseProxyConfigProvider {
 					e.printStackTrace(OpenLibertyLog.instance.out);
 					throw new RuntimeException(e);
 				}
-			});
+			}).get();
 			
-			if(result.isEnabled()) {
+			if(result.enabled) {
 				// Determine the local server port from the server doc
 				DominoThreadFactory.executor.submit(() -> {
 					try {
@@ -144,24 +209,31 @@ public class AdminNSFProxyConfigProvider implements ReverseProxyConfigProvider {
 							boolean httpsEnabled = "1".equals(serverDoc.getItemValueString("HTTP_SSLMode"));
 							if(!httpEnabled && !httpsEnabled) {
 								// Then HTTP is effectively off - end early
-								result.setDominoHttpPort(ReverseProxyConfig.PORT_DISABLED);
+								result.dominoHttpPort = ReverseProxyConfig.PORT_DISABLED;
 								return;
 							}
 							
 							if(httpEnabled) {
-								result.setDominoHttpPort(serverDoc.getItemValueInteger("HTTP_Port"));
+								result.dominoHttpPort = serverDoc.getItemValueInteger("HTTP_Port");
 							} else {
-								result.setDominoHttpPort(serverDoc.getItemValueInteger("HTTP_SSLPort"));
-								result.setDominoHttps(true);
+								result.dominoHttpPort = serverDoc.getItemValueInteger("HTTP_SSLPort");
+								result.dominoHttps = true;
 							}
 							
 							boolean bindToHostName = "1".equals(serverDoc.getItemValueString("HTTP_BindToHostName"));
 							if(bindToHostName) {
 								String hostName = serverDoc.getItemValueString("HTTP_HostName");
 								if(hostName != null && !hostName.isEmpty()) {
-									result.setDominoHostName(hostName);
+									result.dominoHostName = hostName;
 								}
 							}
+							
+							// Mirror Domino's maximum entity size
+							long maxEntitySize = serverDoc.getItemValueInteger("HTTP_MaxContentLength");
+							if(maxEntitySize == 0) {
+								maxEntitySize = Long.MAX_VALUE;
+							}
+							
 						} finally {
 							session.recycle();
 						}
@@ -179,5 +251,46 @@ public class AdminNSFProxyConfigProvider implements ReverseProxyConfigProvider {
 		
 		
 		return result;
+	}
+	
+	private RSAPrivateKey readPrivateKey(String key) throws InvalidKeySpecException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException, IOException {
+		String privateKeyPEM = key
+	      .replace("-----BEGIN PRIVATE KEY-----", "")
+	      .replaceAll(System.lineSeparator(), "")
+	      .replace("-----END PRIVATE KEY-----", "");
+
+	    byte[] encoded = Base64.getDecoder().decode(privateKeyPEM);
+
+	    KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+	    PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(encoded);
+	    return (RSAPrivateKey) keyFactory.generatePrivate(keySpec);
+	}
+
+    
+	private static TrustManager[] buildTrustManagers(final KeyStore trustStore) throws IOException {
+        TrustManager[] trustManagers = null;
+        try {
+            TrustManagerFactory trustManagerFactory = TrustManagerFactory
+                .getInstance(KeyManagerFactory.getDefaultAlgorithm());
+            trustManagerFactory.init(trustStore);
+            trustManagers = trustManagerFactory.getTrustManagers();
+        }
+        catch (NoSuchAlgorithmException | KeyStoreException exc) {
+            throw new IOException("Unable to initialise TrustManager[]", exc);
+        }
+        return trustManagers;
+    }
+	private static KeyManager[] buildKeyManagers(final KeyStore keyStore, char[] storePassword) throws IOException {
+	    KeyManager[] keyManagers;
+	    try {
+	        KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory
+	            .getDefaultAlgorithm());
+	        keyManagerFactory.init(keyStore, storePassword);
+	        keyManagers = keyManagerFactory.getKeyManagers();
+	    }
+	    catch (NoSuchAlgorithmException | UnrecoverableKeyException | KeyStoreException exc) {
+	        throw new IOException("Unable to initialise KeyManager[]", exc);
+	    }
+	    return keyManagers;
 	}
 }

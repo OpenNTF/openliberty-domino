@@ -4,6 +4,8 @@ import org.openntf.openliberty.domino.util.DominoThreadFactory;
 import org.openntf.openliberty.domino.util.OpenLibertyUtil;
 
 import java.text.MessageFormat;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.openntf.openliberty.domino.ext.RuntimeService;
 import org.openntf.openliberty.domino.log.OpenLibertyLog;
@@ -12,6 +14,8 @@ import org.openntf.openliberty.domino.reverseproxy.ext.ReverseProxyConfigProvide
 import org.openntf.openliberty.domino.reverseproxy.undertow.UndertowReverseProxy;
 
 public class ReverseProxyService implements RuntimeService {
+	private static final Logger log = OpenLibertyLog.getLog();
+	
 	@Override
 	public void run() {
 		try {
@@ -19,23 +23,28 @@ public class ReverseProxyService implements RuntimeService {
 				.map(provider -> provider.createConfiguration(this))
 				.orElseThrow(() -> new IllegalStateException(MessageFormat.format("Unable to find provider for {0}", ReverseProxyConfigProvider.class.getName())));
 			
-			if(!config.isEnabled()) {
-				OpenLibertyLog.instance.out.println("Reverse proxy disabled - skipping");
+			if(!config.enabled) {
+				if(log.isLoggable(Level.INFO)) {
+					OpenLibertyLog.instance.out.println("Reverse proxy disabled");
+				}
 				return;
 			}
 			
 			UndertowReverseProxy proxy = new UndertowReverseProxy();
-			proxy.setPrintStream(OpenLibertyLog.instance.out);
+			proxy.setLogger(log);
 			
-			proxy.setProxyHostName(config.getProxyHostName());
-			proxy.setProxyPort(config.getProxyHttpPort());
+			proxy.setProxyHostName(config.proxyHostName);
+			proxy.setProxyHttpPort(config.proxyHttpPort);
+			proxy.setProxyHttpsPort(config.proxyHttpsPort);
+			proxy.setProxyHttpsContext(config.proxyHttpsContext);
+			proxy.setMaxEntitySize(config.maxEntitySize);
 			
-			proxy.setDominoHostName(config.getDominoHostName());
-			proxy.setDominoHttpPort(config.getDominoHttpPort());
-			proxy.setDominoHttps(config.isDominoHttps());
-			if(config.isUseDominoConnectorHeaders()) {
+			proxy.setDominoHostName(config.dominoHostName);
+			proxy.setDominoHttpPort(config.dominoHttpPort);
+			proxy.setDominoHttps(config.dominoHttps);
+			if(config.useDominoConnectorHeaders) {
 				proxy.setUseDominoConnectorHeaders(true);
-				proxy.setDominoConnectorHeadersSecret(config.getDominoConnectorHeadersSecret());
+				proxy.setDominoConnectorHeadersSecret(config.dominoConnectorHeadersSecret);
 			}
 			proxy.setTargets(config.getTargets());
 			

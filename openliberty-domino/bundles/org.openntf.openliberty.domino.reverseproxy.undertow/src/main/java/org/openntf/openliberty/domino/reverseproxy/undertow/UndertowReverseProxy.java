@@ -1,12 +1,16 @@
 package org.openntf.openliberty.domino.reverseproxy.undertow;
 
-import java.io.PrintStream;
 import java.net.URI;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.net.ssl.SSLContext;
 
 import io.undertow.Undertow;
+import io.undertow.UndertowOptions;
 import io.undertow.attribute.ExchangeAttribute;
 import io.undertow.attribute.ReadOnlyAttributeException;
 import io.undertow.server.HttpServerExchange;
@@ -16,10 +20,13 @@ import io.undertow.server.handlers.proxy.ProxyHandler;
 import io.undertow.util.HttpString;
 
 public class UndertowReverseProxy implements Runnable {
-	private PrintStream out = System.out;
+	private Logger log = Logger.getGlobal();
 	
 	private String proxyHostName = "0.0.0.0";
-	private int proxyPort = 8080;
+	private int proxyHttpPort = -1;
+	private int proxyHttpsPort = -1;
+	private SSLContext proxyHttpsContext;
+	private long maxEntitySize = 10000;
 	
 	private int dominoHttpPort = 80;
 	private String dominoHostName = "localhost";
@@ -29,18 +36,29 @@ public class UndertowReverseProxy implements Runnable {
 
 	private Map<String, URI> targets = new HashMap<>();
 	
+	private Undertow server;
+	
 	public UndertowReverseProxy() {
 	}
 	
-	public void setPrintStream(PrintStream out) {
-		this.out = out;
+	public void setLogger(Logger log) {
+		this.log = log;
 	}
 	
 	public void setProxyHostName(String proxyHostName) {
 		this.proxyHostName = proxyHostName;
 	}
-	public void setProxyPort(int proxyPort) {
-		this.proxyPort = proxyPort;
+	public void setProxyHttpPort(int proxyHttpPort) {
+		this.proxyHttpPort = proxyHttpPort;
+	}
+	public void setProxyHttpsPort(int proxyHttpsPort) {
+		this.proxyHttpsPort = proxyHttpsPort;
+	}
+	public void setProxyHttpsContext(SSLContext proxyHttpsContext) {
+		this.proxyHttpsContext = proxyHttpsContext;
+	}
+	public void setMaxEntitySize(long maxEntitySize) {
+		this.maxEntitySize = maxEntitySize;
 	}
 	
 	public void setDominoHostName(String dominoHostName) {
@@ -65,47 +83,71 @@ public class UndertowReverseProxy implements Runnable {
 	@Override
 	public void run() {
 		try {
-			PathHandler pathHandler = new PathHandler();
-			
-			// Add handlers for each target
-			Map<String, URI> targets = this.targets;
-			if(targets != null) {
-				for(Map.Entry<String, URI> target : targets.entrySet()) {
-					String contextRoot = "/" + target.getKey();
-					URI targetUri = target.getValue();
-					
-					LoadBalancingProxyClient appProxy = new LoadBalancingProxyClient().addHost(targetUri);
-					ProxyHandler.Builder proxyHandler = ProxyHandler.builder().setProxyClient(appProxy);
-					
-					System.out.println("adding prefix path for " + contextRoot);
-					pathHandler.addPrefixPath(contextRoot, proxyHandler.build());
-				}
-			}
-			
-			// Construct the Domino proxy
-			{
-				String dominoUri = MessageFormat.format("http{0}://{1}:{2}", dominoHttps ? "s" : "", dominoHostName, Integer.toString(dominoHttpPort));
-				LoadBalancingProxyClient dominoProxy = new LoadBalancingProxyClient().addHost(URI.create(dominoUri));
-				
-				ProxyHandler.Builder proxyHandler = ProxyHandler.builder()
-	            		.setProxyClient(dominoProxy);
-				if(useDominoConnectorHeaders) {
-					proxyHandler.addRequestHeader(HttpString.tryFromString("X-ConnectorHeaders-Secret"), new StringAttribute(dominoConnectorHeadersSecret));
-				}
-				pathHandler.addPrefixPath("/", proxyHandler.build());
-			}
-
-			out.println("hello there, friend - ask me for " + proxyPort);
-			Undertow server = Undertow.builder()
-	            .addHttpListener(proxyPort, proxyHostName)
-	            .setHandler(pathHandler)
-	            .build();
-	        server.start();
+			this.server = startServer();
 		} catch(Throwable t) {
 			t.printStackTrace();
 		}
 	}
 
+	public void stop() {
+		this.server.stop();
+	}
+	
+	private Undertow startServer() {
+		PathHandler pathHandler = new PathHandler();
+		
+		// Add handlers for each target
+		Map<String, URI> targets = this.targets;
+		if(targets != null) {
+			for(Map.Entry<String, URI> target : targets.entrySet()) {
+				String contextRoot = "/" + target.getKey();
+				URI targetUri = target.getValue();
+				
+				LoadBalancingProxyClient appProxy = new LoadBalancingProxyClient().addHost(targetUri);
+				ProxyHandler.Builder proxyHandler = ProxyHandler.builder().setProxyClient(appProxy);
+				
+				if(log.isLoggable(Level.FINE)) {
+					log.fine("Reverse proxy: adding prefix path for " + contextRoot);
+				}
+				pathHandler.addPrefixPath(contextRoot, proxyHandler.build());
+			}
+		}
+		
+		// Construct the Domino proxy
+		{
+			String dominoUri = MessageFormat.format("http{0}://{1}:{2}", dominoHttps ? "s" : "", dominoHostName, Integer.toString(dominoHttpPort));
+			LoadBalancingProxyClient dominoProxy = new LoadBalancingProxyClient().addHost(URI.create(dominoUri));
+			
+			ProxyHandler.Builder proxyHandler = ProxyHandler.builder()
+            		.setProxyClient(dominoProxy);
+			if(useDominoConnectorHeaders) {
+				proxyHandler.addRequestHeader(HttpString.tryFromString("X-ConnectorHeaders-Secret"), new StringAttribute(dominoConnectorHeadersSecret));
+			}
+			pathHandler.addPrefixPath("/", proxyHandler.build());
+		}
+
+		Undertow.Builder serverBuilder = Undertow.builder()
+			.setHandler(pathHandler)
+			.setServerOption(UndertowOptions.ENABLE_HTTP2, true)
+			.setServerOption(UndertowOptions.HTTP2_SETTINGS_ENABLE_PUSH, true)
+			.setServerOption(UndertowOptions.MAX_ENTITY_SIZE, maxEntitySize)
+			// Obligatory for XPages minifiers
+			.setServerOption(UndertowOptions.ALLOW_ENCODED_SLASH, true);
+		if(proxyHttpPort != -1) {
+			serverBuilder.addHttpListener(proxyHttpPort, proxyHostName);
+		}
+		if(proxyHttpsPort != -1) {
+			serverBuilder.addHttpsListener(proxyHttpsPort, proxyHostName, proxyHttpsContext);
+		}
+		Undertow server = serverBuilder.build();
+		server.start();
+
+		if(log.isLoggable(Level.INFO)) {
+			log.info(MessageFormat.format("Reverse proxy listening on {0}:{1}", proxyHostName, Integer.toString(proxyHttpPort)));
+		}
+		
+		return server;
+	}
 	
 	private static class StringAttribute implements ExchangeAttribute {
 		private final String value;
