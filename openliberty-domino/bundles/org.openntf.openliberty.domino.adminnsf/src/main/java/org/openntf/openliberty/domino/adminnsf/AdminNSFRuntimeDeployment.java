@@ -19,14 +19,12 @@ import static java.text.MessageFormat.format;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.nio.file.StandardOpenOption;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
@@ -37,7 +35,6 @@ import org.openntf.openliberty.domino.adminnsf.util.AdminNSFUtil;
 import org.openntf.openliberty.domino.log.OpenLibertyLog;
 import org.openntf.openliberty.domino.runtime.RuntimeDeploymentTask;
 import org.openntf.openliberty.domino.util.OpenLibertyUtil;
-import org.openntf.openliberty.domino.util.commons.ibm.StreamUtil;
 import org.openntf.openliberty.domino.util.commons.ibm.StringUtil;
 
 import lotus.domino.Database;
@@ -106,12 +103,10 @@ public class AdminNSFRuntimeDeployment implements RuntimeDeploymentTask {
 						if(log.isLoggable(Level.INFO)) {
 							log.info(format(Messages.getString("AdminNSFRuntimeDeployment.storingRuntimeAt"), wlpPackage)); //$NON-NLS-1$
 						}
-						try(OutputStream os = Files.newOutputStream(wlpPackage, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE)) {
-							OpenLibertyUtil.download(url, is -> {
-								StreamUtil.copyStream(is, os);
-								return null;
-							});
-						}
+						OpenLibertyUtil.download(url, is -> {
+							Files.copy(is, wlpPackage, StandardCopyOption.REPLACE_EXISTING);
+							return null;
+						});
 					}
 						
 					// Now extract the ZIP
@@ -135,9 +130,7 @@ public class AdminNSFRuntimeDeployment implements RuntimeDeploymentTask {
 									if(entry.isDirectory()) {
 										Files.createDirectories(path);
 									} else {
-										try(OutputStream os = Files.newOutputStream(path, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
-											StreamUtil.copyStream(zis, os);
-										}
+										Files.copy(zis, path, StandardCopyOption.REPLACE_EXISTING);
 									}
 								}
 								

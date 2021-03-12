@@ -15,15 +15,16 @@
  */
 package org.openntf.openliberty.domino.adminnsf;
 
+import static java.text.MessageFormat.format;
+
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.Reader;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.PosixFilePermission;
 import java.util.Collection;
 import java.util.EnumSet;
@@ -37,8 +38,6 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import org.openntf.openliberty.domino.util.commons.apache.tar.TarArchiveEntry;
-import org.openntf.openliberty.domino.util.commons.apache.tar.TarArchiveInputStream;
 import org.openntf.openliberty.domino.adminnsf.util.AdminNSFUtil;
 import org.openntf.openliberty.domino.adminnsf.util.json.parser.JSONParser;
 import org.openntf.openliberty.domino.adminnsf.util.json.parser.ParseException;
@@ -46,15 +45,14 @@ import org.openntf.openliberty.domino.log.OpenLibertyLog;
 import org.openntf.openliberty.domino.runtime.JavaRuntimeProvider;
 import org.openntf.openliberty.domino.util.DominoThreadFactory;
 import org.openntf.openliberty.domino.util.OpenLibertyUtil;
-import org.openntf.openliberty.domino.util.commons.ibm.StreamUtil;
+import org.openntf.openliberty.domino.util.commons.apache.tar.TarArchiveEntry;
+import org.openntf.openliberty.domino.util.commons.apache.tar.TarArchiveInputStream;
 import org.openntf.openliberty.domino.util.commons.ibm.StringUtil;
 
 import lotus.domino.Database;
 import lotus.domino.Document;
 import lotus.domino.NotesFactory;
 import lotus.domino.Session;
-
-import static java.text.MessageFormat.format;
 
 /**
  * Implementation of {@link JavaRuntimeProvider} that reads a Java version from the
@@ -244,9 +242,7 @@ public class AdminNSFJavaRuntimeProvider implements JavaRuntimeProvider {
 					if(entry.isDirectory()) {
 						Files.createDirectories(path);
 					} else {
-						try(OutputStream os = Files.newOutputStream(path, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
-							StreamUtil.copyStream(zis, os);
-						}
+						Files.copy(zis, path, StandardCopyOption.REPLACE_EXISTING);
 					}
 				}
 			}
@@ -277,9 +273,7 @@ public class AdminNSFJavaRuntimeProvider implements JavaRuntimeProvider {
 					if(entry.isDirectory()) {
 						Files.createDirectories(path);
 					} else {
-						try(OutputStream os = Files.newOutputStream(path, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
-							StreamUtil.copyStream(tis, os);
-						}
+						Files.copy(tis, path, StandardCopyOption.REPLACE_EXISTING);
 					}
 				}
 			}

@@ -29,6 +29,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
@@ -356,9 +357,7 @@ public enum OpenLibertyRuntime implements Runnable {
 						if(entry.isDirectory()) {
 							Files.createDirectories(outputPath);
 						} else {
-							try(OutputStream os = Files.newOutputStream(outputPath, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
-								StreamUtil.copyStream(zis, os);
-							}
+							Files.copy(zis, outputPath, StandardCopyOption.REPLACE_EXISTING);
 						}
 					}
 					
@@ -520,9 +519,7 @@ public enum OpenLibertyRuntime implements Runnable {
 							// Deploy .jar entries to the lib folder
 							if(entryName.toLowerCase().endsWith(".jar") && !entryName.contains("/")) { //$NON-NLS-1$ //$NON-NLS-2$
 								Path dest = lib.resolve(entryName);
-								try(OutputStream os = Files.newOutputStream(dest, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
-									StreamUtil.copyStream(zis, os);
-								}
+								Files.copy(zis, dest, StandardCopyOption.REPLACE_EXISTING);
 							}
 							
 							// Look for SUBSYSTEM.MF, parse its info, and deploy to the features directory
