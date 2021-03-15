@@ -34,6 +34,8 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.openntf.openliberty.domino.adminnsf.util.AdminNSFUtil;
 import org.openntf.openliberty.domino.ext.ExtensionDeployer;
+import org.openntf.openliberty.domino.jvm.JVMIdentifier;
+import org.openntf.openliberty.domino.jvm.RunningJVMJavaRuntimeProvider;
 import org.openntf.openliberty.domino.log.OpenLibertyLog;
 import org.openntf.openliberty.domino.runtime.LibertyServerConfiguration;
 import org.openntf.openliberty.domino.runtime.OpenLibertyRuntime;
@@ -84,6 +86,11 @@ public class AdminNSFService implements Runnable {
 	public static final String ITEM_DOMINOSERVERS = "DominoServers"; //$NON-NLS-1$
 	/** @since 2.0.0 */
 	public static final String ITEM_INTEGRATIONFEATURES = "IntegrationFeatures"; //$NON-NLS-1$
+	
+	/** @since 3.0.0 */
+	public static final String ITEM_JAVAVERSION = "JavaVersion";
+	/** @since 3.0.0 */
+	public static final String ITEM_JAVATYPE = "JavaJVM";
 	
 	private long lastRun = -1;
 	
@@ -183,6 +190,14 @@ public class AdminNSFService implements Runnable {
 					}
 
 					LibertyServerConfiguration config = new LibertyServerConfiguration();
+					
+					String javaVersion = serverDoc.getItemValueString(ITEM_JAVAVERSION);
+					String javaType = serverDoc.getItemValueString(ITEM_JAVATYPE);
+					if(StringUtil.isEmpty(javaType)) {
+						javaType = RunningJVMJavaRuntimeProvider.TYPE_RUNNINGJVM;
+					}
+					config.setJavaVersion(new JVMIdentifier(javaVersion, javaType));
+					
 					config.setServerXml(generateServerXml(serverDoc));
 					config.setServerEnv(serverDoc.getItemValueString(ITEM_SERVERENV));
 					config.setJvmOptions(serverDoc.getItemValueString(ITEM_JVMOPTIONS));

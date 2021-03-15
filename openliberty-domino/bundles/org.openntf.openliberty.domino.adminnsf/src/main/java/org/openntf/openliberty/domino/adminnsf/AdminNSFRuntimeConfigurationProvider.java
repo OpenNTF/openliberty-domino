@@ -7,6 +7,7 @@ import org.openntf.openliberty.domino.adminnsf.config.AdminNSFProperties;
 import org.openntf.openliberty.domino.adminnsf.util.AdminNSFUtil;
 import org.openntf.openliberty.domino.config.RuntimeConfigurationProvider;
 import org.openntf.openliberty.domino.jvm.AdoptOpenJDKJavaRuntimeProvider;
+import org.openntf.openliberty.domino.jvm.JVMIdentifier;
 import org.openntf.openliberty.domino.jvm.RunningJVMJavaRuntimeProvider;
 import org.openntf.openliberty.domino.util.DominoThreadFactory;
 import org.openntf.openliberty.domino.util.OpenLibertyUtil;
@@ -31,8 +32,7 @@ public class AdminNSFRuntimeConfigurationProvider implements RuntimeConfiguratio
 	private String artifact;
 	private String version;
 	private String mavenRepo;
-	private String javaVersion;
-	private String javaType;
+	private JVMIdentifier javaVersion;
 
 	@Override
 	public Path getBaseDirectory() {
@@ -67,19 +67,11 @@ public class AdminNSFRuntimeConfigurationProvider implements RuntimeConfiguratio
 	}
 	
 	@Override
-	public String getJavaVersion() {
+	public JVMIdentifier getJavaVersion() {
 		if(this.baseDirectory == null) {
 			loadData();
 		}
 		return this.javaVersion;
-	}
-	
-	@Override
-	public String getJavaType() {
-		if(this.baseDirectory == null) {
-			loadData();
-		}
-		return this.javaType;
 	}
 
 	private synchronized void loadData() {
@@ -116,18 +108,20 @@ public class AdminNSFRuntimeConfigurationProvider implements RuntimeConfiguratio
 					}
 					this.artifact = artifact;
 					
-					this.javaVersion = config.getItemValueString(ITEM_JAVAVERSION);
-					if("Domino".equals(this.javaVersion)) {
-						this.javaType = RunningJVMJavaRuntimeProvider.TYPE_RUNNINGJVM;
+					String javaVersion = config.getItemValueString(ITEM_JAVAVERSION);
+					String javaType;
+					if("Domino".equals(javaVersion)) {
+						javaType = RunningJVMJavaRuntimeProvider.TYPE_RUNNINGJVM;
 					} else {
-						if(StringUtil.isEmpty(this.javaVersion)) {
-							this.javaVersion = "11";
+						if(StringUtil.isEmpty(javaVersion)) {
+							javaVersion = "11";
 						}
-						this.javaType = config.getItemValueString(ITEM_JAVAJVM);
-						if(StringUtil.isEmpty(this.javaType)) {
-							this.javaType = AdoptOpenJDKJavaRuntimeProvider.TYPE_HOTSPOT;
+						javaType = config.getItemValueString(ITEM_JAVAJVM);
+						if(StringUtil.isEmpty(javaType)) {
+							javaType = AdoptOpenJDKJavaRuntimeProvider.TYPE_HOTSPOT;
 						}
 					}
+					this.javaVersion = new JVMIdentifier(javaVersion, javaType);
 				} finally {
 					session.recycle();
 				}

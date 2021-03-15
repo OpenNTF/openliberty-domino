@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 
+import org.openntf.openliberty.domino.jvm.JVMIdentifier;
 import org.openntf.openliberty.domino.util.xml.XMLDocument;
 
 /**
@@ -14,11 +15,20 @@ import org.openntf.openliberty.domino.util.xml.XMLDocument;
  * @since 3.0.0
  */
 public class LibertyServerConfiguration {
+	private JVMIdentifier javaVersion;
+	
 	private XMLDocument serverXml;
 	private String serverEnv;
 	private String jvmOptions;
 	private String bootstrapProperties;
 	private Collection<Path> additionalZips = new HashSet<>();
+	
+	public JVMIdentifier getJavaVersion() {
+		return javaVersion;
+	}
+	public void setJavaVersion(JVMIdentifier javaVersion) {
+		this.javaVersion = javaVersion;
+	}
 	
 	public XMLDocument getServerXml() {
 		return serverXml;

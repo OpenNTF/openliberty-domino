@@ -49,14 +49,15 @@ public class AdoptOpenJDKJavaRuntimeProvider implements JavaRuntimeProvider {
 	public static final String TYPE_OPENJ9 = "OpenJ9";
 	
 	@Override
-	public boolean canProvide(String version, String type) {
-		return TYPE_HOTSPOT.equals(type) || TYPE_OPENJ9.equals(type);
+	public boolean canProvide(JVMIdentifier identifier) {
+		return TYPE_HOTSPOT.equals(identifier.getType()) || TYPE_OPENJ9.equals(identifier.getType());
 	}
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public Path getJavaHome(String version, String type) {
-		String javaJvm = type;
+	public Path getJavaHome(JVMIdentifier identifier) {
+		String version = identifier.getVersion();
+		String javaJvm = identifier.getType();
 		if(StringUtil.isEmpty(javaJvm)) {
 			javaJvm = "HotSpot"; //$NON-NLS-1$
 		}

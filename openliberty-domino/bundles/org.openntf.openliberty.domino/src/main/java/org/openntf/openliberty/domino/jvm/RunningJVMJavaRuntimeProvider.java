@@ -16,12 +16,12 @@ public class RunningJVMJavaRuntimeProvider implements JavaRuntimeProvider {
 	public static final String TYPE_RUNNINGJVM = "RunningJVM";
 
 	@Override
-	public boolean canProvide(String version, String type) {
-		return TYPE_RUNNINGJVM.equals(type);
+	public boolean canProvide(JVMIdentifier identifier) {
+		return TYPE_RUNNINGJVM.equals(identifier.getType());
 	}
 
 	@Override
-	public Path getJavaHome(String version, String type) {
+	public Path getJavaHome(JVMIdentifier identifier) {
 		String javaHome = System.getProperty("java.home");
 		if(StringUtil.isEmpty(javaHome)) {
 			throw new IllegalStateException("Unable to locate Java home from java.home property");

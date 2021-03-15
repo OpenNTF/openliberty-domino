@@ -31,21 +31,19 @@ public interface JavaRuntimeProvider {
 	 * Determines whether this instance can provide the given JVM type and version
 	 * to the runtime.
 	 * 
-	 * @param version the desired JVM version
-	 * @param type the desired implementation-specific JVM type
+	 * @param identifier the desired JVM version
 	 * @return {@code true} if this implementation can provide a Java home; {@code false} otherwise
 	 * @since 3.0.0
 	 */
-	boolean canProvide(String version, String type);
+	boolean canProvide(JVMIdentifier identifier);
 	
 	/**
 	 * Provides a {@link Path} to the Java home for the requested Java version and type.
 	 * 
-	 * @param version the desired JVM version
-	 * @param type the desired implementation-specific JVM type
+	 * @param identifier the desired JVM version
 	 * @return a {@link Path} to the requested runtime
 	 */
-	Path getJavaHome(String version, String type);
+	Path getJavaHome(JVMIdentifier identifier);
 	
 	/**
 	 * Determines the priority of this provider relative to other implementations that can also

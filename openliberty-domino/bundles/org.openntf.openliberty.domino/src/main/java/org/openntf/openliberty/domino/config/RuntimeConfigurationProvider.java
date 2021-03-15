@@ -2,7 +2,7 @@ package org.openntf.openliberty.domino.config;
 
 import java.nio.file.Path;
 
-import org.openntf.openliberty.domino.jvm.JavaRuntimeProvider;
+import org.openntf.openliberty.domino.jvm.JVMIdentifier;
 
 /**
  * This extension interface specifies a service that can provide global configuration
@@ -19,18 +19,9 @@ public interface RuntimeConfigurationProvider {
 	String getOpenLibertyMavenRepository();
 	
 	/**
-	 * Returns the configured Java version, generally in the form of
-	 * {@code "1.8"} or {@code "11"}.
+	 * Returns the configured Java version.
 	 * 
 	 * @return the desired Java version
 	 */
-	String getJavaVersion();
-	
-	/**
-	 * Returns the type of runtime, which will be interpreted by {@link JavaRuntimeProvider}
-	 * instances.
-	 * 
-	 * @return the type of runtime
-	 */
-	String getJavaType();
+	JVMIdentifier getJavaVersion();
 }

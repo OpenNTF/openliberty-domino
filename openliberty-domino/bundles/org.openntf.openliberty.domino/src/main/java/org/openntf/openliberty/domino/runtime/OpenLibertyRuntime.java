@@ -60,9 +60,9 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import org.openntf.openliberty.domino.config.RuntimeConfigurationProvider;
 import org.openntf.openliberty.domino.ext.ExtensionDeployer;
 import org.openntf.openliberty.domino.ext.RuntimeService;
+import org.openntf.openliberty.domino.jvm.JVMIdentifier;
 import org.openntf.openliberty.domino.jvm.JavaRuntimeProvider;
 import org.openntf.openliberty.domino.log.OpenLibertyLog;
 import org.openntf.openliberty.domino.util.DominoThreadFactory;
@@ -97,7 +97,12 @@ public enum OpenLibertyRuntime implements Runnable {
 	// Flag used by sendCommand to check whether the whole system is shutting down
 	private boolean terminating;
 	
-	private Path javaHome;
+	/**
+	 * Maps server names to Java home paths.
+	 * @since 3.0.0
+	 */
+	private Map<String, Path> javaHomes = new HashMap<>();
+	
 	private Path dominoProgramDirectory;
 	private Logger log;
 	
@@ -112,18 +117,6 @@ public enum OpenLibertyRuntime implements Runnable {
 			log.info(format(Messages.getString("OpenLibertyRuntime.0"))); //$NON-NLS-1$
 		}
 		
-		RuntimeConfigurationProvider config = OpenLibertyUtil.findRequiredExtension(RuntimeConfigurationProvider.class);
-		String javaVersion = config.getJavaVersion();
-		String javaType = config.getJavaType();
-		JavaRuntimeProvider javaRuntimeProvider = OpenLibertyUtil.findExtensions(JavaRuntimeProvider.class)
-			.filter(p -> p.canProvide(javaVersion, javaType))
-			.sorted(Comparator.comparing(JavaRuntimeProvider::getPriority).reversed())
-			.findFirst()
-			.orElseThrow(() -> new IllegalStateException(format(Messages.getString("OpenLibertyRuntime.unableToFindServiceProviding"), JavaRuntimeProvider.SERVICE_ID))); //$NON-NLS-1$
-		javaHome = javaRuntimeProvider.getJavaHome(javaVersion, javaType);
-		if(log.isLoggable(Level.INFO)) {
-			log.info(format(Messages.getString("OpenLibertyRuntime.usingJavaRuntimeAt"), javaHome)); //$NON-NLS-1$
-		}
 		dominoProgramDirectory = Paths.get(OpenLibertyUtil.getDominoProgramDirectory());
 		
 		Path wlp = null;
@@ -146,9 +139,9 @@ public enum OpenLibertyRuntime implements Runnable {
 					switch(command.type) {
 					case START: {
 						// Make sure the server exists
-						
-						sendCommand(wlp, "start", command.args); //$NON-NLS-1$
+
 						String serverName = (String)command.args[0];
+						sendCommand(wlp, javaHomes.get(serverName), "start", command.args); //$NON-NLS-1$
 						if(serverExists(wlp, serverName)) {
 							watchLog(wlp, serverName);
 							Path fwlp = wlp;
@@ -159,8 +152,8 @@ public enum OpenLibertyRuntime implements Runnable {
 						break;
 					}
 					case STOP: {
-						sendCommand(wlp, "stop", command.args); //$NON-NLS-1$
 						String serverName = (String)command.args[0];
+						sendCommand(wlp, javaHomes.get(serverName), "stop", command.args); //$NON-NLS-1$
 						stopWatchLogs(wlp, serverName);
 						if(serverExists(wlp, serverName)) {
 							Path fwlp = wlp;
@@ -179,8 +172,20 @@ public enum OpenLibertyRuntime implements Runnable {
 						String bootstrapProperties = serverConfig.getBootstrapProperties();
 						Collection<Path> additionalZips = serverConfig.getAdditionalZips();
 						
+						JVMIdentifier javaIdentifier = serverConfig.getJavaVersion();
+						JavaRuntimeProvider javaRuntimeProvider = OpenLibertyUtil.findExtensions(JavaRuntimeProvider.class)
+							.filter(p -> p.canProvide(javaIdentifier))
+							.sorted(Comparator.comparing(JavaRuntimeProvider::getPriority).reversed())
+							.findFirst()
+							.orElseThrow(() -> new IllegalStateException(format(Messages.getString("OpenLibertyRuntime.unableToFindJVMFor"), javaIdentifier))); //$NON-NLS-1$
+						Path javaHome = javaRuntimeProvider.getJavaHome(javaIdentifier);
+						if(log.isLoggable(Level.INFO)) {
+							log.info(format(Messages.getString("OpenLibertyRuntime.usingJavaRuntimeAt"), javaHome)); //$NON-NLS-1$
+						}
+						this.javaHomes.put(serverName, javaHome);
+						
 						if(!serverExists(wlp, serverName)) {
-							sendCommand(wlp, "create", serverName).waitFor(); //$NON-NLS-1$
+							sendCommand(wlp, javaHome, "create", serverName).waitFor(); //$NON-NLS-1$
 						}
 						if(StringUtil.isNotEmpty(serverXml)) {
 							deployServerXml(wlp, serverName, serverXml);
@@ -211,7 +216,7 @@ public enum OpenLibertyRuntime implements Runnable {
 					}
 					case STATUS: {
 						for(String serverName : startedServers) {
-							sendCommand(wlp, "status", serverName); //$NON-NLS-1$
+							sendCommand(wlp, this.javaHomes.get(serverName), "status", serverName); //$NON-NLS-1$
 						}
 						break;
 					}
@@ -234,7 +239,7 @@ public enum OpenLibertyRuntime implements Runnable {
 						if(log.isLoggable(Level.INFO)) {
 							log.info(format(Messages.getString("OpenLibertyRuntime.shuttingDownServer"), serverName)); //$NON-NLS-1$
 						}
-						sendCommand(wlp, "stop", serverName); //$NON-NLS-1$
+						sendCommand(wlp, this.javaHomes.get(serverName), "stop", serverName); //$NON-NLS-1$
 					} catch (IOException | NotesException e) {
 						// Nothing to do here
 					}
@@ -305,8 +310,7 @@ public enum OpenLibertyRuntime implements Runnable {
 	}
 	
 	private Path deployRuntime() throws IOException {
-		RuntimeDeploymentTask deploymentService = OpenLibertyUtil.findExtension(RuntimeDeploymentTask.class)
-			.orElseThrow(() -> new IllegalStateException(format(Messages.getString("OpenLibertyRuntime.unableToFindServiceProviding"), RuntimeDeploymentTask.SERVICE_ID))); //$NON-NLS-1$
+		RuntimeDeploymentTask deploymentService = OpenLibertyUtil.findRequiredExtension(RuntimeDeploymentTask.class);
 		return deploymentService.call();
 	}
 	
@@ -380,7 +384,7 @@ public enum OpenLibertyRuntime implements Runnable {
 		Files.deleteIfExists(zip);
 	}
 
-	private Process sendCommand(Path path, String command, Object... args) throws IOException, NotesException {
+	private Process sendCommand(Path path, Path javaHome, String command, Object... args) throws IOException, NotesException {
 		Path serverScript = path.resolve("bin").resolve(serverFile); //$NON-NLS-1$
 		
 		List<String> commands = new ArrayList<>();
