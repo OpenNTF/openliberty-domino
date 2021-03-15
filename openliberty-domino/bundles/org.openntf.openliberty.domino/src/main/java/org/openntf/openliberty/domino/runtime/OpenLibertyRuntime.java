@@ -39,6 +39,7 @@ import java.nio.file.attribute.PosixFilePermission;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumSet;
@@ -171,12 +172,12 @@ public enum OpenLibertyRuntime implements Runnable {
 					}
 					case CREATE_SERVER: {
 						String serverName = (String)command.args[0];
-						String serverXml = (String)command.args[1];
-						String serverEnv = (String)command.args[2];
-						String jvmOptions = (String)command.args[3];
-						String bootstrapProperties = (String)command.args[4];
-						@SuppressWarnings("unchecked")
-						List<Path> additionalZips = (List<Path>)command.args[5];
+						LibertyServerConfiguration serverConfig = (LibertyServerConfiguration)command.args[1];
+						String serverXml = serverConfig.getServerXml().getXml();
+						String serverEnv = serverConfig.getServerEnv();
+						String jvmOptions = serverConfig.getJvmOptions();
+						String bootstrapProperties = serverConfig.getBootstrapProperties();
+						Collection<Path> additionalZips = serverConfig.getAdditionalZips();
 						
 						if(!serverExists(wlp, serverName)) {
 							sendCommand(wlp, "create", serverName).waitFor(); //$NON-NLS-1$
@@ -265,8 +266,8 @@ public enum OpenLibertyRuntime implements Runnable {
 		startedServers.remove(serverName);
 	}
 	
-	public void createServer(String serverName, String serverXml, String serverEnv, String jvmOptions, String bootstrapProperties, List<Path> additionalZips) {
-		taskQueue.add(new RuntimeTask(RuntimeTask.Type.CREATE_SERVER, serverName, serverXml, serverEnv, jvmOptions, bootstrapProperties, additionalZips));
+	public void createServer(String serverName, LibertyServerConfiguration config) {
+		taskQueue.add(new RuntimeTask(RuntimeTask.Type.CREATE_SERVER, serverName, config));
 	}
 	
 	public void deployServerXml(String serverName, String serverXml) {

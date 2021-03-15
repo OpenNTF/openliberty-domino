@@ -23,7 +23,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.AccessController;
 import java.security.PrivilegedExceptionAction;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.TreeSet;
@@ -36,6 +35,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.openntf.openliberty.domino.adminnsf.util.AdminNSFUtil;
 import org.openntf.openliberty.domino.ext.ExtensionDeployer;
 import org.openntf.openliberty.domino.log.OpenLibertyLog;
+import org.openntf.openliberty.domino.runtime.LibertyServerConfiguration;
 import org.openntf.openliberty.domino.runtime.OpenLibertyRuntime;
 import org.openntf.openliberty.domino.util.OpenLibertyUtil;
 import org.openntf.openliberty.domino.util.commons.ibm.StringUtil;
@@ -181,11 +181,12 @@ public class AdminNSFService implements Runnable {
 					if(log.isLoggable(Level.INFO)) {
 						log.info(format(Messages.getString("AdminNSFService.deployingDefinedServer"), getClass().getSimpleName(), serverName)); //$NON-NLS-1$
 					}
-					serverXml = generateServerXml(serverDoc);
-					String serverEnv = serverDoc.getItemValueString(ITEM_SERVERENV);
-					String jvmOptions = serverDoc.getItemValueString(ITEM_JVMOPTIONS);
-					String bootstrapProperties = serverDoc.getItemValueString(ITEM_BOOTSTRAPPROPS);
-					List<Path> additionalZips = new ArrayList<>();
+
+					LibertyServerConfiguration config = new LibertyServerConfiguration();
+					config.setServerXml(generateServerXml(serverDoc));
+					config.setServerEnv(serverDoc.getItemValueString(ITEM_SERVERENV));
+					config.setJvmOptions(serverDoc.getItemValueString(ITEM_JVMOPTIONS));
+					config.setBootstrapProperties(serverDoc.getItemValueString(ITEM_BOOTSTRAPPROPS));
 					if(serverDoc.hasItem(ITEM_DEPLOYMENTZIPS)) {
 						RichTextItem deploymentItem = (RichTextItem)serverDoc.getFirstItem(ITEM_DEPLOYMENTZIPS);
 						@SuppressWarnings("unchecked")
@@ -195,12 +196,13 @@ public class AdminNSFService implements Runnable {
 								Path zip = Files.createTempFile(TEMP_DIR, "nsfdeployment", ".zip"); //$NON-NLS-1$ //$NON-NLS-2$
 								Files.deleteIfExists(zip);
 								eo.extractFile(zip.toString());
-								additionalZips.add(zip);
+								config.addAdditionalZip(zip);
 							}
 						}
 					}
 					
-					OpenLibertyRuntime.instance.createServer(serverName, serverXml.getXml(), serverEnv, jvmOptions, bootstrapProperties, additionalZips);
+					
+					OpenLibertyRuntime.instance.createServer(serverName, config);
 					OpenLibertyRuntime.instance.startServer(serverName);
 				} else {
 					if(log.isLoggable(Level.FINER)) {
