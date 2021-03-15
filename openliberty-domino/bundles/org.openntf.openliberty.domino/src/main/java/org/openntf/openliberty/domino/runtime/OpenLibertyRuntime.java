@@ -40,6 +40,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -54,11 +55,14 @@ import java.util.concurrent.TimeUnit;
 import java.util.jar.Manifest;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import org.openntf.openliberty.domino.config.RuntimeConfigurationProvider;
 import org.openntf.openliberty.domino.ext.ExtensionDeployer;
 import org.openntf.openliberty.domino.ext.RuntimeService;
+import org.openntf.openliberty.domino.jvm.JavaRuntimeProvider;
 import org.openntf.openliberty.domino.log.OpenLibertyLog;
 import org.openntf.openliberty.domino.util.DominoThreadFactory;
 import org.openntf.openliberty.domino.util.OpenLibertyUtil;
@@ -85,7 +89,7 @@ public enum OpenLibertyRuntime implements Runnable {
 	}
 	
 	private final BlockingQueue<RuntimeTask> taskQueue = new LinkedBlockingDeque<RuntimeTask>();
-	private final List<RuntimeService> runtimeServices = OpenLibertyUtil.findExtensions(RuntimeService.class);
+	private final List<RuntimeService> runtimeServices = OpenLibertyUtil.findExtensions(RuntimeService.class).collect(Collectors.toList());
 	
 	private Set<String> startedServers = Collections.synchronizedSet(new HashSet<>());
 	private Set<Process> subprocesses = Collections.synchronizedSet(new HashSet<>());
@@ -93,7 +97,7 @@ public enum OpenLibertyRuntime implements Runnable {
 	private boolean terminating;
 	
 	private Path javaHome;
-	private Path execDirectory;
+	private Path dominoProgramDirectory;
 	private Logger log;
 	
 	private final Map<Path, Future<?>> watcherThreads = new HashMap<>();
@@ -107,13 +111,19 @@ public enum OpenLibertyRuntime implements Runnable {
 			log.info(format(Messages.getString("OpenLibertyRuntime.0"))); //$NON-NLS-1$
 		}
 		
-		JavaRuntimeProvider javaRuntimeProvider = OpenLibertyUtil.findExtension(JavaRuntimeProvider.class)
+		RuntimeConfigurationProvider config = OpenLibertyUtil.findRequiredExtension(RuntimeConfigurationProvider.class);
+		String javaVersion = config.getJavaVersion();
+		String javaType = config.getJavaType();
+		JavaRuntimeProvider javaRuntimeProvider = OpenLibertyUtil.findExtensions(JavaRuntimeProvider.class)
+			.filter(p -> p.canProvide(javaVersion, javaType))
+			.sorted(Comparator.comparing(JavaRuntimeProvider::getPriority).reversed())
+			.findFirst()
 			.orElseThrow(() -> new IllegalStateException(format(Messages.getString("OpenLibertyRuntime.unableToFindServiceProviding"), JavaRuntimeProvider.SERVICE_ID))); //$NON-NLS-1$
-		javaHome = javaRuntimeProvider.getJavaHome();
+		javaHome = javaRuntimeProvider.getJavaHome(javaVersion, javaType);
 		if(log.isLoggable(Level.INFO)) {
 			log.info(format(Messages.getString("OpenLibertyRuntime.usingJavaRuntimeAt"), javaHome)); //$NON-NLS-1$
 		}
-		execDirectory = Paths.get(OpenLibertyUtil.getDominoProgramDirectory());
+		dominoProgramDirectory = Paths.get(OpenLibertyUtil.getDominoProgramDirectory());
 		
 		Path wlp = null;
 		try {
@@ -385,7 +395,7 @@ public enum OpenLibertyRuntime implements Runnable {
 		env.put("JAVA_HOME", javaHome.toString()); //$NON-NLS-1$
 		
 		String sysPath = System.getenv("PATH"); //$NON-NLS-1$
-		sysPath += File.pathSeparator + execDirectory;
+		sysPath += File.pathSeparator + dominoProgramDirectory;
 		env.put("PATH", sysPath); //$NON-NLS-1$
 		
 		env.put("Domino_HTTP", getServerBase()); //$NON-NLS-1$
@@ -507,7 +517,7 @@ public enum OpenLibertyRuntime implements Runnable {
 		Path features = lib.resolve("features"); //$NON-NLS-1$
 		Files.createDirectories(features);
 		
-		List<ExtensionDeployer> extensions = OpenLibertyUtil.findExtensions(ExtensionDeployer.class);
+		List<ExtensionDeployer> extensions = OpenLibertyUtil.findExtensions(ExtensionDeployer.class).collect(Collectors.toList());
 		if(extensions != null) {
 			for(ExtensionDeployer ext : extensions) {
 				try(InputStream is = ext.getEsaData()) {

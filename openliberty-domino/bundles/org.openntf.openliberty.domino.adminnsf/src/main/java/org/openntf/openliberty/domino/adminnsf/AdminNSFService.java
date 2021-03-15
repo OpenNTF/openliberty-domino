@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -290,7 +291,7 @@ public class AdminNSFService implements Runnable {
 		integrationFeatures.remove(null);
 		integrationFeatures.remove(""); //$NON-NLS-1$
 		if(!integrationFeatures.isEmpty()) {
-			List<ExtensionDeployer> extensions = OpenLibertyUtil.findExtensions(ExtensionDeployer.class);
+			List<ExtensionDeployer> extensions = OpenLibertyUtil.findExtensions(ExtensionDeployer.class).collect(Collectors.toList());
 			XMLNode featuresElement = serverXml.selectSingleNode("/server/featureManager"); //$NON-NLS-1$
 			if(featuresElement == null) {
 				featuresElement = serverXml.getDocumentElement().addChildElement("featureManager"); //$NON-NLS-1$

@@ -173,7 +173,7 @@
 						<exclude>**/odp/AppProperties/database.properties</exclude>
 						<exclude>**/OSGI-INF/org.openntf.openliberty.wlp.*.xml</exclude>
 						<exclude>**/org/openntf/openliberty/domino/util/commons/**</exclude>
-						<exclude>**/org/openntf/openliberty/domino/adminnsf/util/json/**</exclude>
+						<exclude>**/org/openntf/openliberty/domino/util/json/**</exclude>
 					</excludes>
 					<properties>
 						<owner>Jesse Gallagher</owner>

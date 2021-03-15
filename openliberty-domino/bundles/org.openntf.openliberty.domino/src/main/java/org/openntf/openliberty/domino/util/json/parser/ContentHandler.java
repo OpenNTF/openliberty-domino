@@ -1,4 +1,4 @@
-package org.openntf.openliberty.domino.adminnsf.util.json.parser;
+package org.openntf.openliberty.domino.util.json.parser;
 
 import java.io.IOException;
 

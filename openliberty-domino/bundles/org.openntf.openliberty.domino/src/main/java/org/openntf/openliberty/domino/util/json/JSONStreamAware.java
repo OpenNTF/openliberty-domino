@@ -1,4 +1,4 @@
-package org.openntf.openliberty.domino.adminnsf.util.json;
+package org.openntf.openliberty.domino.util.json;
 
 import java.io.IOException;
 import java.io.Writer;

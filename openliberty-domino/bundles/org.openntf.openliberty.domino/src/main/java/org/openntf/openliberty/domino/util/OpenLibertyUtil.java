@@ -25,12 +25,10 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import org.openntf.openliberty.domino.runtime.Messages;
@@ -136,11 +134,11 @@ public enum OpenLibertyUtil {
 	 * 
 	 * @param <T> the service type to load
 	 * @param extensionClass a {@link Class} object representing {@code <T>}
-	 * @return a {@link List} of extension implementations
+	 * @return a {@link Stream} of extension implementations
 	 * @since 2.0.0
 	 */
-	public static <T> List<T> findExtensions(Class<T> extensionClass) {
-		return StreamSupport.stream(ServiceLoader.load(extensionClass, extensionClass.getClassLoader()).spliterator(), false).collect(Collectors.toList());
+	public static <T> Stream<T> findExtensions(Class<T> extensionClass) {
+		return StreamSupport.stream(ServiceLoader.load(extensionClass, extensionClass.getClassLoader()).spliterator(), false);
 	}
 	
 	/**
@@ -152,12 +150,22 @@ public enum OpenLibertyUtil {
 	 * @since 2.0.0
 	 */
 	public static <T> Optional<T> findExtension(Class<T> extensionClass) {
-		Iterator<T> iter = ServiceLoader.load(extensionClass, extensionClass.getClassLoader()).iterator();
-		if(iter.hasNext()) {
-			return Optional.of(iter.next());
-		} else {
-			return Optional.empty();
-		}
+		return findExtensions(extensionClass).findFirst();
+	}
+	
+	/**
+	 * Loads a single extension for the given service class, using the service class's ClassLoader and throwing
+	 * {@link IllegalStateException} when no implementation is available.
+	 * 
+	 * @param <T> the service type to load
+	 * @param extensionClass a {@link Class} object representing {@code <T>}
+	 * @return the first available implementation of {@code <T>}
+	 * @throws IllegalStateException if no implementation of {@code <T>} can be found
+	 * @since 3.0.0
+	 */
+	public static <T> T findRequiredExtension(Class<T> extensionClass) {
+		return findExtension(extensionClass)
+			.orElseThrow(() -> new IllegalStateException("Unable to find implementation for " + extensionClass.getName()));
 	}
 	
 	/**

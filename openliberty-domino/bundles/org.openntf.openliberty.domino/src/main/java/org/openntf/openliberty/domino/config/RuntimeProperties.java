@@ -17,6 +17,11 @@ package org.openntf.openliberty.domino.config;
 
 import java.util.ResourceBundle;
 
+/**
+ * Provides static runtime properties bundled with the installation.
+ * 
+ * @author Jesse Gallagher
+ */
 public enum RuntimeProperties {
 	instance;
 	

@@ -1,4 +1,4 @@
-package org.openntf.openliberty.domino.adminnsf.util.json;
+package org.openntf.openliberty.domino.util.json;
 
 /**
  * Beans that support customized output of JSON text shall implement this interface.  
