@@ -16,7 +16,9 @@
 package org.openntf.openliberty.domino.reverseproxy;
 
 import java.net.URI;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 import javax.net.ssl.SSLContext;
@@ -24,7 +26,9 @@ import javax.net.ssl.SSLContext;
 public class ReverseProxyConfig {
 	public static final int PORT_DISABLED = -1;
 	
-	private boolean enabled = true;
+	private boolean globalEnabled = true;
+	private Collection<String> enabledTypes = new HashSet<>();
+	
 	public String proxyHostName;
 	public int proxyHttpPort = PORT_DISABLED;
 	public int proxyHttpsPort = PORT_DISABLED;
@@ -39,14 +43,17 @@ public class ReverseProxyConfig {
 	
 	private Map<String, URI> targets = new HashMap<>();
 	
-	public void setGlobalEnabled(boolean enabled) {
-		this.enabled = enabled;
+	public void setGlobalEnabled(boolean globalEnabled) {
+		this.globalEnabled = globalEnabled;
 	}
 	public boolean isGlobalEnabled() {
-		return this.enabled;
+		return this.globalEnabled;
+	}
+	public void addEnabledType(String enabledType) {
+		this.enabledTypes.add(enabledType);
 	}
 	public boolean isEnabled(ReverseProxyService proxy) {
-		return enabled;
+		return globalEnabled && enabledTypes.contains(proxy.getProxyType());
 	}
 	
 	/**

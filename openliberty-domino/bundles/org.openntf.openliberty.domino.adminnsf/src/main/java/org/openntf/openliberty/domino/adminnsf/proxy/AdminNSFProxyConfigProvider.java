@@ -34,6 +34,7 @@ import java.text.MessageFormat;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 import java.util.concurrent.ExecutionException;
@@ -64,6 +65,7 @@ import lotus.domino.ViewNavigator;
 
 public class AdminNSFProxyConfigProvider implements ReverseProxyConfigProvider {
 	public static final String ITEM_REVERSEPROXYENABLE = "ReverseProxyEnable";
+	public static final String ITEM_REVERSEPROXYTYPES = "ReverseProxyTypes";
 	public static final String ITEM_REVERSEPROXYHOST = "ReverseProxyHostName";
 	public static final String ITEM_REVERSEPROXYCONNECTORHEADERS = "ReverseProxyConnectorHeaders";
 	
@@ -95,6 +97,10 @@ public class AdminNSFProxyConfigProvider implements ReverseProxyConfigProvider {
 						if(!enable) {
 							return;
 						}
+						
+						@SuppressWarnings("unchecked")
+						List<String> enabledTypes = config.getItemValue(ITEM_REVERSEPROXYTYPES);
+						enabledTypes.forEach(result::addEnabledType);
 						
 						String hostName = config.getItemValueString(ITEM_REVERSEPROXYHOST);
 						if(hostName == null || hostName.isEmpty()) {

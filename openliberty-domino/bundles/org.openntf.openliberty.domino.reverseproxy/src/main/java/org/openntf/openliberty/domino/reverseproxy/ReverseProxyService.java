@@ -10,5 +10,5 @@ public interface ReverseProxyService {
 	/**
 	 * @return an implementation-specific type identifier for the proxy
 	 */
-	String getType();
+	String getProxyType();
 }

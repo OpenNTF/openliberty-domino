@@ -40,7 +40,7 @@ public class StandaloneReverseProxyService implements RuntimeService, ReversePro
 	public static final String TYPE = "Standalone";
 	
 	@Override
-	public String getType() {
+	public String getProxyType() {
 		return TYPE;
 	}
 	
@@ -51,9 +51,6 @@ public class StandaloneReverseProxyService implements RuntimeService, ReversePro
 			ReverseProxyConfig config = configProvider.createConfiguration();
 			
 			if(!config.isEnabled(this)) {
-				if(log.isLoggable(Level.INFO)) {
-					OpenLibertyLog.instance.out.println("Standalone reverse proxy disabled");
-				}
 				return;
 			}
 			
