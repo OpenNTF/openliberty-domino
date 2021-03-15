@@ -48,9 +48,8 @@ import javax.net.ssl.TrustManagerFactory;
 import org.openntf.openliberty.domino.adminnsf.AdminNSFService;
 import org.openntf.openliberty.domino.adminnsf.util.AdminNSFUtil;
 import org.openntf.openliberty.domino.log.OpenLibertyLog;
-import org.openntf.openliberty.domino.reverseproxy.ReverseProxyService;
-import org.openntf.openliberty.domino.reverseproxy.ext.ReverseProxyConfig;
-import org.openntf.openliberty.domino.reverseproxy.ext.ReverseProxyConfigProvider;
+import org.openntf.openliberty.domino.reverseproxy.ReverseProxyConfig;
+import org.openntf.openliberty.domino.reverseproxy.ReverseProxyConfigProvider;
 import org.openntf.openliberty.domino.util.DominoThreadFactory;
 import org.openntf.openliberty.domino.util.xml.XMLDocument;
 import org.openntf.openliberty.domino.util.xml.XMLNode;
@@ -78,7 +77,7 @@ public class AdminNSFProxyConfigProvider implements ReverseProxyConfigProvider {
 	public static final String VIEW_REVERSEPROXYAPPS = "ReverseProxyApps";
 
 	@Override
-	public ReverseProxyConfig createConfiguration(ReverseProxyService service) {
+	public ReverseProxyConfig createConfiguration() {
 		ReverseProxyConfig result = new ReverseProxyConfig();
 		
 		
@@ -92,7 +91,7 @@ public class AdminNSFProxyConfigProvider implements ReverseProxyConfigProvider {
 						Document config = AdminNSFUtil.getConfigurationDocument(adminNsf);
 						
 						boolean enable = "Y".equals(config.getItemValueString(ITEM_REVERSEPROXYENABLE));
-						result.enabled = enable;
+						result.setGlobalEnabled(enable);
 						if(!enable) {
 							return;
 						}
@@ -208,7 +207,7 @@ public class AdminNSFProxyConfigProvider implements ReverseProxyConfigProvider {
 				}
 			}).get();
 			
-			if(result.enabled) {
+			if(result.isGlobalEnabled()) {
 				// Determine the local server port from the server doc
 				DominoThreadFactory.executor.submit(() -> {
 					try {

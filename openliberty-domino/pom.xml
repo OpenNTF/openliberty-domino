@@ -52,7 +52,7 @@
 		<module>bundles/org.openntf.openliberty.domino.adminnsf</module>
 		<module>bundles/org.openntf.openliberty.domino.userregistry</module>
 		<module>bundles/org.openntf.openliberty.domino.notesruntime</module>
-		<module>bundles/org.openntf.openliberty.domino.reverseproxy.impl</module>
+		<module>bundles/org.openntf.openliberty.domino.reverseproxy.standalone</module>
 		<module>bundles/org.openntf.openliberty.domino.reverseproxy</module>
 		<module>bundles/org.openntf.openliberty.domino.runjava</module>
 		

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openntf.openliberty.domino.reverseproxy.impl;
+package org.openntf.openliberty.domino.reverseproxy.standalone;
 
 import java.net.URI;
 import java.text.MessageFormat;

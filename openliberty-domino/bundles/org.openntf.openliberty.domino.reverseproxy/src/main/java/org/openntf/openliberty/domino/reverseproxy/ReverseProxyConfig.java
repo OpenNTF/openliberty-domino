@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openntf.openliberty.domino.reverseproxy.ext;
+package org.openntf.openliberty.domino.reverseproxy;
 
 import java.net.URI;
 import java.util.HashMap;
@@ -24,7 +24,7 @@ import javax.net.ssl.SSLContext;
 public class ReverseProxyConfig {
 	public static final int PORT_DISABLED = -1;
 	
-	public boolean enabled = true;
+	private boolean enabled = true;
 	public String proxyHostName;
 	public int proxyHttpPort = PORT_DISABLED;
 	public int proxyHttpsPort = PORT_DISABLED;
@@ -38,6 +38,16 @@ public class ReverseProxyConfig {
 	public String dominoConnectorHeadersSecret;
 	
 	private Map<String, URI> targets = new HashMap<>();
+	
+	public void setGlobalEnabled(boolean enabled) {
+		this.enabled = enabled;
+	}
+	public boolean isGlobalEnabled() {
+		return this.enabled;
+	}
+	public boolean isEnabled(ReverseProxyService proxy) {
+		return enabled;
+	}
 	
 	/**
 	 * @return a {@link Map} of app context paths to server URLs

@@ -7,10 +7,23 @@
 		<version>3.0.0-SNAPSHOT</version>
 		<relativePath>../..</relativePath>
 	</parent>
-	<artifactId>org.openntf.openliberty.domino.reverseproxy.impl</artifactId>
+	<artifactId>org.openntf.openliberty.domino.reverseproxy.standalone</artifactId>
 	<packaging>bundle</packaging>
 	
 	<dependencies>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>org.openntf.openliberty.domino</artifactId>
+			<version>${project.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>org.openntf.openliberty.domino.reverseproxy</artifactId>
+			<version>${project.version}</version>
+			<scope>provided</scope>
+		</dependency>
+	
 		<dependency>
 			<groupId>io.undertow</groupId>
 			<artifactId>undertow-core</artifactId>
@@ -36,7 +49,7 @@
 					<instructions>
 						<Bundle-SymbolicName>${project.artifactId};singleton:=true</Bundle-SymbolicName>
 						<Import-Package/>
-						<Export-Package>org.openntf.openliberty.domino.reverseproxy.impl</Export-Package>
+						<Fragment-Host>org.openntf.openliberty.domino</Fragment-Host>
 						<Embed-Dependency>*;scope=compile;inline=true</Embed-Dependency>
 						<Embed-Transitive>true</Embed-Transitive>
 					</instructions>

@@ -13,15 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openntf.openliberty.domino.reverseproxy.ext;
+package org.openntf.openliberty.domino.reverseproxy.standalone;
 
-import org.openntf.openliberty.domino.reverseproxy.ReverseProxyService;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
 
-/**
- * 
- * @author Jesse Gallagher
- * @since 2.1.0
- */
-public interface ReverseProxyConfigProvider {
-	ReverseProxyConfig createConfiguration(ReverseProxyService service);
+public class Messages {
+	private static final String BUNDLE_NAME = "org.openntf.openliberty.domino.httpservice.messages"; //$NON-NLS-1$
+
+	private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle(BUNDLE_NAME);
+
+	private Messages() {
+	}
+
+	public static String getString(String key) {
+		try {
+			return RESOURCE_BUNDLE.getString(key);
+		} catch (MissingResourceException e) {
+			return '!' + key + '!';
+		}
+	}
 }

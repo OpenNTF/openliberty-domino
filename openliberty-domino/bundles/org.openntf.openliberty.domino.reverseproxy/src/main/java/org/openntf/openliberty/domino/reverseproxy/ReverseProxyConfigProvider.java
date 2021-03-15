@@ -15,22 +15,13 @@
  */
 package org.openntf.openliberty.domino.reverseproxy;
 
-import java.util.MissingResourceException;
-import java.util.ResourceBundle;
-
-public class Messages {
-	private static final String BUNDLE_NAME = "org.openntf.openliberty.domino.httpservice.messages"; //$NON-NLS-1$
-
-	private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle(BUNDLE_NAME);
-
-	private Messages() {
-	}
-
-	public static String getString(String key) {
-		try {
-			return RESOURCE_BUNDLE.getString(key);
-		} catch (MissingResourceException e) {
-			return '!' + key + '!';
-		}
-	}
+/**
+ * Represents a service that can provide configuration settings for a reverse
+ * proxy instance.
+ * 
+ * @author Jesse Gallagher
+ * @since 2.1.0
+ */
+public interface ReverseProxyConfigProvider {
+	ReverseProxyConfig createConfiguration();
 }
