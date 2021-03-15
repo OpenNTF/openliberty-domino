@@ -25,6 +25,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.PosixFilePermission;
+import java.util.EnumSet;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
@@ -32,25 +35,34 @@ import java.util.zip.ZipInputStream;
 
 import org.openntf.openliberty.domino.config.RuntimeConfigurationProvider;
 import org.openntf.openliberty.domino.log.OpenLibertyLog;
+import org.openntf.openliberty.domino.server.LibertyServerConfiguration;
+import org.openntf.openliberty.domino.server.ServerConfiguration;
 import org.openntf.openliberty.domino.util.OpenLibertyUtil;
 import org.openntf.openliberty.domino.util.commons.ibm.StringUtil;
 
-public class StandardRuntimeDeployment implements RuntimeDeploymentTask {
+public class LibertyRuntimeDeployment implements RuntimeDeploymentTask<LibertyServerConfiguration> {
 	private static final Logger log = OpenLibertyLog.instance.log;
 	
-	public static final String ITEM_BASEDIRECTORY = "BaseDirectory"; //$NON-NLS-1$
-	public static final String ITEM_VERSION = "Version"; //$NON-NLS-1$
-	public static final String ITEM_ARTIFACT = "Artfiact"; //$NON-NLS-1$
-	public static final String ITEM_MAVENREPO = "MavenRepo"; //$NON-NLS-1$
+	public static final String DEFAULT_VERSION = "21.0.0.2";
+	public static final String DEFAULT_ARTIFACT = "io.openliberty:openliberty-runtime";
+	public static final String DEFAULT_MAVENREPO = "https://repo.maven.apache.org/maven2/";
 	
 	public static final String URL_CORBA = "https://repo1.maven.org/maven2/org/glassfish/corba/glassfish-corba-omgapi/4.2.1/glassfish-corba-omgapi-4.2.1.jar"; //$NON-NLS-1$
 
 	@Override
-	public Path call() throws IOException {
-		RuntimeConfigurationProvider config = OpenLibertyUtil.findRequiredExtension(RuntimeConfigurationProvider.class);
-		Path execDir = config.getBaseDirectory();
+	public boolean canDeploy(ServerConfiguration serverConfig) {
+		return serverConfig instanceof LibertyServerConfiguration;
+	}
+	
+	@Override
+	public Path deploy(LibertyServerConfiguration config) throws IOException {
+		RuntimeConfigurationProvider runtimeConfig = OpenLibertyUtil.findRequiredExtension(RuntimeConfigurationProvider.class);
+		Path execDir = runtimeConfig.getBaseDirectory();
 		
-		String version = config.getOpenLibertyVersion();
+		String version = config.getLibertyVersion();
+		if(StringUtil.isEmpty(version)) {
+			version = DEFAULT_VERSION;
+		}
 		
 		Path wlp = execDir.resolve(format("wlp-{0}", version)); //$NON-NLS-1$
 		
@@ -60,7 +72,10 @@ public class StandardRuntimeDeployment implements RuntimeDeploymentTask {
 				log.info(Messages.getString("StandardRuntimeDeployment.deployingNewRuntime")); //$NON-NLS-1$
 			}
 			
-			String artifact = config.getOpenLibertyArtifact();
+			String artifact = config.getLibertyArtifact();
+			if(StringUtil.isEmpty(artifact)) {
+				artifact = DEFAULT_ARTIFACT;
+			}
 			
 			Path downloadDir = execDir.resolve("download"); //$NON-NLS-1$
 			Path wlpPackage = downloadDir.resolve(buildZipName(artifact, version));
@@ -68,7 +83,10 @@ public class StandardRuntimeDeployment implements RuntimeDeploymentTask {
 				Files.createDirectories(downloadDir);
 				
 				// Download from Maven
-				String mavenRepo = config.getOpenLibertyMavenRepository();
+				String mavenRepo = config.getLibertyMavenRepo();
+				if(StringUtil.isEmpty(mavenRepo)) {
+					mavenRepo = DEFAULT_MAVENREPO;
+				}
 				URL url = buildDownloadURL(mavenRepo, artifact, version);
 				if(log.isLoggable(Level.INFO)) {
 					log.info(format(Messages.getString("StandardRuntimeDeployment.downloadingRuntimeFrom"), url)); //$NON-NLS-1$
@@ -131,6 +149,8 @@ public class StandardRuntimeDeployment implements RuntimeDeploymentTask {
 			});
 		}
 		
+		verifyRuntime(wlp);
+		
 		return wlp;
 	}
 
@@ -166,5 +186,17 @@ public class StandardRuntimeDeployment implements RuntimeDeploymentTask {
 			throw new IllegalArgumentException(format(Messages.getString("StandardRuntimeDeployment.illegalArtifactId"), artifact)); //$NON-NLS-1$
 		}
 		return artifact.substring(colonIndex+1);
+	}
+	
+	private void verifyRuntime(Path wlp) throws IOException {
+		// TODO handle more than execution bits
+		if(!OpenLibertyUtil.IS_WINDOWS) {
+			Path exec = wlp.resolve("bin").resolve("server"); //$NON-NLS-1$ //$NON-NLS-2$
+			if(!Files.isExecutable(exec)) {
+				Set<PosixFilePermission> perm = EnumSet.copyOf(Files.getPosixFilePermissions(exec));
+				perm.add(PosixFilePermission.OWNER_EXECUTE);
+				Files.setPosixFilePermissions(exec, perm);
+			}
+		}
 	}
 }

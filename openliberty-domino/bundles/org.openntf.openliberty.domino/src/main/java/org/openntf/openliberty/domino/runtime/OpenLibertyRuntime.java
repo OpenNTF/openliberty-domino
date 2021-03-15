@@ -35,14 +35,12 @@ import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
-import java.nio.file.attribute.PosixFilePermission;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -65,6 +63,9 @@ import org.openntf.openliberty.domino.ext.RuntimeService;
 import org.openntf.openliberty.domino.jvm.JVMIdentifier;
 import org.openntf.openliberty.domino.jvm.JavaRuntimeProvider;
 import org.openntf.openliberty.domino.log.OpenLibertyLog;
+import org.openntf.openliberty.domino.server.AbstractJavaServerConfiguration;
+import org.openntf.openliberty.domino.server.LibertyServerConfiguration;
+import org.openntf.openliberty.domino.server.ServerConfiguration;
 import org.openntf.openliberty.domino.util.DominoThreadFactory;
 import org.openntf.openliberty.domino.util.OpenLibertyUtil;
 import org.openntf.openliberty.domino.util.commons.ibm.StreamUtil;
@@ -98,10 +99,20 @@ public enum OpenLibertyRuntime implements Runnable {
 	private boolean terminating;
 	
 	/**
-	 * Maps server names to Java home paths.
+	 * Maps server names to their configurations.
 	 * @since 3.0.0
 	 */
-	private Map<String, Path> javaHomes = new HashMap<>();
+	private Map<String, LibertyServerConfiguration> serverConfigurations = new HashMap<>();
+	/**
+	 * Caches JVM identifiers mapped to Java home paths.
+	 * @since 3.0.0
+	 */
+	private Map<JVMIdentifier, Path> javaHomes = new HashMap<>();
+	/**
+	 * Caches server configurations to WLP root paths.
+	 * @since 3.0.0
+	 */
+	private Map<LibertyServerConfiguration, Path> wlpRoots = new HashMap<>();
 	
 	private Path dominoProgramDirectory;
 	private Logger log;
@@ -119,15 +130,7 @@ public enum OpenLibertyRuntime implements Runnable {
 		
 		dominoProgramDirectory = Paths.get(OpenLibertyUtil.getDominoProgramDirectory());
 		
-		Path wlp = null;
 		try {
-			wlp = deployRuntime();
-			if(log.isLoggable(Level.INFO)) {
-				log.info(format(Messages.getString("OpenLibertyRuntime.usingRuntimeAt"), wlp)); //$NON-NLS-1$
-			}
-			verifyRuntime(wlp);
-			deployExtensions(wlp);
-			
 			runtimeServices.forEach(DominoThreadFactory.executor::submit);
 			
 			while(!Thread.interrupted()) {
@@ -141,7 +144,8 @@ public enum OpenLibertyRuntime implements Runnable {
 						// Make sure the server exists
 
 						String serverName = (String)command.args[0];
-						sendCommand(wlp, javaHomes.get(serverName), "start", command.args); //$NON-NLS-1$
+						Path wlp = findWlpRoot(serverName);
+						sendCommand(wlp, findJavaHome(serverName), "start", command.args); //$NON-NLS-1$
 						if(serverExists(wlp, serverName)) {
 							watchLog(wlp, serverName);
 							Path fwlp = wlp;
@@ -153,7 +157,8 @@ public enum OpenLibertyRuntime implements Runnable {
 					}
 					case STOP: {
 						String serverName = (String)command.args[0];
-						sendCommand(wlp, javaHomes.get(serverName), "stop", command.args); //$NON-NLS-1$
+						Path wlp = findWlpRoot(serverName);
+						sendCommand(wlp, findJavaHome(serverName), "stop", command.args); //$NON-NLS-1$
 						stopWatchLogs(wlp, serverName);
 						if(serverExists(wlp, serverName)) {
 							Path fwlp = wlp;
@@ -165,24 +170,21 @@ public enum OpenLibertyRuntime implements Runnable {
 					}
 					case CREATE_SERVER: {
 						String serverName = (String)command.args[0];
-						LibertyServerConfiguration serverConfig = (LibertyServerConfiguration)command.args[1];
+						LibertyServerConfiguration serverConfig = this.serverConfigurations.get(serverName);
 						String serverXml = serverConfig.getServerXml().getXml();
 						String serverEnv = serverConfig.getServerEnv();
 						String jvmOptions = serverConfig.getJvmOptions();
 						String bootstrapProperties = serverConfig.getBootstrapProperties();
 						Collection<Path> additionalZips = serverConfig.getAdditionalZips();
-						
-						JVMIdentifier javaIdentifier = serverConfig.getJavaVersion();
-						JavaRuntimeProvider javaRuntimeProvider = OpenLibertyUtil.findExtensions(JavaRuntimeProvider.class)
-							.filter(p -> p.canProvide(javaIdentifier))
-							.sorted(Comparator.comparing(JavaRuntimeProvider::getPriority).reversed())
-							.findFirst()
-							.orElseThrow(() -> new IllegalStateException(format(Messages.getString("OpenLibertyRuntime.unableToFindJVMFor"), javaIdentifier))); //$NON-NLS-1$
-						Path javaHome = javaRuntimeProvider.getJavaHome(javaIdentifier);
+
+						Path wlp = deployRuntime(serverConfig);
+						this.wlpRoots.put(serverConfig, wlp);
 						if(log.isLoggable(Level.INFO)) {
-							log.info(format(Messages.getString("OpenLibertyRuntime.usingJavaRuntimeAt"), javaHome)); //$NON-NLS-1$
+							log.info(format(Messages.getString("OpenLibertyRuntime.usingRuntimeAt"), wlp)); //$NON-NLS-1$
 						}
-						this.javaHomes.put(serverName, javaHome);
+						deployExtensions(wlp);
+						
+						Path javaHome = findJavaHome(serverConfig);
 						
 						if(!serverExists(wlp, serverName)) {
 							sendCommand(wlp, javaHome, "create", serverName).waitFor(); //$NON-NLS-1$
@@ -211,12 +213,14 @@ public enum OpenLibertyRuntime implements Runnable {
 					case UPDATE_SERVERXML: {
 						String serverName = (String)command.args[0];
 						String serverXml = (String)command.args[1];
+						Path wlp = findWlpRoot(serverName);
 						deployServerXml(wlp, serverName, serverXml);
 						break;
 					}
 					case STATUS: {
 						for(String serverName : startedServers) {
-							sendCommand(wlp, this.javaHomes.get(serverName), "status", serverName); //$NON-NLS-1$
+							Path wlp = findWlpRoot(serverName);
+							sendCommand(wlp, findJavaHome(serverName), "status", serverName); //$NON-NLS-1$
 						}
 						break;
 					}
@@ -233,16 +237,15 @@ public enum OpenLibertyRuntime implements Runnable {
 			}
 		} finally {
 			terminating = true;
-			if(wlp != null) {
-				for(String serverName : startedServers) {
-					try {
-						if(log.isLoggable(Level.INFO)) {
-							log.info(format(Messages.getString("OpenLibertyRuntime.shuttingDownServer"), serverName)); //$NON-NLS-1$
-						}
-						sendCommand(wlp, this.javaHomes.get(serverName), "stop", serverName); //$NON-NLS-1$
-					} catch (IOException | NotesException e) {
-						// Nothing to do here
+			for(String serverName : startedServers) {
+				try {
+					if(log.isLoggable(Level.INFO)) {
+						log.info(format(Messages.getString("OpenLibertyRuntime.shuttingDownServer"), serverName)); //$NON-NLS-1$
 					}
+					Path wlp = findWlpRoot(serverName);
+					sendCommand(wlp, findJavaHome(serverName), "stop", serverName); //$NON-NLS-1$
+				} catch (IOException | NotesException e) {
+					// Nothing to do here
 				}
 			}
 			
@@ -261,6 +264,18 @@ public enum OpenLibertyRuntime implements Runnable {
 		}
 	}
 	
+	/**
+	 * Registers the named server with the runtime. This should be called before performing any
+	 * further operations.
+	 * 
+	 * @param serverName the name of the server to register
+	 * @param config a configuration object representing the server
+	 * @since 3.0.0
+	 */
+	public void registerServer(String serverName, LibertyServerConfiguration config) {
+		this.serverConfigurations.put(serverName, config);
+	}
+	
 	public void startServer(String serverName) {
 		taskQueue.add(new RuntimeTask(RuntimeTask.Type.START, serverName));
 		startedServers.add(serverName);
@@ -271,8 +286,8 @@ public enum OpenLibertyRuntime implements Runnable {
 		startedServers.remove(serverName);
 	}
 	
-	public void createServer(String serverName, LibertyServerConfiguration config) {
-		taskQueue.add(new RuntimeTask(RuntimeTask.Type.CREATE_SERVER, serverName, config));
+	public void createServer(String serverName) {
+		taskQueue.add(new RuntimeTask(RuntimeTask.Type.CREATE_SERVER, serverName));
 	}
 	
 	public void deployServerXml(String serverName, String serverXml) {
@@ -309,21 +324,14 @@ public enum OpenLibertyRuntime implements Runnable {
 		}
 	}
 	
-	private Path deployRuntime() throws IOException {
-		RuntimeDeploymentTask deploymentService = OpenLibertyUtil.findRequiredExtension(RuntimeDeploymentTask.class);
-		return deploymentService.call();
-	}
-	
-	private void verifyRuntime(Path wlp) throws IOException {
-		// TODO handle more than execution bits
-		if(!OpenLibertyUtil.IS_WINDOWS) {
-			Path exec = wlp.resolve("bin").resolve("server"); //$NON-NLS-1$ //$NON-NLS-2$
-			if(!Files.isExecutable(exec)) {
-				Set<PosixFilePermission> perm = EnumSet.copyOf(Files.getPosixFilePermissions(exec));
-				perm.add(PosixFilePermission.OWNER_EXECUTE);
-				Files.setPosixFilePermissions(exec, perm);
-			}
-		}
+	private <T extends ServerConfiguration> Path deployRuntime(T config) throws IOException {
+		@SuppressWarnings("unchecked")
+		RuntimeDeploymentTask<T> deploymentService = OpenLibertyUtil.findExtensions(RuntimeDeploymentTask.class)
+				.filter(task -> task.canDeploy(config))
+				.map(task -> (RuntimeDeploymentTask<T>)task)
+				.findFirst()
+				.orElseThrow(() -> new IllegalStateException(format(Messages.getString("OpenLibertyRuntime.noDeploymentFor"), config.getClass().getName())));
+		return deploymentService.deploy(config);
 	}
 	
 	private void deployServerXml(Path path, String serverName, String serverXml) throws IOException {
@@ -603,6 +611,31 @@ public enum OpenLibertyRuntime implements Runnable {
 		} finally {
 			session.recycle();
 		}
+	}
+	
+	private Path findWlpRoot(String serverName) {
+		AbstractJavaServerConfiguration config = serverConfigurations.get(serverName);
+		return wlpRoots.get(config);
+	}
+	
+	private Path findJavaHome(String serverName) {
+		AbstractJavaServerConfiguration config = serverConfigurations.get(serverName);
+		return this.findJavaHome(config);
+	}
+	
+	private Path findJavaHome(AbstractJavaServerConfiguration config) {
+		return this.javaHomes.computeIfAbsent(config.getJavaVersion(), javaIdentifier -> {
+			JavaRuntimeProvider javaRuntimeProvider = OpenLibertyUtil.findExtensions(JavaRuntimeProvider.class)
+				.filter(p -> p.canProvide(javaIdentifier))
+				.sorted(Comparator.comparing(JavaRuntimeProvider::getPriority).reversed())
+				.findFirst()
+				.orElseThrow(() -> new IllegalStateException(format(Messages.getString("OpenLibertyRuntime.unableToFindJVMFor"), javaIdentifier))); //$NON-NLS-1$
+			Path javaHome = javaRuntimeProvider.getJavaHome(javaIdentifier);
+			if(log.isLoggable(Level.INFO)) {
+				log.info(format(Messages.getString("OpenLibertyRuntime.usingJavaRuntimeAt"), javaHome)); //$NON-NLS-1$
+			}
+			return javaHome;
+		});
 	}
 	
 	private static class StreamRedirector implements Runnable {

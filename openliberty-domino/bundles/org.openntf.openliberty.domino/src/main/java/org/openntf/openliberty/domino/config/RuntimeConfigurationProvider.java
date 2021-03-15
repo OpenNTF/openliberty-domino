@@ -13,15 +13,4 @@ import org.openntf.openliberty.domino.jvm.JVMIdentifier;
  */
 public interface RuntimeConfigurationProvider {
 	Path getBaseDirectory();
-	
-	String getOpenLibertyVersion();
-	String getOpenLibertyArtifact();
-	String getOpenLibertyMavenRepository();
-	
-	/**
-	 * Returns the configured Java version.
-	 * 
-	 * @return the desired Java version
-	 */
-	JVMIdentifier getJavaVersion();
 }

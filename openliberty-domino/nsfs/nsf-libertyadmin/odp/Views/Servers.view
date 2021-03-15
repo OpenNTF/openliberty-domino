@@ -17,7 +17,7 @@
     <actionbuttonstyle bgcolor="#d4d0c8"/>
     <font color="system"/>
     <border style="solid" width="0px 0px 1px"/>
-    <action title="Create\Server">
+    <action title="Create\Liberty Server">
       <code event="click">
         <formula>@Command([Compose]; "Server")</formula>
       </code>

@@ -37,8 +37,8 @@ import org.openntf.openliberty.domino.ext.ExtensionDeployer;
 import org.openntf.openliberty.domino.jvm.JVMIdentifier;
 import org.openntf.openliberty.domino.jvm.RunningJVMJavaRuntimeProvider;
 import org.openntf.openliberty.domino.log.OpenLibertyLog;
-import org.openntf.openliberty.domino.runtime.LibertyServerConfiguration;
 import org.openntf.openliberty.domino.runtime.OpenLibertyRuntime;
+import org.openntf.openliberty.domino.server.LibertyServerConfiguration;
 import org.openntf.openliberty.domino.util.OpenLibertyUtil;
 import org.openntf.openliberty.domino.util.commons.ibm.StringUtil;
 import org.openntf.openliberty.domino.util.xml.XMLDocument;
@@ -91,6 +91,12 @@ public class AdminNSFService implements Runnable {
 	public static final String ITEM_JAVAVERSION = "JavaVersion";
 	/** @since 3.0.0 */
 	public static final String ITEM_JAVATYPE = "JavaJVM";
+	/** @since 3.0.0 */
+	public static final String ITEM_LIBERTYVERSION = "LibertyVersion";
+	/** @since 3.0.0 */
+	public static final String ITEM_LIBERTYARTIFACT = "LibertyArtifact";
+	/** @since 3.0.0 */
+	public static final String ITEM_LIBERTYMAVENREPO = "LibertyMavenRepo";
 	
 	private long lastRun = -1;
 	
@@ -216,8 +222,13 @@ public class AdminNSFService implements Runnable {
 						}
 					}
 					
+					config.setLibertyVersion(serverDoc.getItemValueString(ITEM_LIBERTYVERSION));
+					config.setLibertyArtifact(serverDoc.getItemValueString(ITEM_LIBERTYARTIFACT));
+					config.setLibertyMavenRepo(serverDoc.getItemValueString(ITEM_LIBERTYMAVENREPO));
 					
-					OpenLibertyRuntime.instance.createServer(serverName, config);
+					
+					OpenLibertyRuntime.instance.registerServer(serverName, config);
+					OpenLibertyRuntime.instance.createServer(serverName);
 					OpenLibertyRuntime.instance.startServer(serverName);
 				} else {
 					if(log.isLoggable(Level.FINER)) {
