@@ -279,7 +279,7 @@
 											<source>false</source>
 										</artifact>
 										<artifact>
-											<id>${project.groupId}:org.openntf.openliberty.domino.reverseproxy.undertow:${project.version}</id>
+											<id>${project.groupId}:org.openntf.openliberty.domino.reverseproxy.impl:${project.version}</id>
 											<transitive>false</transitive>
 											<source>false</source>
 										</artifact>

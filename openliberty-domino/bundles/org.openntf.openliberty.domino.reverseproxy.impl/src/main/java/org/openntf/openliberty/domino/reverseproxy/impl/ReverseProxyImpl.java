@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openntf.openliberty.domino.reverseproxy.undertow;
+package org.openntf.openliberty.domino.reverseproxy.impl;
 
 import java.net.URI;
 import java.text.MessageFormat;
@@ -34,14 +34,13 @@ import io.undertow.attribute.RemoteIPAttribute;
 import io.undertow.attribute.RequestProtocolAttribute;
 import io.undertow.attribute.RequestSchemeAttribute;
 import io.undertow.attribute.SecureExchangeAttribute;
-import io.undertow.attribute.SslSessionIdAttribute;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.handlers.PathHandler;
 import io.undertow.server.handlers.proxy.LoadBalancingProxyClient;
 import io.undertow.server.handlers.proxy.ProxyHandler;
 import io.undertow.util.HttpString;
 
-public class UndertowReverseProxy implements Runnable {
+public class ReverseProxyImpl implements Runnable {
 	private Logger log = Logger.getGlobal();
 	
 	private String proxyHostName = "0.0.0.0";
@@ -60,7 +59,7 @@ public class UndertowReverseProxy implements Runnable {
 	
 	private Undertow server;
 	
-	public UndertowReverseProxy() {
+	public ReverseProxyImpl() {
 	}
 	
 	public void setLogger(Logger log) {

@@ -26,7 +26,7 @@ import org.openntf.openliberty.domino.ext.RuntimeService;
 import org.openntf.openliberty.domino.log.OpenLibertyLog;
 import org.openntf.openliberty.domino.reverseproxy.ext.ReverseProxyConfig;
 import org.openntf.openliberty.domino.reverseproxy.ext.ReverseProxyConfigProvider;
-import org.openntf.openliberty.domino.reverseproxy.undertow.UndertowReverseProxy;
+import org.openntf.openliberty.domino.reverseproxy.impl.ReverseProxyImpl;
 
 public class ReverseProxyService implements RuntimeService {
 	private static final Logger log = OpenLibertyLog.getLog();
@@ -45,7 +45,7 @@ public class ReverseProxyService implements RuntimeService {
 				return;
 			}
 			
-			UndertowReverseProxy proxy = new UndertowReverseProxy();
+			ReverseProxyImpl proxy = new ReverseProxyImpl();
 			proxy.setLogger(log);
 			
 			proxy.setProxyHostName(config.proxyHostName);

@@ -7,7 +7,7 @@
 		<version>3.0.0-SNAPSHOT</version>
 		<relativePath>../..</relativePath>
 	</parent>
-	<artifactId>org.openntf.openliberty.domino.reverseproxy.undertow</artifactId>
+	<artifactId>org.openntf.openliberty.domino.reverseproxy.impl</artifactId>
 	<packaging>bundle</packaging>
 	
 	<dependencies>
@@ -36,6 +36,7 @@
 					<instructions>
 						<Bundle-SymbolicName>${project.artifactId};singleton:=true</Bundle-SymbolicName>
 						<Import-Package/>
+						<Export-Package>org.openntf.openliberty.domino.reverseproxy.impl</Export-Package>
 						<Embed-Dependency>*;scope=compile;inline=true</Embed-Dependency>
 						<Embed-Transitive>true</Embed-Transitive>
 					</instructions>

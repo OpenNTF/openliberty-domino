@@ -18,7 +18,7 @@
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>org.openntf.openliberty.domino.reverseproxy.undertow</artifactId>
+			<artifactId>org.openntf.openliberty.domino.reverseproxy.impl</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
@@ -34,7 +34,7 @@
 					<instructions>
 						<Bundle-SymbolicName>${project.artifactId};singleton:=true</Bundle-SymbolicName>
 						<Fragment-Host>org.openntf.openliberty.domino</Fragment-Host>
-						<Require-Bundle>org.openntf.openliberty.domino.reverseproxy.undertow</Require-Bundle>
+						<Require-Bundle>org.openntf.openliberty.domino.reverseproxy.impl</Require-Bundle>
 					</instructions>
 				</configuration>
 			</plugin>
