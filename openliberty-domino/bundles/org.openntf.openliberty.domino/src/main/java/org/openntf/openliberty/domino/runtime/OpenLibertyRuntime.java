@@ -58,6 +58,7 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import org.openntf.openliberty.domino.config.RuntimeConfigurationProvider;
 import org.openntf.openliberty.domino.ext.ExtensionDeployer;
 import org.openntf.openliberty.domino.ext.RuntimeService;
 import org.openntf.openliberty.domino.jvm.JVMIdentifier;
@@ -70,13 +71,6 @@ import org.openntf.openliberty.domino.util.DominoThreadFactory;
 import org.openntf.openliberty.domino.util.OpenLibertyUtil;
 import org.openntf.openliberty.domino.util.commons.ibm.StreamUtil;
 import org.openntf.openliberty.domino.util.commons.ibm.StringUtil;
-
-import lotus.domino.Database;
-import lotus.domino.Document;
-import lotus.domino.NotesException;
-import lotus.domino.NotesFactory;
-import lotus.domino.Session;
-import lotus.domino.View;
 
 public enum OpenLibertyRuntime implements Runnable {
 	instance;
@@ -92,6 +86,7 @@ public enum OpenLibertyRuntime implements Runnable {
 	
 	private final BlockingQueue<RuntimeTask> taskQueue = new LinkedBlockingDeque<RuntimeTask>();
 	private final List<RuntimeService> runtimeServices = OpenLibertyUtil.findExtensions(RuntimeService.class).collect(Collectors.toList());
+	private final RuntimeConfigurationProvider runtimeConfig = OpenLibertyUtil.findRequiredExtension(RuntimeConfigurationProvider.class);
 	
 	private Set<String> startedServers = Collections.synchronizedSet(new HashSet<>());
 	private Set<Process> subprocesses = Collections.synchronizedSet(new HashSet<>());
@@ -244,7 +239,7 @@ public enum OpenLibertyRuntime implements Runnable {
 					}
 					Path wlp = findWlpRoot(serverName);
 					sendCommand(wlp, findJavaHome(serverName), "stop", serverName); //$NON-NLS-1$
-				} catch (IOException | NotesException e) {
+				} catch (Exception e) {
 					// Nothing to do here
 				}
 			}
@@ -392,7 +387,7 @@ public enum OpenLibertyRuntime implements Runnable {
 		Files.deleteIfExists(zip);
 	}
 
-	private Process sendCommand(Path path, Path javaHome, String command, Object... args) throws IOException, NotesException {
+	private Process sendCommand(Path path, Path javaHome, String command, Object... args) throws IOException {
 		Path serverScript = path.resolve("bin").resolve(serverFile); //$NON-NLS-1$
 		
 		List<String> commands = new ArrayList<>();
@@ -542,7 +537,9 @@ public enum OpenLibertyRuntime implements Runnable {
 							// Deploy .jar entries to the lib folder
 							if(entryName.toLowerCase().endsWith(".jar") && !entryName.contains("/")) { //$NON-NLS-1$ //$NON-NLS-2$
 								Path dest = lib.resolve(entryName);
-								Files.copy(zis, dest, StandardCopyOption.REPLACE_EXISTING);
+								if(!Files.exists(dest)) {
+									Files.copy(zis, dest, StandardCopyOption.REPLACE_EXISTING);
+								}
 							}
 							
 							// Look for SUBSYSTEM.MF, parse its info, and deploy to the features directory
@@ -555,8 +552,10 @@ public enum OpenLibertyRuntime implements Runnable {
 											ext));
 								}
 								Path mfDest = features.resolve(shortName + ".mf"); //$NON-NLS-1$
-								try(OutputStream os = Files.newOutputStream(mfDest, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
-									mf.write(os);
+								if(!Files.exists(mfDest)) {
+									try(OutputStream os = Files.newOutputStream(mfDest, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
+										mf.write(os);
+									}
 								}
 							}
 
@@ -574,43 +573,12 @@ public enum OpenLibertyRuntime implements Runnable {
 	 * Determines the base URL to use for local requests to the server to pass to the WLP environment
 	 * @throws NotesException 
 	 */
-	private String getServerBase() throws NotesException {
-		Session session = NotesFactory.createSession();
-		try {
-			// HTTP_Port int
-			// HTTP_HostName string
-			// HTTP_NormalMode string 1=on, 2=off, 3=redirect to SSL
-			// HTTP_SSLPort int
-			// HTTP_SSLMode string 1=on, 2=off
-			
-			Database names = session.getDatabase("", "names.nsf"); //$NON-NLS-1$ //$NON-NLS-2$
-			View servers = names.getView("$Servers"); //$NON-NLS-1$
-			Document serverDoc = servers.getDocumentByKey(session.getUserName(), true);
-			
-			int port;
-			String protocol;
-			String host;
-			
-			// Prefer HTTP for simplicity
-			String httpMode = serverDoc.getItemValueString("HTTP_NormalMode"); //$NON-NLS-1$
-			if("1".equals(httpMode)) { //$NON-NLS-1$
-				port = serverDoc.getItemValueInteger("HTTP_Port"); //$NON-NLS-1$
-				protocol = "http"; //$NON-NLS-1$
-			} else {
-				// Assume SSL is on, since otherwise we don't have a good option
-				port = serverDoc.getItemValueInteger("HTTP_SSLPort"); //$NON-NLS-1$
-				protocol = "https"; //$NON-NLS-1$
-			}
-			
-			host = serverDoc.getItemValueString("HTTP_HostName"); //$NON-NLS-1$
-			if(StringUtil.isEmpty(host)) {
-				host = "localhost"; //$NON-NLS-1$
-			}
-			
-			return protocol + "://" + host + ":" + port; //$NON-NLS-1$ //$NON-NLS-2$
-		} finally {
-			session.recycle();
-		}
+	private String getServerBase() {
+		int port = runtimeConfig.getDominoPort();
+		String protocol = runtimeConfig.isDominoHttps() ? "https" : "http";
+		String host = runtimeConfig.getDominoHostName();
+		
+		return protocol + "://" + host + ":" + port; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
 	private Path findWlpRoot(String serverName) {

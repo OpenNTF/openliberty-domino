@@ -5,6 +5,7 @@ import java.nio.file.Paths;
 
 import org.openntf.openliberty.domino.adminnsf.util.AdminNSFUtil;
 import org.openntf.openliberty.domino.config.RuntimeConfigurationProvider;
+import org.openntf.openliberty.domino.reverseproxy.ReverseProxyConfig;
 import org.openntf.openliberty.domino.util.DominoThreadFactory;
 import org.openntf.openliberty.domino.util.OpenLibertyUtil;
 import org.openntf.openliberty.domino.util.commons.ibm.StringUtil;
@@ -13,19 +14,46 @@ import lotus.domino.Database;
 import lotus.domino.Document;
 import lotus.domino.NotesFactory;
 import lotus.domino.Session;
+import lotus.domino.View;
 
 public class AdminNSFRuntimeConfigurationProvider implements RuntimeConfigurationProvider {
 	
 	public static final String ITEM_BASEDIRECTORY = "BaseDirectory"; //$NON-NLS-1$
 	
 	private Path baseDirectory;
+	private String dominoHostName;
+	private int dominoPort;
+	private boolean dominoHttps;
+	private boolean dominoConnectorHeaders;
 
 	@Override
 	public Path getBaseDirectory() {
-		if(this.baseDirectory == null) {
-			loadData();
-		}
+		if(this.baseDirectory == null) { loadData(); }
 		return this.baseDirectory;
+	}
+	
+	@Override
+	public String getDominoHostName() {
+		if(this.baseDirectory == null) { loadData(); }
+		return this.dominoHostName;
+	}
+	
+	@Override
+	public int getDominoPort() {
+		if(this.baseDirectory == null) { loadData(); }
+		return this.dominoPort;
+	}
+	
+	@Override
+	public boolean isDominoHttps() {
+		if(this.baseDirectory == null) { loadData(); }
+		return this.dominoHttps;
+	}
+	
+	@Override
+	public boolean isUseDominoConnectorHeaders() {
+		if(this.baseDirectory == null) { loadData(); }
+		return this.dominoConnectorHeaders;
 	}
 
 	private synchronized void loadData() {
@@ -33,6 +61,7 @@ public class AdminNSFRuntimeConfigurationProvider implements RuntimeConfiguratio
 			DominoThreadFactory.executor.submit(() -> {
 				Session session = NotesFactory.createSession();
 				try {
+					// Read configuration from the Runtime configuration NSF
 					Database adminNsf = AdminNSFUtil.getAdminDatabase(session);
 					Document config = AdminNSFUtil.getConfigurationDocument(adminNsf);
 					String execDirName = config.getItemValueString(ITEM_BASEDIRECTORY);
@@ -43,6 +72,41 @@ public class AdminNSFRuntimeConfigurationProvider implements RuntimeConfiguratio
 						execDir = Paths.get(execDirName);
 					}
 					this.baseDirectory = execDir;
+					
+					
+					// Read Domino server config from names.nsf
+					Database names = session.getDatabase("", "names.nsf");
+					View servers = names.getView("$Servers");
+					Document serverDoc = servers.getDocumentByKey(session.getUserName());
+					
+					boolean httpEnabled = "1".equals(serverDoc.getItemValueString("HTTP_NormalMode"));
+					boolean httpsEnabled = "1".equals(serverDoc.getItemValueString("HTTP_SSLMode"));
+					if(!httpEnabled && !httpsEnabled) {
+						// Then HTTP is effectively off - end early
+						this.dominoPort = ReverseProxyConfig.PORT_DISABLED;
+						return null;
+					}
+					
+					if(httpEnabled) {
+						this.dominoPort = serverDoc.getItemValueInteger("HTTP_Port");
+					} else {
+						this.dominoPort = serverDoc.getItemValueInteger("HTTP_SSLPort");
+						this.dominoHttps = true;
+					}
+					
+					boolean bindToHostName = "1".equals(serverDoc.getItemValueString("HTTP_BindToHostName"));
+					if(bindToHostName) {
+						String hostName = serverDoc.getItemValueString("HTTP_HostName");
+						if(hostName != null && !hostName.isEmpty()) {
+							this.dominoHostName = hostName;
+						}
+					}
+					if(StringUtil.isEmpty(this.dominoHostName)) {
+						this.dominoHostName = "localhost";
+					}
+					
+					String connectorHeadersParam = session.getEnvironmentString("HTTPEnableConnectorHeaders", true);
+					this.dominoConnectorHeaders = "1".equals(connectorHeadersParam);
 				} finally {
 					session.recycle();
 				}

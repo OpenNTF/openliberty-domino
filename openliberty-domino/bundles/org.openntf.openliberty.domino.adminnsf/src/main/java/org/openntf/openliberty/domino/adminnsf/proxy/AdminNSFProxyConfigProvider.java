@@ -48,10 +48,13 @@ import javax.net.ssl.TrustManagerFactory;
 
 import org.openntf.openliberty.domino.adminnsf.AdminNSFService;
 import org.openntf.openliberty.domino.adminnsf.util.AdminNSFUtil;
+import org.openntf.openliberty.domino.config.RuntimeConfigurationProvider;
 import org.openntf.openliberty.domino.log.OpenLibertyLog;
 import org.openntf.openliberty.domino.reverseproxy.ReverseProxyConfig;
 import org.openntf.openliberty.domino.reverseproxy.ReverseProxyConfigProvider;
+import org.openntf.openliberty.domino.reverseproxy.ReverseProxyTarget;
 import org.openntf.openliberty.domino.util.DominoThreadFactory;
+import org.openntf.openliberty.domino.util.OpenLibertyUtil;
 import org.openntf.openliberty.domino.util.xml.XMLDocument;
 import org.openntf.openliberty.domino.util.xml.XMLNode;
 
@@ -67,7 +70,6 @@ public class AdminNSFProxyConfigProvider implements ReverseProxyConfigProvider {
 	public static final String ITEM_REVERSEPROXYENABLE = "ReverseProxyEnable";
 	public static final String ITEM_REVERSEPROXYTYPES = "ReverseProxyTypes";
 	public static final String ITEM_REVERSEPROXYHOST = "ReverseProxyHostName";
-	public static final String ITEM_REVERSEPROXYCONNECTORHEADERS = "ReverseProxyConnectorHeaders";
 	
 	public static final String ITEM_REVERSEPROXYHTTP = "ReverseProxyHTTP";
 	public static final String ITEM_REVERSEPROXYHTTPPORT = "ReverseProxyHTTPPort";
@@ -82,6 +84,10 @@ public class AdminNSFProxyConfigProvider implements ReverseProxyConfigProvider {
 	public ReverseProxyConfig createConfiguration() {
 		ReverseProxyConfig result = new ReverseProxyConfig();
 		
+		RuntimeConfigurationProvider runtimeConfig = OpenLibertyUtil.findRequiredExtension(RuntimeConfigurationProvider.class);
+		result.dominoHostName = runtimeConfig.getDominoHostName();
+		result.dominoHttpPort = runtimeConfig.getDominoPort();
+		result.dominoHttps = runtimeConfig.isDominoHttps();
 		
 		try {
 			// Load the main config
@@ -107,7 +113,7 @@ public class AdminNSFProxyConfigProvider implements ReverseProxyConfigProvider {
 							hostName = "0.0.0.0";
 						}
 						result.proxyHostName = hostName;
-						boolean connectorHeaders = "Y".equals(config.getItemValueString(ITEM_REVERSEPROXYCONNECTORHEADERS));
+						boolean connectorHeaders = runtimeConfig.isUseDominoConnectorHeaders();
 						if(connectorHeaders) {
 							result.useDominoConnectorHeaders = connectorHeaders;
 							String secret = session.getEnvironmentString("HTTPConnectorHeadersSecret", true);
@@ -192,8 +198,15 @@ public class AdminNSFProxyConfigProvider implements ReverseProxyConfigProvider {
 									httpPort = httpEndpoint.getAttribute("httpsPort");
 									https = true;
 								}
+								
+								// Assume that the presence of these settings includes this server
+								// TODO don't assume that
+								boolean useXForwardedFor = serverXml.selectSingleNode("/server/httpEndpoint/remoteIp") != null;
+								boolean useWsHeaders = serverXml.selectSingleNode("/server/httpDispatcher/trustedSensitiveHeaderOrigin") != null;
+								
 								URI uri = URI.create(MessageFormat.format("http{0}://{1}:{2}/{3}", https ? "s" : "", host, httpPort, contextRoot));
-								result.addTarget(contextRoot, uri);
+								ReverseProxyTarget target = new ReverseProxyTarget(uri, useXForwardedFor, useWsHeaders);
+								result.addTarget(contextRoot, target);
 							}
 							
 							
@@ -224,29 +237,6 @@ public class AdminNSFProxyConfigProvider implements ReverseProxyConfigProvider {
 							Database names = session.getDatabase("", "names.nsf");
 							View servers = names.getView("$Servers");
 							Document serverDoc = servers.getDocumentByKey(serverName);
-							
-							boolean httpEnabled = "1".equals(serverDoc.getItemValueString("HTTP_NormalMode"));
-							boolean httpsEnabled = "1".equals(serverDoc.getItemValueString("HTTP_SSLMode"));
-							if(!httpEnabled && !httpsEnabled) {
-								// Then HTTP is effectively off - end early
-								result.dominoHttpPort = ReverseProxyConfig.PORT_DISABLED;
-								return;
-							}
-							
-							if(httpEnabled) {
-								result.dominoHttpPort = serverDoc.getItemValueInteger("HTTP_Port");
-							} else {
-								result.dominoHttpPort = serverDoc.getItemValueInteger("HTTP_SSLPort");
-								result.dominoHttps = true;
-							}
-							
-							boolean bindToHostName = "1".equals(serverDoc.getItemValueString("HTTP_BindToHostName"));
-							if(bindToHostName) {
-								String hostName = serverDoc.getItemValueString("HTTP_HostName");
-								if(hostName != null && !hostName.isEmpty()) {
-									result.dominoHostName = hostName;
-								}
-							}
 							
 							// Mirror Domino's maximum entity size
 							long maxEntitySize = serverDoc.getItemValueInteger("HTTP_MaxContentLength");

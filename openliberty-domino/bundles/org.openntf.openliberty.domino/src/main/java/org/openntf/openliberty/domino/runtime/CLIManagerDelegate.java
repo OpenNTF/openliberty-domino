@@ -36,7 +36,6 @@ public class CLIManagerDelegate implements AutoCloseable {
 	 * Initializes the delegate and the Open Liberty thread provider.
 	 */
 	public void start() {
-		DominoThreadFactory.init();
 		if(this.runner == null) {
 			this.runner = DominoThreadFactory.executor.submit(OpenLibertyRuntime.instance);
 		}

@@ -32,7 +32,7 @@ public class DominoThreadFactory implements ThreadFactory {
 	public static ExecutorService executor;
 	public static ScheduledExecutorService scheduler;
 	
-	public static void init() {
+	static {
 		if(executor == null) {
 			executor = Executors.newCachedThreadPool(instance);
 		}
@@ -40,6 +40,7 @@ public class DominoThreadFactory implements ThreadFactory {
 			scheduler = Executors.newScheduledThreadPool(5, instance);
 		}
 	}
+	
 	public static void term() {
 		if(executor != null) {
 			executor.shutdownNow();
