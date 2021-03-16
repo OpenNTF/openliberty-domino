@@ -15,7 +15,6 @@
  */
 package org.openntf.openliberty.domino.reverseproxy;
 
-import java.net.URI;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -41,7 +40,7 @@ public class ReverseProxyConfig {
 	public boolean useDominoConnectorHeaders;
 	public String dominoConnectorHeadersSecret;
 	
-	private Map<String, URI> targets = new HashMap<>();
+	private Map<String, ReverseProxyTarget> targets = new HashMap<>();
 	
 	public void setGlobalEnabled(boolean globalEnabled) {
 		this.globalEnabled = globalEnabled;
@@ -57,14 +56,14 @@ public class ReverseProxyConfig {
 	}
 	
 	/**
-	 * @return a {@link Map} of app context paths to server URLs
+	 * @return a {@link Map} of app context paths to server configurations
 	 */
-	public Map<String, URI> getTargets() {
+	public Map<String, ReverseProxyTarget> getTargets() {
 		return this.targets;
 	}
 	
-	public ReverseProxyConfig addTarget(String contextPath, URI serverUri) {
-		this.targets.put(contextPath, serverUri);
+	public ReverseProxyConfig addTarget(String contextPath, ReverseProxyTarget target) {
+		this.targets.put(contextPath, target);
 		return this;
 	}
 }

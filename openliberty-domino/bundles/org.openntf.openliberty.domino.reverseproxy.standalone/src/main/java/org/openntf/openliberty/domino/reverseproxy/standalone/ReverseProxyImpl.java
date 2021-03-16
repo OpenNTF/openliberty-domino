@@ -24,6 +24,8 @@ import java.util.logging.Logger;
 
 import javax.net.ssl.SSLContext;
 
+import org.openntf.openliberty.domino.reverseproxy.ReverseProxyTarget;
+
 import io.undertow.Undertow;
 import io.undertow.UndertowOptions;
 import io.undertow.attribute.ExchangeAttribute;
@@ -55,7 +57,7 @@ public class ReverseProxyImpl implements Runnable {
 	private boolean useDominoConnectorHeaders = false;
 	private String dominoConnectorHeadersSecret;
 
-	private Map<String, URI> targets = new HashMap<>();
+	private Map<String, ReverseProxyTarget> targets = new HashMap<>();
 	
 	private Undertow server;
 	
@@ -97,7 +99,7 @@ public class ReverseProxyImpl implements Runnable {
 	public void setDominoConnectorHeadersSecret(String dominoConnectorHeadersSecret) {
 		this.dominoConnectorHeadersSecret = dominoConnectorHeadersSecret;
 	}
-	public void setTargets(Map<String, URI> targets) {
+	public void setTargets(Map<String, ReverseProxyTarget> targets) {
 		this.targets = targets;
 	}
 
@@ -118,14 +120,23 @@ public class ReverseProxyImpl implements Runnable {
 		PathHandler pathHandler = new PathHandler();
 		
 		// Add handlers for each target
-		Map<String, URI> targets = this.targets;
+		Map<String, ReverseProxyTarget> targets = this.targets;
 		if(targets != null) {
-			for(Map.Entry<String, URI> target : targets.entrySet()) {
+			for(Map.Entry<String, ReverseProxyTarget> target : targets.entrySet()) {
 				String contextRoot = "/" + target.getKey();
-				URI targetUri = target.getValue();
+				URI targetUri = target.getValue().getUri();
 				
 				LoadBalancingProxyClient appProxy = new LoadBalancingProxyClient().addHost(targetUri);
 				ProxyHandler.Builder proxyHandler = ProxyHandler.builder().setProxyClient(appProxy);
+				
+				if(target.getValue().isUseWsHeaders()) {
+					proxyHandler.addRequestHeader(HttpString.tryFromString("$WSRH"), RemoteHostAttribute.INSTANCE);
+					proxyHandler.addRequestHeader(HttpString.tryFromString("$WSRA"), RemoteIPAttribute.INSTANCE);
+					proxyHandler.addRequestHeader(HttpString.tryFromString("$WSSC"), RequestSchemeAttribute.INSTANCE);
+					proxyHandler.addRequestHeader(HttpString.tryFromString("$WSPR"), RequestProtocolAttribute.INSTANCE);
+					proxyHandler.addRequestHeader(HttpString.tryFromString("$WSSP"), LocalPortAttribute.INSTANCE);
+					proxyHandler.addRequestHeader(HttpString.tryFromString("$WSIS"), SecureExchangeAttribute.INSTANCE);
+				}
 				
 				if(log.isLoggable(Level.FINE)) {
 					log.fine("Reverse proxy: adding prefix path for " + contextRoot);

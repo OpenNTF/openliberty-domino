@@ -18,7 +18,6 @@ package org.openntf.openliberty.domino.reverseproxy.standalone;
 import org.openntf.openliberty.domino.util.DominoThreadFactory;
 import org.openntf.openliberty.domino.util.OpenLibertyUtil;
 
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.openntf.openliberty.domino.ext.RuntimeService;

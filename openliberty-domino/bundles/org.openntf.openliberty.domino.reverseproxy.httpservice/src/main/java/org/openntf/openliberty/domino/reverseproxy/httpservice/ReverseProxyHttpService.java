@@ -39,6 +39,7 @@ import org.openntf.openliberty.domino.log.OpenLibertyLog;
 import org.openntf.openliberty.domino.reverseproxy.ReverseProxyConfig;
 import org.openntf.openliberty.domino.reverseproxy.ReverseProxyConfigProvider;
 import org.openntf.openliberty.domino.reverseproxy.ReverseProxyService;
+import org.openntf.openliberty.domino.reverseproxy.ReverseProxyTarget;
 import org.openntf.openliberty.domino.util.OpenLibertyUtil;
 
 import com.ibm.commons.util.StringUtil;
@@ -55,25 +56,29 @@ public class ReverseProxyHttpService extends HttpService implements ReverseProxy
 
 	public static final String TYPE = "NHTTP";
 	private final boolean enabled;
-	private final Map<String, URI> targets;
+	private final Map<String, ReverseProxyTarget> targets;
 	private HttpClient proxyClient;
 
 	public ReverseProxyHttpService(LCDEnvironment env) {
 		super(env);
 
-		ReverseProxyConfigProvider configProvider = OpenLibertyUtil
-				.findRequiredExtension(ReverseProxyConfigProvider.class);
-		ReverseProxyConfig config = configProvider.createConfiguration();
-
-		this.enabled = config.isEnabled(this);
-		if (!enabled) {
-			this.targets = Collections.emptyMap();
-		} else {
-			if (log.isLoggable(Level.INFO)) {
-				log.info("NHTTP reverse proxy enabled");
+		try {
+			ReverseProxyConfigProvider configProvider = OpenLibertyUtil.findRequiredExtension(ReverseProxyConfigProvider.class);
+			ReverseProxyConfig config = configProvider.createConfiguration();
+	
+			this.enabled = config.isEnabled(this);
+			if (!enabled) {
+				this.targets = Collections.emptyMap();
+			} else {
+				if (log.isLoggable(Level.INFO)) {
+					log.info("NHTTP reverse proxy enabled");
+				}
+				this.targets = config.getTargets();
+				this.proxyClient = createHttpClient();
 			}
-			this.targets = config.getTargets();
-			this.proxyClient = createHttpClient();
+		} catch(Exception e) {
+			e.printStackTrace();
+			throw e;
 		}
 	}
 
@@ -85,7 +90,6 @@ public class ReverseProxyHttpService extends HttpService implements ReverseProxy
 	@Override
 	public boolean isXspUrl(String fullPath, boolean arg1) {
 		if (!enabled) {
-			OpenLibertyLog.instance.out.println("can't check - disabled");
 			return false;
 		}
 		String pathInfo = getChompedPathInfo(fullPath);
@@ -105,9 +109,11 @@ public class ReverseProxyHttpService extends HttpService implements ReverseProxy
 		if (StringUtil.isEmpty(fullPath)) {
 			return false;
 		}
-		Optional<URI> target = this.targets.entrySet().stream()
+		Optional<ReverseProxyTarget> target = this.targets.entrySet()
+				.stream()
 				.filter(entry -> pathInfo.equals(entry.getKey()) || pathInfo.startsWith(entry.getKey() + '/'))
-				.map(Map.Entry::getValue).findFirst();
+				.map(Map.Entry::getValue)
+				.findFirst();
 		if (target.isPresent()) {
 
 			HttpRequest proxyRequest = null;
@@ -117,7 +123,7 @@ public class ReverseProxyHttpService extends HttpService implements ReverseProxy
 				
 				// Incoming request will be in the form foo/bar
 				// Target will be in the form http://localhost/foo - for now, we can assume there's no substring replacement
-				String proxyRequestUri = target.get().resolve(servletRequest.getPathInfo()).toString();
+				String proxyRequestUri = target.get().getUri().resolve(servletRequest.getPathInfo()).toString();
 
 				// spec: RFC 2616, sec 4.3: either of these two headers signal that there is a
 				// message body.
@@ -130,10 +136,10 @@ public class ReverseProxyHttpService extends HttpService implements ReverseProxy
 
 				copyRequestHeaders(servletRequest, proxyRequest);
 
-				setForwardingHeaders(servletRequest, proxyRequest);
+				setForwardingHeaders(target.get(), servletRequest, proxyRequest);
 				
 				// Execute the request
-				proxyResponse = doExecute(target.get(), servletRequest, servletResponse, proxyRequest);
+				proxyResponse = doExecute(target.get().getUri(), servletRequest, servletResponse, proxyRequest);
 
 				// Process the response:
 
@@ -149,7 +155,7 @@ public class ReverseProxyHttpService extends HttpService implements ReverseProxy
 				// server will be saved in client when the proxied url was redirected to another
 				// one.
 				// See issue [#51](https://github.com/mitre/HTTP-Proxy-Servlet/issues/51)
-				copyResponseHeaders(target.get(), proxyResponse, servletRequest, servletResponse);
+				copyResponseHeaders(target.get().getUri(), proxyResponse, servletRequest, servletResponse);
 
 				if (statusCode == HttpServletResponse.SC_NOT_MODIFIED) {
 					// 304 needs special handling. See:
@@ -315,30 +321,35 @@ public class ReverseProxyHttpService extends HttpService implements ReverseProxy
         }
     }
 
-	private void setForwardingHeaders(HttpServletRequestAdapter servletRequest, HttpRequest proxyRequest) {
-		String forHeaderName = "X-Forwarded-For"; //$NON-NLS-1$
-		String forHeader = servletRequest.getRemoteAddr();
-		String existingForHeader = servletRequest.getHeader(forHeaderName);
-		if (existingForHeader != null) {
-			forHeader = existingForHeader + ", " + forHeader; //$NON-NLS-1$
-		}
-		proxyRequest.setHeader(forHeaderName, forHeader);
-
-		String protoHeaderName = "X-Forwarded-Proto"; //$NON-NLS-1$
-		String protoHeader = servletRequest.getScheme();
-		proxyRequest.setHeader(protoHeaderName, protoHeader);
-
-		// Add WS Connector Headers -
-		// https://developer.ibm.com/wasdev/docs/nginx-websphere-application-server/
-		// TODO $WSRU for the user?
+	private void setForwardingHeaders(ReverseProxyTarget target, HttpServletRequestAdapter servletRequest, HttpRequest proxyRequest) {
 		proxyRequest.setHeader("Host", servletRequest.getServerName()); //$NON-NLS-1$
-		proxyRequest.setHeader("$WSRA", servletRequest.getRemoteAddr()); //$NON-NLS-1$
-		proxyRequest.setHeader("$WSRH", servletRequest.getRemoteHost()); //$NON-NLS-1$
-		proxyRequest.setHeader("$WSSN", servletRequest.getServerName()); //$NON-NLS-1$
+		
+		if(target.isUseXForwardedFor()) {
+			String forHeaderName = "X-Forwarded-For"; //$NON-NLS-1$
+			String forHeader = servletRequest.getRemoteAddr();
+			String existingForHeader = servletRequest.getHeader(forHeaderName);
+			if (existingForHeader != null) {
+				forHeader = existingForHeader + ", " + forHeader; //$NON-NLS-1$
+			}
+			proxyRequest.setHeader(forHeaderName, forHeader);
+	
+			String protoHeaderName = "X-Forwarded-Proto"; //$NON-NLS-1$
+			String protoHeader = servletRequest.getScheme();
+			proxyRequest.setHeader(protoHeaderName, protoHeader);
+		}
 
-		proxyRequest.setHeader("$WSSC", servletRequest.getScheme()); //$NON-NLS-1$
-		proxyRequest.setHeader("$WSIS", servletRequest.isSecure() ? "True" : "False"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		proxyRequest.setHeader("$WSSP", String.valueOf(servletRequest.getServerPort())); //$NON-NLS-1$
+		if(target.isUseWsHeaders()) {
+			// Add WS Connector Headers -
+			// https://developer.ibm.com/wasdev/docs/nginx-websphere-application-server/
+			proxyRequest.setHeader("$WSRA", servletRequest.getRemoteAddr()); //$NON-NLS-1$
+			proxyRequest.setHeader("$WSRH", servletRequest.getRemoteHost()); //$NON-NLS-1$
+			proxyRequest.setHeader("$WSSN", servletRequest.getServerName()); //$NON-NLS-1$
+	
+			proxyRequest.setHeader("$WSSC", servletRequest.getScheme()); //$NON-NLS-1$
+			proxyRequest.setHeader("$WSIS", servletRequest.isSecure() ? "True" : "False"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			proxyRequest.setHeader("$WSSP", String.valueOf(servletRequest.getServerPort())); //$NON-NLS-1$
+			proxyRequest.setHeader("$WSRU", servletRequest.getRemoteUser());
+		}
 	}
 
     /** Copy proxied response headers back to the servlet client. */
