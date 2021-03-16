@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
@@ -54,7 +55,7 @@ import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpSessionAdapter;
 public class ReverseProxyHttpService extends HttpService implements ReverseProxyService {
 	private static final Logger log = OpenLibertyLog.getLog();
 
-	public static final String TYPE = "NHTTP";
+	public static final String TYPE = "NHTTP"; //$NON-NLS-1$
 	private final boolean enabled;
 	private final Map<String, ReverseProxyTarget> targets;
 	private HttpClient proxyClient;
@@ -115,68 +116,7 @@ public class ReverseProxyHttpService extends HttpService implements ReverseProxy
 				.map(Map.Entry::getValue)
 				.findFirst();
 		if (target.isPresent()) {
-
-			HttpRequest proxyRequest = null;
-			HttpResponse proxyResponse = null;
-			try {
-				String method = servletRequest.getMethod();
-				
-				// Incoming request will be in the form foo/bar
-				// Target will be in the form http://localhost/foo - for now, we can assume there's no substring replacement
-				String proxyRequestUri = target.get().getUri().resolve(servletRequest.getPathInfo()).toString();
-
-				// spec: RFC 2616, sec 4.3: either of these two headers signal that there is a
-				// message body.
-				if (servletRequest.getHeader(HttpHeaders.CONTENT_LENGTH) != null
-						|| servletRequest.getHeader(HttpHeaders.TRANSFER_ENCODING) != null) {
-					proxyRequest = newProxyRequestWithEntity(method, proxyRequestUri, servletRequest);
-				} else {
-					proxyRequest = new BasicHttpRequest(method, proxyRequestUri);
-				}
-
-				copyRequestHeaders(servletRequest, proxyRequest);
-
-				setForwardingHeaders(target.get(), servletRequest, proxyRequest);
-				
-				// Execute the request
-				proxyResponse = doExecute(target.get().getUri(), servletRequest, servletResponse, proxyRequest);
-
-				// Process the response:
-
-				// Pass the response code. This method with the "reason phrase" is deprecated
-				// but it's the
-				// only way to pass the reason along too.
-				int statusCode = proxyResponse.getStatusLine().getStatusCode();
-				// noinspection deprecation
-				servletResponse.setStatus(statusCode, proxyResponse.getStatusLine().getReasonPhrase());
-
-				// Copying response headers to make sure SESSIONID or other Cookie which comes
-				// from the remote
-				// server will be saved in client when the proxied url was redirected to another
-				// one.
-				// See issue [#51](https://github.com/mitre/HTTP-Proxy-Servlet/issues/51)
-				copyResponseHeaders(target.get().getUri(), proxyResponse, servletRequest, servletResponse);
-
-				if (statusCode == HttpServletResponse.SC_NOT_MODIFIED) {
-					// 304 needs special handling. See:
-					// http://www.ics.uci.edu/pub/ietf/http/rfc1945.html#Code304
-					// Don't send body entity/content!
-					servletResponse.setIntHeader(HttpHeaders.CONTENT_LENGTH, 0);
-				} else {
-					// Send the content to the client
-					copyResponseEntity(proxyResponse, servletResponse, proxyRequest, servletRequest);
-				}
-
-			} catch (Exception e) {
-				handleRequestException(proxyRequest, e);
-			} finally {
-				// make sure the entire entity was consumed, so the connection is released
-				if (proxyResponse != null)
-					EntityUtils.consumeQuietly(proxyResponse.getEntity());
-				// Note: Don't need to close servlet outputStream:
-				// http://stackoverflow.com/questions/1159168/should-one-call-close-on-httpservletresponse-getoutputstream-getwriter
-			}
-			
+			doProxy(target.get(), servletRequest, servletResponse);
 			return true;
 		} else {
 			return false;
@@ -192,7 +132,6 @@ public class ReverseProxyHttpService extends HttpService implements ReverseProxy
 			try {
 				((Closeable) proxyClient).close();
 			} catch (IOException e) {
-
 			}
 		} else {
 			// Older releases require we do this:
@@ -208,7 +147,7 @@ public class ReverseProxyHttpService extends HttpService implements ReverseProxy
 
 	private String getChompedPathInfo(String fullPath) {
 		if (StringUtil.isEmpty(fullPath)) {
-			return "";
+			return ""; //$NON-NLS-1$
 		} else {
 			int qIndex = fullPath.indexOf('?');
 			if (qIndex >= 0) {
@@ -216,6 +155,73 @@ public class ReverseProxyHttpService extends HttpService implements ReverseProxy
 			} else {
 				return fullPath.substring(1);
 			}
+		}
+	}
+	
+	// *******************************************************************************
+	// * Proxy implementation
+	// *******************************************************************************
+	
+	private void doProxy(ReverseProxyTarget target, HttpServletRequestAdapter servletRequest, HttpServletResponseAdapter servletResponse) throws ServletException, IOException {
+		HttpRequest proxyRequest = null;
+		HttpResponse proxyResponse = null;
+		try {
+			String method = servletRequest.getMethod();
+			
+			// Incoming request will be in the form foo/bar
+			// Target will be in the form http://localhost/foo - for now, we can assume there's no substring replacement
+			String proxyRequestUri = target.getUri().resolve(servletRequest.getPathInfo()).toString();
+
+			// spec: RFC 2616, sec 4.3: either of these two headers signal that there is a
+			// message body.
+			if (servletRequest.getHeader(HttpHeaders.CONTENT_LENGTH) != null
+					|| servletRequest.getHeader(HttpHeaders.TRANSFER_ENCODING) != null) {
+				proxyRequest = newProxyRequestWithEntity(method, proxyRequestUri, servletRequest);
+			} else {
+				proxyRequest = new BasicHttpRequest(method, proxyRequestUri);
+			}
+
+			copyRequestHeaders(servletRequest, proxyRequest);
+
+			setForwardingHeaders(target, servletRequest, proxyRequest);
+			
+			// Execute the request
+			proxyResponse = doExecute(target.getUri(), servletRequest, servletResponse, proxyRequest);
+
+			// Process the response:
+
+			// Pass the response code. This method with the "reason phrase" is deprecated
+			// but it's the
+			// only way to pass the reason along too.
+			int statusCode = proxyResponse.getStatusLine().getStatusCode();
+			// noinspection deprecation
+			servletResponse.setStatus(statusCode, proxyResponse.getStatusLine().getReasonPhrase());
+
+			// Copying response headers to make sure SESSIONID or other Cookie which comes
+			// from the remote
+			// server will be saved in client when the proxied url was redirected to another
+			// one.
+			// See issue [#51](https://github.com/mitre/HTTP-Proxy-Servlet/issues/51)
+			copyResponseHeaders(target.getUri(), proxyResponse, servletRequest, servletResponse);
+
+			if (statusCode == HttpServletResponse.SC_NOT_MODIFIED) {
+				// 304 needs special handling. See:
+				// http://www.ics.uci.edu/pub/ietf/http/rfc1945.html#Code304
+				// Don't send body entity/content!
+				servletResponse.setIntHeader(HttpHeaders.CONTENT_LENGTH, 0);
+			} else {
+				// Send the content to the client
+				copyResponseEntity(proxyResponse, servletResponse, proxyRequest, servletRequest);
+			}
+
+		} catch (Exception e) {
+			handleRequestException(proxyRequest, e);
+		} finally {
+			// make sure the entire entity was consumed, so the connection is released
+			if (proxyResponse != null)
+				EntityUtils.consumeQuietly(proxyResponse.getEntity());
+			// Note: Don't need to close servlet outputStream:
+			// http://stackoverflow.com/questions/1159168/should-one-call-close-on-httpservletresponse-getoutputstream-getwriter
 		}
 	}
 
@@ -276,16 +282,22 @@ public class ReverseProxyHttpService extends HttpService implements ReverseProxy
      * I use an HttpClient HeaderGroup class instead of Set&lt;String&gt; because this
      * approach does case insensitive lookup faster.
      */
-    private static final HeaderGroup hopByHopHeaders;
-    static {
-        hopByHopHeaders = new HeaderGroup();
-        String[] headers = new String[] {
-                "Connection", "Keep-Alive", "Proxy-Authenticate", "Proxy-Authorization", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-                "TE", "Trailers", "Transfer-Encoding", "Upgrade" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-        for (String header : headers) {
-            hopByHopHeaders.addHeader(new BasicHeader(header, null));
-        }
-    }
+	private static final HeaderGroup hopByHopHeaders;
+	static {
+		hopByHopHeaders = new HeaderGroup();
+		Stream.of(
+			"Connection", //$NON-NLS-1$
+			"Keep-Alive", //$NON-NLS-1$
+			"Proxy-Authenticate", //$NON-NLS-1$
+			"Proxy-Authorization", //$NON-NLS-1$
+			"TE", //$NON-NLS-1$
+			"Trailers", //$NON-NLS-1$
+			"Transfer-Encoding", //$NON-NLS-1$
+			"Upgrade" //$NON-NLS-1$
+			)
+			.map(h -> new BasicHeader(h, null))
+			.forEach(hopByHopHeaders::addHeader);
+	}
 
     /**
      * Copy request headers from the servlet client to the proxy request.
@@ -315,7 +327,7 @@ public class ReverseProxyHttpService extends HttpService implements ReverseProxy
 			return;
 		}
 		// Avoid copying any connector headers coming in to Domino
-		if (headerName.startsWith("$WS")) {
+		if (headerName.startsWith("$WS")) { //$NON-NLS-1$
 			return;
 		}
 
@@ -354,7 +366,7 @@ public class ReverseProxyHttpService extends HttpService implements ReverseProxy
 			proxyRequest.setHeader("$WSSC", servletRequest.getScheme()); //$NON-NLS-1$
 			proxyRequest.setHeader("$WSIS", servletRequest.isSecure() ? "True" : "False"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			proxyRequest.setHeader("$WSSP", String.valueOf(servletRequest.getServerPort())); //$NON-NLS-1$
-			proxyRequest.setHeader("$WSRU", servletRequest.getRemoteUser());
+			proxyRequest.setHeader("$WSRU", servletRequest.getRemoteUser()); //$NON-NLS-1$
 		}
 	}
 
