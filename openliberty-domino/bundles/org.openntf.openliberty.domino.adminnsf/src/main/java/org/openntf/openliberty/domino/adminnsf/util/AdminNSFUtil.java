@@ -15,11 +15,22 @@
  */
 package org.openntf.openliberty.domino.adminnsf.util;
 
+import java.lang.reflect.Method;
+import java.security.AccessController;
+import java.security.PrivilegedExceptionAction;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.TreeSet;
+import java.util.concurrent.ExecutionException;
+
 import org.openntf.openliberty.domino.adminnsf.config.AdminNSFProperties;
+import org.openntf.openliberty.domino.util.DominoThreadFactory;
 
 import lotus.domino.Database;
 import lotus.domino.Document;
+import lotus.domino.Name;
 import lotus.domino.NotesException;
+import lotus.domino.NotesFactory;
 import lotus.domino.Session;
 import lotus.domino.View;
 
@@ -55,6 +66,56 @@ public enum AdminNSFUtil {
 			}
 		} finally {
 			configuration.recycle();
+		}
+	}
+	
+	public static boolean isNamesListMatch(Collection<String> currentNamesList, Collection<String> allowedList) {
+		Collection<String> serverNames = new HashSet<>(allowedList);
+		serverNames.remove(""); //$NON-NLS-1$
+		serverNames.remove(null);
+		if(!serverNames.isEmpty()) {
+			for(String serverName : serverNames) {
+				if(currentNamesList.contains(serverName)) {
+					return true;
+				}
+			}
+			return false;
+		} else {
+			return true;
+		}
+	}
+	
+	public static Collection<String> getCurrentServerNamesList() {
+		try {
+			return DominoThreadFactory.executor.submit(() -> {
+				return AccessController.doPrivileged((PrivilegedExceptionAction<Collection<String>>)() -> {
+					Session session = NotesFactory.createSession();
+					try {
+						Class<?> dominoServerClass = ClassLoader.getSystemClassLoader().loadClass("lotus.notes.addins.DominoServer"); //$NON-NLS-1$
+						Method getNamesList = dominoServerClass.getMethod("getNamesList", String.class); //$NON-NLS-1$
+						Object dominoServer = dominoServerClass.getConstructor(new Class<?>[0]).newInstance();
+						@SuppressWarnings("unchecked")
+						Collection<String> names = (Collection<String>)getNamesList.invoke(dominoServer, session.getUserName());
+
+						Collection<String> namesList = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+						namesList.addAll(names);
+						
+						// The abbreviated name _shouldn't_ make it into the names field, but just in case
+						Name nameObj = session.getUserNameObject();
+						try {
+							namesList.add(nameObj.getAbbreviated());
+						} finally {
+							nameObj.recycle();
+						}
+						
+						return namesList;
+					} finally {
+						session.recycle();
+					}
+				});
+			}).get();
+		} catch (InterruptedException | ExecutionException e) {
+			throw new RuntimeException(e);
 		}
 	}
 }

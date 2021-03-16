@@ -15,9 +15,28 @@
  */
 package org.openntf.openliberty.domino.reverseproxy.standalone;
 
-import org.openntf.openliberty.domino.util.DominoThreadFactory;
 import org.openntf.openliberty.domino.util.OpenLibertyUtil;
 
+import io.undertow.Undertow;
+import io.undertow.UndertowOptions;
+import io.undertow.attribute.ExchangeAttribute;
+import io.undertow.attribute.LocalPortAttribute;
+import io.undertow.attribute.ReadOnlyAttributeException;
+import io.undertow.attribute.RemoteHostAttribute;
+import io.undertow.attribute.RemoteIPAttribute;
+import io.undertow.attribute.RequestProtocolAttribute;
+import io.undertow.attribute.RequestSchemeAttribute;
+import io.undertow.attribute.SecureExchangeAttribute;
+import io.undertow.server.HttpServerExchange;
+import io.undertow.server.handlers.PathHandler;
+import io.undertow.server.handlers.proxy.LoadBalancingProxyClient;
+import io.undertow.server.handlers.proxy.ProxyHandler;
+import io.undertow.util.HttpString;
+
+import java.net.URI;
+import java.text.MessageFormat;
+import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.openntf.openliberty.domino.ext.RuntimeService;
@@ -25,6 +44,7 @@ import org.openntf.openliberty.domino.log.OpenLibertyLog;
 import org.openntf.openliberty.domino.reverseproxy.ReverseProxyConfig;
 import org.openntf.openliberty.domino.reverseproxy.ReverseProxyConfigProvider;
 import org.openntf.openliberty.domino.reverseproxy.ReverseProxyService;
+import org.openntf.openliberty.domino.reverseproxy.ReverseProxyTarget;
 
 /**
  * Reverse proxy implementation that opens a proxy on a configured port and supports
@@ -36,7 +56,11 @@ import org.openntf.openliberty.domino.reverseproxy.ReverseProxyService;
 public class StandaloneReverseProxyService implements RuntimeService, ReverseProxyService {
 	private static final Logger log = OpenLibertyLog.getLog();
 	
-	public static final String TYPE = "Standalone";
+	public static final String TYPE = "Standalone"; //$NON-NLS-1$
+
+	private Undertow server;
+	ReverseProxyConfig config;
+	private int configHash;
 	
 	@Override
 	public String getProxyType() {
@@ -44,36 +68,127 @@ public class StandaloneReverseProxyService implements RuntimeService, ReversePro
 	}
 	
 	@Override
+	public void notifyConfigurationChanged(ReverseProxyConfig config) {
+		int newHash = config.hashCode();
+		if(this.configHash != newHash) {
+			this.config = config;
+			this.configHash = newHash;
+			
+			refreshServer();
+		}
+	}
+	
+	@Override
 	public void run() {
 		try {
 			ReverseProxyConfigProvider configProvider = OpenLibertyUtil.findRequiredExtension(ReverseProxyConfigProvider.class);
-			ReverseProxyConfig config = configProvider.createConfiguration();
+			this.config = configProvider.createConfiguration();
+			this.configHash = this.config.hashCode();
 			
-			if(!config.isEnabled(this)) {
-				return;
-			}
+			refreshServer();
 			
-			ReverseProxyImpl proxy = new ReverseProxyImpl();
-			proxy.setLogger(log);
-			
-			proxy.setProxyHostName(config.proxyHostName);
-			proxy.setProxyHttpPort(config.proxyHttpPort);
-			proxy.setProxyHttpsPort(config.proxyHttpsPort);
-			proxy.setProxyHttpsContext(config.proxyHttpsContext);
-			proxy.setMaxEntitySize(config.maxEntitySize);
-			
-			proxy.setDominoHostName(config.dominoHostName);
-			proxy.setDominoHttpPort(config.dominoHttpPort);
-			proxy.setDominoHttps(config.dominoHttps);
-			if(config.useDominoConnectorHeaders) {
-				proxy.setUseDominoConnectorHeaders(true);
-				proxy.setDominoConnectorHeadersSecret(config.dominoConnectorHeadersSecret);
-			}
-			proxy.setTargets(config.getTargets());
-			
-			DominoThreadFactory.executor.submit(proxy);
+			configProvider.registerConfigChangeListener(this);
 		} catch(Throwable t) {
 			t.printStackTrace();
 		}
+	}
+	
+	private void refreshServer() {
+		if(this.server != null) {
+			this.server.stop();
+			this.server = null;
+		}
+		if(this.config.isEnabled(this)) {
+			this.server = startServer();
+		}
+	}
+	
+	private Undertow startServer() {
+		PathHandler pathHandler = new PathHandler();
+		
+		// Add handlers for each target
+		Map<String, ReverseProxyTarget> targets = this.config.getTargets();
+		if(targets != null) {
+			for(Map.Entry<String, ReverseProxyTarget> target : targets.entrySet()) {
+				String contextRoot = "/" + target.getKey(); //$NON-NLS-1$
+				URI targetUri = target.getValue().getUri();
+				
+				LoadBalancingProxyClient appProxy = new LoadBalancingProxyClient().addHost(targetUri);
+				ProxyHandler.Builder proxyHandler = ProxyHandler.builder().setProxyClient(appProxy);
+				
+				if(target.getValue().isUseWsHeaders()) {
+					proxyHandler.addRequestHeader(HttpString.tryFromString("$WSRH"), RemoteHostAttribute.INSTANCE); //$NON-NLS-1$
+					proxyHandler.addRequestHeader(HttpString.tryFromString("$WSRA"), RemoteIPAttribute.INSTANCE); //$NON-NLS-1$
+					proxyHandler.addRequestHeader(HttpString.tryFromString("$WSSC"), RequestSchemeAttribute.INSTANCE); //$NON-NLS-1$
+					proxyHandler.addRequestHeader(HttpString.tryFromString("$WSPR"), RequestProtocolAttribute.INSTANCE); //$NON-NLS-1$
+					proxyHandler.addRequestHeader(HttpString.tryFromString("$WSSP"), LocalPortAttribute.INSTANCE); //$NON-NLS-1$
+					proxyHandler.addRequestHeader(HttpString.tryFromString("$WSIS"), SecureExchangeAttribute.INSTANCE); //$NON-NLS-1$
+				}
+				
+				if(log.isLoggable(Level.FINE)) {
+					log.fine(MessageFormat.format("Reverse proxy: adding prefix path for {0}", contextRoot));
+				}
+				pathHandler.addPrefixPath(contextRoot, proxyHandler.build());
+			}
+		}
+		
+		// Construct the Domino proxy
+		{
+			boolean dominoHttps = config.dominoHttps;
+			String dominoHostName = config.dominoHostName;
+			int dominoHttpPort = config.dominoHttpPort;
+			String dominoUri = MessageFormat.format("http{0}://{1}:{2}", dominoHttps ? "s" : "", dominoHostName, Integer.toString(dominoHttpPort)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			LoadBalancingProxyClient dominoProxy = new LoadBalancingProxyClient().addHost(URI.create(dominoUri));
+			
+			ProxyHandler.Builder proxyHandler = ProxyHandler.builder()
+            		.setProxyClient(dominoProxy);
+			if(config.useDominoConnectorHeaders) {
+				proxyHandler.addRequestHeader(HttpString.tryFromString("X-ConnectorHeaders-Secret"), new StringAttribute(config.dominoConnectorHeadersSecret)); //$NON-NLS-1$
+				proxyHandler.addRequestHeader(HttpString.tryFromString("$WSRH"), RemoteHostAttribute.INSTANCE); //$NON-NLS-1$
+				proxyHandler.addRequestHeader(HttpString.tryFromString("$WSRA"), RemoteIPAttribute.INSTANCE); //$NON-NLS-1$
+				proxyHandler.addRequestHeader(HttpString.tryFromString("$WSSC"), RequestSchemeAttribute.INSTANCE); //$NON-NLS-1$
+				proxyHandler.addRequestHeader(HttpString.tryFromString("$WSPR"), RequestProtocolAttribute.INSTANCE); //$NON-NLS-1$
+				proxyHandler.addRequestHeader(HttpString.tryFromString("$WSSP"), LocalPortAttribute.INSTANCE); //$NON-NLS-1$
+				proxyHandler.addRequestHeader(HttpString.tryFromString("$WSIS"), SecureExchangeAttribute.INSTANCE); //$NON-NLS-1$
+			}
+			pathHandler.addPrefixPath("/", proxyHandler.build()); //$NON-NLS-1$
+		}
+
+		Undertow.Builder serverBuilder = Undertow.builder()
+			.setHandler(pathHandler)
+			.setServerOption(UndertowOptions.ENABLE_HTTP2, true)
+			.setServerOption(UndertowOptions.HTTP2_SETTINGS_ENABLE_PUSH, true)
+			.setServerOption(UndertowOptions.MAX_ENTITY_SIZE, config.maxEntitySize)
+			// Obligatory for XPages minifiers
+			.setServerOption(UndertowOptions.ALLOW_ENCODED_SLASH, true);
+		if(config.proxyHttpPort != -1) {
+			serverBuilder.addHttpListener(config.proxyHttpPort, config.proxyHostName);
+		}
+		if(config.proxyHttpsPort != -1) {
+			serverBuilder.addHttpsListener(config.proxyHttpsPort, config.proxyHostName, config.proxyHttpsContext);
+		}
+		Undertow server = serverBuilder.build();
+		server.start();
+
+		if(log.isLoggable(Level.INFO)) {
+			log.info(MessageFormat.format("Reverse proxy listening on {0}:{1}", config.proxyHostName, Integer.toString(config.proxyHttpPort)));
+		}
+		
+		return server;
+	}
+	
+	private static class StringAttribute implements ExchangeAttribute {
+		private final String value;
+		public StringAttribute(String value) {
+			this.value = value;
+		}
+
+		@Override
+		public String readAttribute(HttpServerExchange exchange) {
+			return value;
+		}
+
+		@Override
+		public void writeAttribute(HttpServerExchange exchange, String newValue) throws ReadOnlyAttributeException { }
 	}
 }

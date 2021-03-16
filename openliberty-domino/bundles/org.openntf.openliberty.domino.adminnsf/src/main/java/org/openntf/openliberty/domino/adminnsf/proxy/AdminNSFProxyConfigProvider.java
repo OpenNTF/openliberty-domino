@@ -21,21 +21,21 @@ import java.net.URI;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
+import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
-import java.text.MessageFormat;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Vector;
 import java.util.concurrent.ExecutionException;
 
@@ -52,14 +52,14 @@ import org.openntf.openliberty.domino.config.RuntimeConfigurationProvider;
 import org.openntf.openliberty.domino.log.OpenLibertyLog;
 import org.openntf.openliberty.domino.reverseproxy.ReverseProxyConfig;
 import org.openntf.openliberty.domino.reverseproxy.ReverseProxyConfigProvider;
+import org.openntf.openliberty.domino.reverseproxy.ReverseProxyService;
 import org.openntf.openliberty.domino.reverseproxy.ReverseProxyTarget;
 import org.openntf.openliberty.domino.util.DominoThreadFactory;
 import org.openntf.openliberty.domino.util.OpenLibertyUtil;
-import org.openntf.openliberty.domino.util.xml.XMLDocument;
-import org.openntf.openliberty.domino.util.xml.XMLNode;
 
 import lotus.domino.Database;
 import lotus.domino.Document;
+import lotus.domino.NotesException;
 import lotus.domino.NotesFactory;
 import lotus.domino.Session;
 import lotus.domino.View;
@@ -78,8 +78,9 @@ public class AdminNSFProxyConfigProvider implements ReverseProxyConfigProvider {
 	public static final String ITEM_REVERSEPROXYHTTPSKEY = "ReverseProxyHTTPSKey"; //$NON-NLS-1$
 	public static final String ITEM_REVERSEPROXYHTTPSCERT = "ReverseProxyHTTPSChain"; //$NON-NLS-1$
 	
-	public static final String VIEW_REVERSEPROXYAPPS = "ReverseProxyApps"; //$NON-NLS-1$
+	public static final String VIEW_REVERSEPROXYTARGETS = "ReverseProxyTargets"; //$NON-NLS-1$
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public ReverseProxyConfig createConfiguration() {
 		ReverseProxyConfig result = new ReverseProxyConfig();
@@ -90,129 +91,67 @@ public class AdminNSFProxyConfigProvider implements ReverseProxyConfigProvider {
 		result.dominoHttps = runtimeConfig.isDominoHttps();
 		
 		try {
-			// Load the main config
 			DominoThreadFactory.executor.submit(() -> {
 				try {
 					Session session = NotesFactory.createSession();
 					try {
 						Database adminNsf = AdminNSFUtil.getAdminDatabase(session);
 						Document config = AdminNSFUtil.getConfigurationDocument(adminNsf);
-						
-						boolean enable = "Y".equals(config.getItemValueString(ITEM_REVERSEPROXYENABLE)); //$NON-NLS-1$
-						result.setGlobalEnabled(enable);
-						if(!enable) {
+
+						// Load the main config
+						boolean connectorHeaders = runtimeConfig.isUseDominoConnectorHeaders();
+						readConfigurationDocument(result, config, connectorHeaders);
+						if(!result.isGlobalEnabled()) {
 							return;
 						}
 						
-						@SuppressWarnings("unchecked")
-						List<String> enabledTypes = config.getItemValue(ITEM_REVERSEPROXYTYPES);
-						enabledTypes.forEach(result::addEnabledType);
-						
-						String hostName = config.getItemValueString(ITEM_REVERSEPROXYHOST);
-						if(hostName == null || hostName.isEmpty()) {
-							hostName = "0.0.0.0"; //$NON-NLS-1$
-						}
-						result.proxyHostName = hostName;
-						boolean connectorHeaders = runtimeConfig.isUseDominoConnectorHeaders();
-						if(connectorHeaders) {
-							result.useDominoConnectorHeaders = connectorHeaders;
-							String secret = session.getEnvironmentString("HTTPConnectorHeadersSecret", true); //$NON-NLS-1$
-							result.dominoConnectorHeadersSecret = secret;
-						}
-						
-						// Check for HTTP
-						boolean enableHttp = "Y".equals(config.getItemValueString(ITEM_REVERSEPROXYHTTP)); //$NON-NLS-1$
-						if(enableHttp) {
-							if(enableHttp) {
-								int port = config.getItemValueInteger(ITEM_REVERSEPROXYHTTPPORT);
-								result.proxyHttpPort = port;
-							}
-						}
-						
-						// Check for HTTPS
-						boolean enableHttps = "Y".equals(config.getItemValueString(ITEM_REVERSEPROXYHTTPS)); //$NON-NLS-1$
-						if(enableHttps) {
-							int port = config.getItemValueInteger(ITEM_REVERSEPROXYHTTPSPORT);
-							result.proxyHttpsPort = port;
-							
-							String privateKeyPem = config.getItemValueString(ITEM_REVERSEPROXYHTTPSKEY);
-							char[] password = Long.toString(System.currentTimeMillis()).toCharArray();
-							RSAPrivateKey privateKey = readPrivateKey(privateKeyPem);
-							
-							String certsPem = config.getItemValueString(ITEM_REVERSEPROXYHTTPSCERT);
-							CertificateFactory fac = CertificateFactory.getInstance("X.509"); //$NON-NLS-1$
-							Collection<? extends Certificate> certs;
-							try(ByteArrayInputStream bais = new ByteArrayInputStream(certsPem.getBytes())) {
-								certs = fac.generateCertificates(bais);
-							}
-							
-							KeyStore keystore = KeyStore.getInstance("PKCS12"); //$NON-NLS-1$
-							keystore.load(null, password);
-							keystore.setKeyEntry("default", privateKey, password, certs.toArray(new Certificate[certs.size()])); //$NON-NLS-1$
-							TrustManager[] trustManagers = buildTrustManagers(keystore);
-							KeyManager[] keyManagers = buildKeyManagers(keystore, password);
-							
-							SSLContext sslContext = SSLContext.getInstance("TLS"); //$NON-NLS-1$
-							sslContext.init(keyManagers, trustManagers, null);
-							result.proxyHttpsContext = sslContext;
-						}
+						Collection<String> namesList = AdminNSFUtil.getCurrentServerNamesList();
 						
 						// Look for proxy-enabled webapps
-						Map<String, XMLDocument> serverXmls = new HashMap<>();
-						View apps = adminNsf.getView(VIEW_REVERSEPROXYAPPS);
-						apps.setAutoUpdate(false);
-						ViewNavigator nav = apps.createViewNav();
+						View targetsView = adminNsf.getView(VIEW_REVERSEPROXYTARGETS);
+						targetsView.setAutoUpdate(false);
+						targetsView.refresh();
+						ViewNavigator nav = targetsView.createViewNav();
+						nav.setEntryOptions(ViewNavigator.VN_ENTRYOPT_NOCOUNTDATA);
 						ViewEntry entry = nav.getFirst();
+						
 						while(entry != null) {
 							Vector<?> columnValues = entry.getColumnValues();
-							
-							String ref = (String)columnValues.get(0);
-							String contextRoot = (String)columnValues.get(1);
-							if(contextRoot.startsWith("/")) { //$NON-NLS-1$
-								contextRoot = contextRoot.substring(1);
+							List<String> dominoServers;
+							Object dominoServersObj = columnValues.get(4);
+							if(dominoServersObj instanceof String) {
+								dominoServers = Arrays.asList((String)dominoServersObj);
+							} else {
+								dominoServers = (List<String>)dominoServersObj;
 							}
-
-							// TODO participate in any random-numbering scheme available - could read from the filesystem.
-							//   Alternatively, this could read from the fields in the server doc, if not using randomized ports
-							XMLDocument serverXml = serverXmls.computeIfAbsent(ref, unid -> {
-								try {
-									Document server = adminNsf.getDocumentByUNID(ref);
-									String serverXmlString = server.getItemValueString(AdminNSFService.ITEM_SERVERXML);
-									XMLDocument resultDoc = new XMLDocument();
-									resultDoc.loadString(serverXmlString);
-									return resultDoc;
-								} catch(Exception e) {
-									throw new RuntimeException(e);
-								}
-							});
-							
-							XMLNode httpEndpoint = serverXml.selectSingleNode("/server/httpEndpoint"); //$NON-NLS-1$
-							if(httpEndpoint != null) {
-								String host = httpEndpoint.getAttribute("host"); //$NON-NLS-1$
-								if(host == null || host.isEmpty() || "*".equals(host)) { //$NON-NLS-1$
-									host = "localhost"; //$NON-NLS-1$
-								}
-								String httpPort = httpEndpoint.getAttribute("httpPort"); //$NON-NLS-1$
-								boolean https = false;
-								if(httpPort == null || httpPort.isEmpty()) {
-									httpPort = httpEndpoint.getAttribute("httpsPort"); //$NON-NLS-1$
-									https = true;
-								}
+							boolean shouldRun = AdminNSFUtil.isNamesListMatch(namesList, dominoServers);
+							if(shouldRun) {
+								// Format: http://localhost:80
+								String baseUri = (String)columnValues.get(1);
+								boolean useXForwardedFor = "Y".equals(columnValues.get(2)); //$NON-NLS-1$
+								boolean useWsHeaders = "Y".equals(columnValues.get(3)); //$NON-NLS-1$
 								
-								// Assume that the presence of these settings includes this server
-								// TODO don't assume that
-								boolean useXForwardedFor = serverXml.selectSingleNode("/server/httpEndpoint/remoteIp") != null; //$NON-NLS-1$
-								boolean useWsHeaders = serverXml.selectSingleNode("/server/httpDispatcher/trustedSensitiveHeaderOrigin") != null; //$NON-NLS-1$
-								
-								URI uri = URI.create(MessageFormat.format("http{0}://{1}:{2}/{3}", https ? "s" : "", host, httpPort, contextRoot)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-								ReverseProxyTarget target = new ReverseProxyTarget(uri, useXForwardedFor, useWsHeaders);
-								result.addTarget(contextRoot, target);
+								// Now read the children to build targets
+								ViewEntry childEntry = nav.getChild(entry);
+								while(childEntry != null) {
+									Vector<?> childValues = childEntry.getColumnValues();
+									// Format: foo
+									String contextPath = (String)childValues.get(0);
+									
+									URI uri = URI.create(baseUri + "/" + contextPath); //$NON-NLS-1$
+									ReverseProxyTarget target = new ReverseProxyTarget(uri, useXForwardedFor, useWsHeaders);
+									result.addTarget(contextPath, target);
+									
+									childEntry.recycle(childValues);
+									ViewEntry tempChild = childEntry;
+									childEntry = nav.getNextSibling(childEntry);
+									tempChild.recycle();
+								}
 							}
-							
 							
 							entry.recycle(columnValues);
 							ViewEntry tempEntry = entry;
-							entry = nav.getNext();
+							entry = nav.getNextSibling(entry);
 							tempEntry.recycle();
 						}
 						
@@ -262,7 +201,80 @@ public class AdminNSFProxyConfigProvider implements ReverseProxyConfigProvider {
 		return result;
 	}
 	
-	private RSAPrivateKey readPrivateKey(String key) throws InvalidKeySpecException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException, IOException {
+	@Override
+	public void registerConfigChangeListener(ReverseProxyService proxy) {
+		AdminNSFService.instance.registerReverseProxy(proxy);
+	}
+	
+	public static void readConfigurationDocument(ReverseProxyConfig result, Document config, boolean useDominoConnectorHeaders) {
+		try {
+			boolean enable = "Y".equals(config.getItemValueString(ITEM_REVERSEPROXYENABLE)); //$NON-NLS-1$
+			result.setGlobalEnabled(enable);
+			if(!enable) {
+				return;
+			}
+			
+			@SuppressWarnings("unchecked")
+			List<String> enabledTypes = config.getItemValue(ITEM_REVERSEPROXYTYPES);
+			enabledTypes.forEach(result::addEnabledType);
+			
+			String hostName = config.getItemValueString(ITEM_REVERSEPROXYHOST);
+			if(hostName == null || hostName.isEmpty()) {
+				hostName = "0.0.0.0"; //$NON-NLS-1$
+			}
+			result.proxyHostName = hostName;
+			if(useDominoConnectorHeaders) {
+				result.useDominoConnectorHeaders = true;
+				String secret = config.getParentDatabase().getParent().getEnvironmentString("HTTPConnectorHeadersSecret", true); //$NON-NLS-1$
+				result.dominoConnectorHeadersSecret = secret;
+			}
+			
+			// Check for HTTP
+			boolean enableHttp = "Y".equals(config.getItemValueString(ITEM_REVERSEPROXYHTTP)); //$NON-NLS-1$
+			if(enableHttp) {
+				if(enableHttp) {
+					int port = config.getItemValueInteger(ITEM_REVERSEPROXYHTTPPORT);
+					result.proxyHttpPort = port;
+				}
+			}
+			
+			// Check for HTTPS
+			boolean enableHttps = "Y".equals(config.getItemValueString(ITEM_REVERSEPROXYHTTPS)); //$NON-NLS-1$
+			if(enableHttps) {
+				int port = config.getItemValueInteger(ITEM_REVERSEPROXYHTTPSPORT);
+				result.proxyHttpsPort = port;
+				
+				String privateKeyPem = config.getItemValueString(ITEM_REVERSEPROXYHTTPSKEY);
+				char[] password = Long.toString(System.currentTimeMillis()).toCharArray();
+				RSAPrivateKey privateKey = readPrivateKey(privateKeyPem);
+				
+				String certsPem = config.getItemValueString(ITEM_REVERSEPROXYHTTPSCERT);
+				CertificateFactory fac = CertificateFactory.getInstance("X.509"); //$NON-NLS-1$
+				Collection<? extends Certificate> certs;
+				try(ByteArrayInputStream bais = new ByteArrayInputStream(certsPem.getBytes())) {
+					certs = fac.generateCertificates(bais);
+				}
+				
+				KeyStore keystore = KeyStore.getInstance("PKCS12"); //$NON-NLS-1$
+				keystore.load(null, password);
+				keystore.setKeyEntry("default", privateKey, password, certs.toArray(new Certificate[certs.size()])); //$NON-NLS-1$
+				TrustManager[] trustManagers = buildTrustManagers(keystore);
+				KeyManager[] keyManagers = buildKeyManagers(keystore, password);
+				
+				SSLContext sslContext = SSLContext.getInstance("TLS"); //$NON-NLS-1$
+				sslContext.init(keyManagers, trustManagers, null);
+				result.proxyHttpsContext = sslContext;
+			}
+		} catch(NotesException | CertificateException | NoSuchAlgorithmException | KeyManagementException | KeyStoreException | IOException | InvalidKeyException | InvalidKeySpecException | NoSuchPaddingException | InvalidAlgorithmParameterException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	// *******************************************************************************
+	// * Internal implementation methods
+	// *******************************************************************************
+	
+	private static RSAPrivateKey readPrivateKey(String key) throws InvalidKeySpecException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException, IOException {
 		String privateKeyPEM = key
 	      .replace("-----BEGIN PRIVATE KEY-----", "") //$NON-NLS-1$ //$NON-NLS-2$
 	      .replaceAll(System.lineSeparator(), "") //$NON-NLS-1$

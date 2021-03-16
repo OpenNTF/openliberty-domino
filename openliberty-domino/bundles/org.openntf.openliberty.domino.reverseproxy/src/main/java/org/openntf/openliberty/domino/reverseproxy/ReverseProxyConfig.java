@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.net.ssl.SSLContext;
 
@@ -65,5 +66,31 @@ public class ReverseProxyConfig {
 	public ReverseProxyConfig addTarget(String contextPath, ReverseProxyTarget target) {
 		this.targets.put(contextPath, target);
 		return this;
+	}
+	
+	@Override
+	public int hashCode() {
+		// proxyHttpsContext is left out as it doesn't implement hashCode
+		return Objects.hash(dominoConnectorHeadersSecret, dominoHostName, dominoHttpPort, dominoHttps, enabledTypes,
+				globalEnabled, maxEntitySize, proxyHostName, proxyHttpPort, proxyHttpsPort, targets,
+				useDominoConnectorHeaders);
+	}
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ReverseProxyConfig other = (ReverseProxyConfig) obj;
+		return Objects.equals(dominoConnectorHeadersSecret, other.dominoConnectorHeadersSecret)
+				&& Objects.equals(dominoHostName, other.dominoHostName) && dominoHttpPort == other.dominoHttpPort
+				&& dominoHttps == other.dominoHttps && Objects.equals(enabledTypes, other.enabledTypes)
+				&& globalEnabled == other.globalEnabled && maxEntitySize == other.maxEntitySize
+				&& Objects.equals(proxyHostName, other.proxyHostName) && proxyHttpPort == other.proxyHttpPort
+				&& Objects.equals(proxyHttpsContext, other.proxyHttpsContext) && proxyHttpsPort == other.proxyHttpsPort
+				&& Objects.equals(targets, other.targets)
+				&& useDominoConnectorHeaders == other.useDominoConnectorHeaders;
 	}
 }

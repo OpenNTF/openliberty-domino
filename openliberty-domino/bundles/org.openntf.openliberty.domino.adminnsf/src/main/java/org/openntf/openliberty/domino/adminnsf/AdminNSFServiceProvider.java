@@ -24,7 +24,7 @@ public class AdminNSFServiceProvider implements RuntimeService {
 
 	@Override
 	public void run() {
-		DominoThreadFactory.scheduler.scheduleWithFixedDelay(new AdminNSFService(), 0, 30, TimeUnit.SECONDS);
+		DominoThreadFactory.scheduler.scheduleWithFixedDelay(AdminNSFService.instance, 0, 30, TimeUnit.SECONDS);
 	}
 
 }

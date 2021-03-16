@@ -26,4 +26,12 @@ public interface ReverseProxyService {
 	 * @return an implementation-specific type identifier for the proxy
 	 */
 	String getProxyType();
+	
+	/**
+	 * Hook called by a monitoring service to notify proxy implementations that some
+	 * aspect of the configuration has changed.
+	 * 
+	 * @param config the new configuration state
+	 */
+	void notifyConfigurationChanged(ReverseProxyConfig config);
 }

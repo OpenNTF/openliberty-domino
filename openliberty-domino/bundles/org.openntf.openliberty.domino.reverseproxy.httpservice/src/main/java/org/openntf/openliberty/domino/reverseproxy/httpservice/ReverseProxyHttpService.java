@@ -78,7 +78,7 @@ public class ReverseProxyHttpService extends HttpService implements ReverseProxy
 
 	public static final String TYPE = "NHTTP"; //$NON-NLS-1$
 	private final boolean enabled;
-	private final Map<String, ReverseProxyTarget> targets;
+	private Map<String, ReverseProxyTarget> targets;
 	private HttpClient proxyClient;
 
 	public ReverseProxyHttpService(LCDEnvironment env) {
@@ -98,6 +98,7 @@ public class ReverseProxyHttpService extends HttpService implements ReverseProxy
 				this.targets = config.getTargets();
 				this.proxyClient = createHttpClient();
 			}
+			configProvider.registerConfigChangeListener(this);
 		} catch(Exception e) {
 			e.printStackTrace();
 			throw e;
@@ -107,6 +108,11 @@ public class ReverseProxyHttpService extends HttpService implements ReverseProxy
 	@Override
 	public String getProxyType() {
 		return TYPE;
+	}
+	
+	@Override
+	public void notifyConfigurationChanged(ReverseProxyConfig config) {
+		this.targets = config.getTargets();
 	}
 
 	@Override

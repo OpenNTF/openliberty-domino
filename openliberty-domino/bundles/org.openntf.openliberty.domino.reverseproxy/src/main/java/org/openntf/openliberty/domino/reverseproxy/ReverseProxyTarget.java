@@ -43,4 +43,10 @@ public class ReverseProxyTarget {
 	public boolean isUseXForwardedFor() {
 		return useXForwardedFor;
 	}
+
+	@Override
+	public String toString() {
+		return String.format("ReverseProxyTarget [uri=%s, useXForwardedFor=%s, useWsHeaders=%s]", //$NON-NLS-1$
+				uri, useXForwardedFor, useWsHeaders);
+	}
 }
