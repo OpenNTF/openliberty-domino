@@ -2,8 +2,6 @@ package org.openntf.openliberty.domino.config;
 
 import java.nio.file.Path;
 
-import org.openntf.openliberty.domino.jvm.JVMIdentifier;
-
 /**
  * This extension interface specifies a service that can provide global configuration
  * options.
