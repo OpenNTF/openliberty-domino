@@ -88,20 +88,20 @@ public class AdminNSFService implements Runnable {
 	public static final String ITEM_INTEGRATIONFEATURES = "IntegrationFeatures"; //$NON-NLS-1$
 	
 	/** @since 3.0.0 */
-	public static final String ITEM_JAVAVERSION = "JavaVersion";
+	public static final String ITEM_JAVAVERSION = "JavaVersion"; //$NON-NLS-1$
 	/** @since 3.0.0 */
-	public static final String ITEM_JAVATYPE = "JavaJVM";
+	public static final String ITEM_JAVATYPE = "JavaJVM"; //$NON-NLS-1$
 	/** @since 3.0.0 */
-	public static final String ITEM_LIBERTYVERSION = "LibertyVersion";
+	public static final String ITEM_LIBERTYVERSION = "LibertyVersion"; //$NON-NLS-1$
 	/** @since 3.0.0 */
-	public static final String ITEM_LIBERTYARTIFACT = "LibertyArtifact";
+	public static final String ITEM_LIBERTYARTIFACT = "LibertyArtifact"; //$NON-NLS-1$
 	/** @since 3.0.0 */
-	public static final String ITEM_LIBERTYMAVENREPO = "LibertyMavenRepo";
+	public static final String ITEM_LIBERTYMAVENREPO = "LibertyMavenRepo"; //$NON-NLS-1$
 	
 	private long lastRun = -1;
 	
 	private static final Path TEMP_DIR = OpenLibertyUtil.getTempDirectory();
-	private static final Path APP_DIR = TEMP_DIR.resolve("apps");
+	private static final Path APP_DIR = TEMP_DIR.resolve("apps"); //$NON-NLS-1$
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -256,7 +256,7 @@ public class AdminNSFService implements Runnable {
 						if(!Files.exists(appDir)) {
 							Files.createDirectories(appDir);
 						}
-						Path warPath = appDir.resolve(docMod + ".war");
+						Path warPath = appDir.resolve(docMod + ".war"); //$NON-NLS-1$
 						
 						// See if we need to deploy the file
 						if(!Files.exists(warPath)) {
@@ -286,11 +286,11 @@ public class AdminNSFService implements Runnable {
 						if(serverXml == null) {
 							serverXml = generateServerXml(serverDoc);
 						}
-						XMLNode webApplication = serverXml.selectSingleNode("/server").addChildElement("webApplication");
-						webApplication.setAttribute("contextRoot", contextPath);
-						webApplication.setAttribute("id", "app-" + dropinDoc.getNoteID());
-						webApplication.setAttribute("location", warPath.toString());
-						webApplication.setAttribute("name", appName);
+						XMLNode webApplication = serverXml.selectSingleNode("/server").addChildElement("webApplication"); //$NON-NLS-1$ //$NON-NLS-2$
+						webApplication.setAttribute("contextRoot", contextPath); //$NON-NLS-1$
+						webApplication.setAttribute("id", "app-" + dropinDoc.getNoteID()); //$NON-NLS-1$ //$NON-NLS-2$
+						webApplication.setAttribute("location", warPath.toString()); //$NON-NLS-1$
+						webApplication.setAttribute("name", appName); //$NON-NLS-1$
 						
 					} finally {
 						dropinDoc.recycle();

@@ -75,12 +75,12 @@ public class AdminNSFRuntimeConfigurationProvider implements RuntimeConfiguratio
 					
 					
 					// Read Domino server config from names.nsf
-					Database names = session.getDatabase("", "names.nsf");
-					View servers = names.getView("$Servers");
+					Database names = session.getDatabase("", "names.nsf"); //$NON-NLS-1$ //$NON-NLS-2$
+					View servers = names.getView("$Servers"); //$NON-NLS-1$
 					Document serverDoc = servers.getDocumentByKey(session.getUserName());
 					
-					boolean httpEnabled = "1".equals(serverDoc.getItemValueString("HTTP_NormalMode"));
-					boolean httpsEnabled = "1".equals(serverDoc.getItemValueString("HTTP_SSLMode"));
+					boolean httpEnabled = "1".equals(serverDoc.getItemValueString("HTTP_NormalMode")); //$NON-NLS-1$ //$NON-NLS-2$
+					boolean httpsEnabled = "1".equals(serverDoc.getItemValueString("HTTP_SSLMode")); //$NON-NLS-1$ //$NON-NLS-2$
 					if(!httpEnabled && !httpsEnabled) {
 						// Then HTTP is effectively off - end early
 						this.dominoPort = ReverseProxyConfig.PORT_DISABLED;
@@ -88,25 +88,25 @@ public class AdminNSFRuntimeConfigurationProvider implements RuntimeConfiguratio
 					}
 					
 					if(httpEnabled) {
-						this.dominoPort = serverDoc.getItemValueInteger("HTTP_Port");
+						this.dominoPort = serverDoc.getItemValueInteger("HTTP_Port"); //$NON-NLS-1$
 					} else {
-						this.dominoPort = serverDoc.getItemValueInteger("HTTP_SSLPort");
+						this.dominoPort = serverDoc.getItemValueInteger("HTTP_SSLPort"); //$NON-NLS-1$
 						this.dominoHttps = true;
 					}
 					
-					boolean bindToHostName = "1".equals(serverDoc.getItemValueString("HTTP_BindToHostName"));
+					boolean bindToHostName = "1".equals(serverDoc.getItemValueString("HTTP_BindToHostName")); //$NON-NLS-1$ //$NON-NLS-2$
 					if(bindToHostName) {
-						String hostName = serverDoc.getItemValueString("HTTP_HostName");
+						String hostName = serverDoc.getItemValueString("HTTP_HostName"); //$NON-NLS-1$
 						if(hostName != null && !hostName.isEmpty()) {
 							this.dominoHostName = hostName;
 						}
 					}
 					if(StringUtil.isEmpty(this.dominoHostName)) {
-						this.dominoHostName = "localhost";
+						this.dominoHostName = "localhost"; //$NON-NLS-1$
 					}
 					
-					String connectorHeadersParam = session.getEnvironmentString("HTTPEnableConnectorHeaders", true);
-					this.dominoConnectorHeaders = "1".equals(connectorHeadersParam);
+					String connectorHeadersParam = session.getEnvironmentString("HTTPEnableConnectorHeaders", true); //$NON-NLS-1$
+					this.dominoConnectorHeaders = "1".equals(connectorHeadersParam); //$NON-NLS-1$
 				} finally {
 					session.recycle();
 				}

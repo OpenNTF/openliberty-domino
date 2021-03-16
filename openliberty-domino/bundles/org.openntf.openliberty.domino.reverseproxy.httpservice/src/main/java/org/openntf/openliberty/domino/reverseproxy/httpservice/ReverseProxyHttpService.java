@@ -51,6 +51,12 @@ import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpServletRequestAdapt
 import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpServletResponseAdapter;
 import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpSessionAdapter;
 
+/**
+ * Reverse proxy implementation that resides in Domino's HTTP task.
+ * 
+ * @author Jesse Gallagher
+ * @since 3.0.0
+ */
 @SuppressWarnings("deprecation")
 public class ReverseProxyHttpService extends HttpService implements ReverseProxyService {
 	private static final Logger log = OpenLibertyLog.getLog();
