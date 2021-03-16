@@ -301,25 +301,31 @@ public class ReverseProxyHttpService extends HttpService implements ReverseProxy
         }
     }
 
-    /**
-     * Copy a request header from the servlet client to the proxy request.
-     * This is easily overridden to filter out certain headers if desired.
-     */
-    private void copyRequestHeader(HttpServletRequestAdapter servletRequest, HttpRequest proxyRequest,
-                                   String headerName) {
-        //Instead the content-length is effectively set via InputStreamEntity
-        if (headerName.equalsIgnoreCase(HttpHeaders.CONTENT_LENGTH))
-            return;
-        if (hopByHopHeaders.containsHeader(headerName))
-            return;
+	/**
+	 * Copy a request header from the servlet client to the proxy request. This is
+	 * easily overridden to filter out certain headers if desired.
+	 */
+	private void copyRequestHeader(HttpServletRequestAdapter servletRequest, HttpRequest proxyRequest,
+			String headerName) {
+		// Instead the content-length is effectively set via InputStreamEntity
+		if (headerName.equalsIgnoreCase(HttpHeaders.CONTENT_LENGTH)) {
+			return;
+		}
+		if (hopByHopHeaders.containsHeader(headerName)) {
+			return;
+		}
+		// Avoid copying any connector headers coming in to Domino
+		if (headerName.startsWith("$WS")) {
+			return;
+		}
 
-        @SuppressWarnings("unchecked")
+		@SuppressWarnings("unchecked")
 		Enumeration<String> headers = servletRequest.getHeaders(headerName);
-        while (headers.hasMoreElements()) {//sometimes more than one value
-            String headerValue = headers.nextElement();
-            proxyRequest.addHeader(headerName, headerValue);
-        }
-    }
+		while (headers.hasMoreElements()) {// sometimes more than one value
+			String headerValue = headers.nextElement();
+			proxyRequest.addHeader(headerName, headerValue);
+		}
+	}
 
 	private void setForwardingHeaders(ReverseProxyTarget target, HttpServletRequestAdapter servletRequest, HttpRequest proxyRequest) {
 		proxyRequest.setHeader("Host", servletRequest.getServerName()); //$NON-NLS-1$
