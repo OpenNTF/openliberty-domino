@@ -370,7 +370,10 @@ public enum AdminNSFService implements Runnable {
 				}
 				
 				if(serverXml != null) {
-					OpenLibertyRuntime.instance.deployServerXml(serverName, serverXml.toString());
+					// TODO create a full configuration
+					LibertyServerConfiguration newConfig = new LibertyServerConfiguration();
+					newConfig.setServerXml(serverXml);
+					OpenLibertyRuntime.instance.updateConfiguration(serverName, newConfig);
 				}
 			}
 		} finally {

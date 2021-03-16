@@ -94,6 +94,12 @@ public class LibertyServerConfiguration extends AbstractJavaServerConfiguration 
 		return Collections.unmodifiableCollection(additionalZips);
 	}
 	
+	@SuppressWarnings("unchecked")
+	@Override
+	public LibertyServerInstance createInstance(String serverName) {
+		return new LibertyServerInstance(serverName, this);
+	}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;

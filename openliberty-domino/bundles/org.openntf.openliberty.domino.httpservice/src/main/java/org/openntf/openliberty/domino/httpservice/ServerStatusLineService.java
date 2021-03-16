@@ -15,31 +15,21 @@
  */
 package org.openntf.openliberty.domino.httpservice;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.InetAddress;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.openntf.openliberty.domino.ext.RuntimeService;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
+import org.openntf.openliberty.domino.server.ServerInstance;
 
 import com.darwino.domino.napi.DominoAPI;
 import com.ibm.commons.util.StringUtil;
-import com.ibm.commons.xml.DOMUtil;
-import com.ibm.commons.xml.XMLException;
-import com.ibm.commons.xml.XResult;
 
 public class ServerStatusLineService implements RuntimeService {
 	
-	private final Map<Path, Long> statusLines = new HashMap<>();
+	private final Map<String, Long> statusLines = new HashMap<>();
 	private final Object deleteSync = new Object();
 
 	@Override
@@ -59,26 +49,22 @@ public class ServerStatusLineService implements RuntimeService {
 	}
 
 	@Override
-	public void notifyServerStart(Path wlp, String serverName) {
+	public void notifyServerStart(ServerInstance<?> instance) {
 		synchronized(deleteSync) {
-			Path serverXml = wlp.resolve("usr").resolve("servers").resolve(serverName).resolve("server.xml"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			if(Files.isRegularFile(serverXml)) {
-				statusLines.computeIfAbsent(serverXml, p -> {
-					long result = DominoAPI.get().AddInCreateStatusLine(Messages.getString("ServerStatusLineService.serverTaskName")); //$NON-NLS-1$
-					DominoAPI.get().AddInSetStatusLine(result, MessageFormat.format(Messages.getString("ServerStatusLineService.serverRunning"), serverName)); //$NON-NLS-1$
-					return result;
-				});
-				
-				updateStatusLine(wlp, serverName);
-			}
+			statusLines.computeIfAbsent(instance.getServerName(), serverName -> {
+				long result = DominoAPI.get().AddInCreateStatusLine(Messages.getString("ServerStatusLineService.serverTaskName")); //$NON-NLS-1$
+				DominoAPI.get().AddInSetStatusLine(result, MessageFormat.format(Messages.getString("ServerStatusLineService.serverRunning"), serverName)); //$NON-NLS-1$
+				return result;
+			});
+			
+			updateStatusLine(instance);
 		}
 	}
 	
 	@Override
-	public void notifyServerStop(Path wlp, String serverName) {
+	public void notifyServerStop(ServerInstance<?> instance) {
 		synchronized(deleteSync) {
-			Path serverXml = wlp.resolve("usr").resolve("servers").resolve(serverName).resolve("server.xml"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			Long hDesc = statusLines.get(serverXml);
+			Long hDesc = statusLines.get(instance.getServerName());
 			if(hDesc != null) {
 				DominoAPI.get().AddInDeleteStatusLine(hDesc);
 			}
@@ -86,9 +72,9 @@ public class ServerStatusLineService implements RuntimeService {
 	}
 	
 	@Override
-	public void notifyServerDeploy(Path wlp, String serverName) {
+	public void notifyServerDeploy(ServerInstance<?> instance) {
 		synchronized(deleteSync) {
-			updateStatusLine(wlp, serverName);
+			updateStatusLine(instance);
 		}
 	}
 	
@@ -96,44 +82,18 @@ public class ServerStatusLineService implements RuntimeService {
 	// * Internal utility methods
 	// *******************************************************************************
 	
-	private void updateStatusLine(Path wlp, String serverName) {
-		Path serverXml = wlp.resolve("usr").resolve("servers").resolve(serverName).resolve("server.xml"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		if(Files.isRegularFile(serverXml)) {
-			Long hDesc = statusLines.get(serverXml);
-			if(hDesc != null) {
-				// Parse the server.xml for port information
-				try {
-					Document xml;
-					try(InputStream is = Files.newInputStream(serverXml)) {
-						xml = DOMUtil.createDocument(is);
-					}
-					XResult res = DOMUtil.evaluateXPath(xml.getDocumentElement(), "/server/httpEndpoint"); //$NON-NLS-1$
-					Object[] nodes = res.getNodes();
-					if(nodes != null && nodes.length > 0) {
-						// Last one wins in WLP
-						Element node = (Element)nodes[nodes.length-1];
-						String host = node.getAttribute("host"); //$NON-NLS-1$
-						if(StringUtil.isEmpty(host)) {
-							host = InetAddress.getLocalHost().getHostName();
-						}
-						String httpPort = node.getAttribute("httpPort"); //$NON-NLS-1$
-						if(StringUtil.isEmpty(httpPort)) {
-							// This seems to be the default when unspecified
-							httpPort = "9080"; //$NON-NLS-1$
-						}
-						String httpsPort = node.getAttribute("httpsPort"); //$NON-NLS-1$
-						String ports = Stream.of(httpPort, httpsPort)
-							.filter(StringUtil::isNotEmpty)
-							.filter(p -> !"-1".equals(p)) //$NON-NLS-1$
-							.collect(Collectors.joining(",")); //$NON-NLS-1$
-						if(StringUtil.isNotEmpty(ports)) {
-							String status = MessageFormat.format(Messages.getString("ServerStatusLineService.serverListeningOn"), serverName, host, ports); //$NON-NLS-1$
-							DominoAPI.get().AddInSetStatusLine(hDesc, status);
-						}
-					}
-				} catch(XMLException | IOException e) {
-					e.printStackTrace();
-				}
+	private void updateStatusLine(ServerInstance<?> instance) {
+		Long hDesc = statusLines.get(instance.getServerName());
+		if(hDesc != null) {
+			String host = instance.getListeningHost();
+			String ports = instance.getListeningPorts()
+				.stream()
+				.map(String::valueOf)
+				.collect(Collectors.joining(", ")); //$NON-NLS-1$
+			
+			if(StringUtil.isNotEmpty(ports)) {
+				String status = MessageFormat.format(Messages.getString("ServerStatusLineService.serverListeningOn"), instance.getServerName(), host, ports); //$NON-NLS-1$
+				DominoAPI.get().AddInSetStatusLine(hDesc, status);
 			}
 		}
 	}

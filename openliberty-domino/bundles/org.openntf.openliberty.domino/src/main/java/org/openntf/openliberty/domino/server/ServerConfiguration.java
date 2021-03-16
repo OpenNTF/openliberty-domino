@@ -22,5 +22,5 @@ package org.openntf.openliberty.domino.server;
  * @since 3.0.0
  */
 public interface ServerConfiguration {
-
+	<T extends ServerConfiguration> ServerInstance<T> createInstance(String serverName);
 }
