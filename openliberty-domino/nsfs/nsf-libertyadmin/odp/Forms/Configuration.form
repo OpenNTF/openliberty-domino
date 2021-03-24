@@ -204,7 +204,7 @@ Yg4BAIQAAAAAAAAAAAA=
                 <formula>!(ReverseProxyEnable="Y" &amp; ReverseProxyTypes="Standalone")</formula>
               </code>
             </pardef>
-            <par def="12">Use Connector Headers for Domino</par>
+            <par def="12">HTTP</par>
           </tablecell>
           <tablecell borderwidth="0px">
             <pardef id="13" keeptogether="true" keepwithnext="true">
@@ -213,35 +213,6 @@ Yg4BAIQAAAAAAAAAAAA=
               </code>
             </pardef>
             <par def="13">
-              <field borderstyle="none" kind="editable"
-                lookupaddressonrefresh="false" lookupeachchar="false"
-                name="ReverseProxyConnectorHeaders" type="keyword">
-                <keywords columns="2" helperbutton="false" ui="radiobutton">
-                  <textlist>
-                    <text>Yes|Y</text>
-                    <text>No|N</text>
-                  </textlist>
-                </keywords>
-              </field>
-            </par>
-          </tablecell>
-        </tablerow>
-        <tablerow>
-          <tablecell borderwidth="0px">
-            <pardef id="14" keeptogether="true" keepwithnext="true">
-              <code event="hidewhen">
-                <formula>!(ReverseProxyEnable="Y" &amp; ReverseProxyTypes="Standalone")</formula>
-              </code>
-            </pardef>
-            <par def="14">HTTP</par>
-          </tablecell>
-          <tablecell borderwidth="0px">
-            <pardef id="15" keeptogether="true" keepwithnext="true">
-              <code event="hidewhen">
-                <formula>!(ReverseProxyEnable="Y" &amp; ReverseProxyTypes="Standalone")</formula>
-              </code>
-            </pardef>
-            <par def="15">
               <field borderstyle="none" kind="editable"
                 lookupaddressonrefresh="false" lookupeachchar="false"
                 name="ReverseProxyHTTP" type="keyword">
@@ -261,20 +232,20 @@ Yg4BAIQAAAAAAAAAAAA=
         </tablerow>
         <tablerow>
           <tablecell borderwidth="0px">
-            <pardef id="16" keeptogether="true" keepwithnext="true">
+            <pardef id="14" keeptogether="true" keepwithnext="true">
               <code event="hidewhen">
                 <formula>!(ReverseProxyEnable="Y" &amp; ReverseProxyHTTP="Y" &amp; ReverseProxyTypes="Standalone")</formula>
               </code>
             </pardef>
-            <par def="16">        Port</par>
+            <par def="14">        Port</par>
           </tablecell>
           <tablecell borderwidth="0px">
-            <pardef id="17" keeptogether="true" keepwithnext="true">
+            <pardef id="15" keeptogether="true" keepwithnext="true">
               <code event="hidewhen">
                 <formula>!(ReverseProxyEnable="Y" &amp; ReverseProxyHTTP="Y" &amp; ReverseProxyTypes="Standalone")</formula>
               </code>
             </pardef>
-            <par def="17">
+            <par def="15">
               <field kind="editable" name="ReverseProxyHTTPPort" type="number">
                 <numberformat bytes="false" digits="2" format="general"
                   parens="false" percent="false" punctuated="false"/>
@@ -290,20 +261,20 @@ Yg4BAIQAAAAAAAAAAAA=
         </tablerow>
         <tablerow>
           <tablecell borderwidth="0px">
-            <pardef id="18" keeptogether="true" keepwithnext="true">
+            <pardef id="16" keeptogether="true" keepwithnext="true">
               <code event="hidewhen">
                 <formula>!(ReverseProxyEnable="Y" &amp; ReverseProxyTypes="Standalone")</formula>
               </code>
             </pardef>
-            <par def="18">HTTPS</par>
+            <par def="16">HTTPS</par>
           </tablecell>
           <tablecell borderwidth="0px">
-            <pardef id="19" keeptogether="true" keepwithnext="true">
+            <pardef id="17" keeptogether="true" keepwithnext="true">
               <code event="hidewhen">
                 <formula>!(ReverseProxyEnable="Y" &amp; ReverseProxyTypes="Standalone")</formula>
               </code>
             </pardef>
-            <par def="19">
+            <par def="17">
               <field borderstyle="none" kind="editable"
                 lookupaddressonrefresh="false" lookupeachchar="false"
                 name="ReverseProxyHTTPS" type="keyword">
@@ -323,20 +294,20 @@ Yg4BAIQAAAAAAAAAAAA=
         </tablerow>
         <tablerow>
           <tablecell borderwidth="0px">
-            <pardef id="20" keeptogether="true" keepwithnext="true">
+            <pardef id="18" keeptogether="true" keepwithnext="true">
               <code event="hidewhen">
                 <formula>!(ReverseProxyEnable="Y" &amp; ReverseProxyHTTPS="Y" &amp; ReverseProxyTypes="Standalone")</formula>
               </code>
             </pardef>
-            <par def="20">        Port</par>
+            <par def="18">        Port</par>
           </tablecell>
           <tablecell borderwidth="0px">
-            <pardef id="21" keeptogether="true" keepwithnext="true">
+            <pardef id="19" keeptogether="true" keepwithnext="true">
               <code event="hidewhen">
                 <formula>!(ReverseProxyEnable="Y" &amp; ReverseProxyHTTPS="Y" &amp; ReverseProxyTypes="Standalone")</formula>
               </code>
             </pardef>
-            <par def="21">
+            <par def="19">
               <field kind="editable" name="ReverseProxyHTTPSPort" type="number">
                 <numberformat bytes="false" digits="2" format="general"
                   parens="false" percent="false" punctuated="false"/>
@@ -352,20 +323,20 @@ Yg4BAIQAAAAAAAAAAAA=
         </tablerow>
         <tablerow>
           <tablecell borderwidth="0px">
-            <pardef id="22" keeptogether="true" keepwithnext="true">
+            <pardef id="20" keeptogether="true" keepwithnext="true">
               <code event="hidewhen">
                 <formula>!(ReverseProxyEnable="Y" &amp; ReverseProxyHTTPS="Y" &amp; ReverseProxyTypes="Standalone")</formula>
               </code>
             </pardef>
-            <par def="22">        Private Key (PEM)</par>
+            <par def="20">        Private Key (PEM)</par>
           </tablecell>
           <tablecell borderwidth="0px">
-            <pardef id="23" keeptogether="true" keepwithnext="true">
+            <pardef id="21" keeptogether="true" keepwithnext="true">
               <code event="hidewhen">
                 <formula>!(ReverseProxyEnable="Y" &amp; ReverseProxyHTTPS="Y" &amp; ReverseProxyTypes="Standalone")</formula>
               </code>
             </pardef>
-            <par def="23">
+            <par def="21">
               <run>
                 <font name="monospace"/>
                 <field kind="editable" name="ReverseProxyHTTPSKey" type="text"/>
@@ -380,20 +351,20 @@ Yg4BAIQAAAAAAAAAAAA=
         </tablerow>
         <tablerow>
           <tablecell borderwidth="0px">
-            <pardef id="24" keeptogether="true" keepwithnext="true">
+            <pardef id="22" keeptogether="true" keepwithnext="true">
               <code event="hidewhen">
                 <formula>!(ReverseProxyEnable="Y" &amp; ReverseProxyHTTPS="Y" &amp; ReverseProxyTypes="Standalone")</formula>
               </code>
             </pardef>
-            <par def="24">        Certificates (PEM)</par>
+            <par def="22">        Certificates (PEM)</par>
           </tablecell>
           <tablecell borderwidth="0px">
-            <pardef id="25" keeptogether="true" keepwithnext="true">
+            <pardef id="23" keeptogether="true" keepwithnext="true">
               <code event="hidewhen">
                 <formula>!(ReverseProxyEnable="Y" &amp; ReverseProxyHTTPS="Y" &amp; ReverseProxyTypes="Standalone")</formula>
               </code>
             </pardef>
-            <par def="25">
+            <par def="23">
               <run>
                 <font name="monospace"/>
                 <field kind="editable" name="ReverseProxyHTTPSChain" type="text"/>
@@ -410,12 +381,12 @@ Yg4BAIQAAAAAAAAAAAA=
       <par def="3"/>
       <par def="3"/>
       <subformref name="Footer"/>
-      <pardef align="right" id="26">
+      <pardef align="right" id="24">
         <code event="hidewhen">
           <formula>@IsNewDoc</formula>
         </code>
       </pardef>
-      <par def="26"/>
+      <par def="24"/>
     </richtext>
   </body>
   <item name="ReverseProxyPort" summary="false">

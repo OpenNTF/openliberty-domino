@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<view alias="ReverseProxyTargets" allowcustomizations="false"
+  allownewdocuments="false" altrowcolor="#efefef" bgcolor="white"
+  boldunreadrows="false" evaluateactions="false" extendlastcolumn="true"
+  gridcolor="white" gridstyle="solid" headerbgcolor="white"
+  headerlinecount="1" headers="beveled" hidemarginborder="false"
+  marginbgcolor="white" marginwidth="0px"
+  name="Utility\Reverse Proxy Targets" onopengoto="lastopened"
+  onrefresh="displayindicator" opencollapsed="false"
+  publicaccess="false" rowlinecount="1" rowspacing="1"
+  showhierarchies="false" showinmenu="false" showmargin="true"
+  showresponsehierarchy="true" shrinkrows="false" totalscolor="black"
+  uniquekeys="false" unreadcolor="black" unreadmarks="none" xmlns="http://www.lotus.com/dxl">
+  <code event="selection">
+    <formula>SELECT
+	(Form="Server" &amp; (HTTPPort != ""  | HTTPSPort != ""))
+	| (Form="DropinApp" &amp; IncludeInReverseProxy="Y")</formula>
+  </code>
+  <actionbar bgcolor="#d4d0c8" bordercolor="black">
+    <actionbuttonstyle bgcolor="#d4d0c8"/>
+    <font color="system"/>
+    <border style="solid" width="0px 0px 1px"/>
+  </actionbar>
+  <column hidedetailrows="false" itemname="$5" resizable="true"
+    responsesonly="true" separatemultiplevalues="false"
+    showaslinks="false" sortnoaccent="false" sortnocase="true" width="1.1250">
+    <columnheader>
+      <font size="9pt" style="bold"/>
+    </columnheader>
+    <code event="value">
+      <formula>@If(ContextRoot=""; AppName; ContextRoot)</formula>
+    </code>
+  </column>
+  <column hidedetailrows="false" itemname="$2" resizable="true"
+    separatemultiplevalues="false" showaslinks="false" sort="ascending"
+    sortnoaccent="false" sortnocase="true" width="16.2500">
+    <columnheader title="URI">
+      <font size="9pt" style="bold underline"/>
+    </columnheader>
+    <code event="value">
+      <formula>port := @If(HTTPPort=""; HTTPSPort; HTTPPort);
+proto := @If(HTTPPort=""; "https"; "http");
+host := @If(HTTPHost="":"*"; "localhost"; HTTPHost);
+
+proto + "://" + host + ":" + port</formula>
+    </code>
+  </column>
+  <column hidedetailrows="false" itemname="UseXForwardedFor"
+    resizable="true" separatemultiplevalues="false" showaslinks="false"
+    sortnoaccent="false" sortnocase="true" width="12.1250">
+    <columnheader title="UseXForwardedFor">
+      <font size="9pt" style="bold"/>
+    </columnheader>
+  </column>
+  <column hidedetailrows="false" itemname="UseWSHeaders"
+    resizable="true" separatemultiplevalues="false" showaslinks="false"
+    sortnoaccent="false" sortnocase="true" width="12.1250">
+    <columnheader title="UseWSHeaders">
+      <font size="9pt" style="bold"/>
+    </columnheader>
+  </column>
+  <column hidedetailrows="false" itemname="$4" resizable="true"
+    separatemultiplevalues="false" showaslinks="false"
+    sortnoaccent="false" sortnocase="true" width="20.1250">
+    <columnheader title="Domino Servers">
+      <font size="9pt" style="bold"/>
+    </columnheader>
+    <columnnamesformat columncontainsname="true" showonline="false"/>
+    <code event="value">
+      <formula>@If(@Trim(DominoServers)=""; "*"; @Name([Abbreviate]; DominoServers))</formula>
+    </code>
+  </column>
+</view>

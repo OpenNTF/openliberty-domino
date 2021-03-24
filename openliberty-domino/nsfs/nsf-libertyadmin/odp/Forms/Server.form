@@ -19,6 +19,22 @@
 		Source.Document.HTTPHost = httpEndpoint.GetAttribute("host")
 		Source.Document.HTTPPort = httpEndpoint.GetAttribute("httpPort")
 		Source.Document.HTTPSPort = httpEndpoint.GetAttribute("httpsPort")
+		
+		Dim remoteIpElements As NotesDOMNodeList
+		Set remoteIpElements = httpEndpoint.GetElementsByTagName("remoteIp")
+		If remoteIpElements.NumberOfEntries &gt; 0 Then
+			Source.Document.UseXForwardedFor = "Y"
+		Else
+			Source.Document.UseXForwardedFor = "N"
+		End If
+	End If
+	
+	Dim trustedHeaderOrigins As NotesDOMNodeList
+	Set trustedHeaderOrigins = parser.Document.GetElementsByTagName("trustedSensitiveHeaderOrigin")
+	If trustedHeaderOrigins.NumberOfEntries &gt; 0 Then
+		Source.Document.UseWSHeaders = "Y"
+	Else
+		Source.Document.UseWSHeaders = "N"
 	End If
 End Sub</lotusscript>
   </code>
@@ -66,6 +82,10 @@ End Sub</lotusscript>
     <richtext>
       <pardef id="1"/>
       <par def="1"/>
+      <par def="1">
+        <run>
+          <font size="18pt" style="bold"/>Application</run>
+      </par>
       <par def="1"/>
       <table altbgcolor="white" bgcolor="#efefef" colorstyle="left"
         columnspacing="0.0500in" refwidth="8.7292in"
@@ -122,8 +142,10 @@ Yg4BAIQAAAAAAAAAAAA=
       </par>
       <par def="2"/>
       <table altbgcolor="white" bgcolor="#e1e1e1" colorstyle="top"
-        refwidth="4in" widthtype="fixedleft">
+        refwidth="6in" widthtype="fixedleft">
         <tablecolumn width="2in"/>
+        <tablecolumn width="1in"/>
+        <tablecolumn width="1in"/>
         <tablecolumn width="1in"/>
         <tablecolumn width="1in"/>
         <tablerow>
@@ -139,11 +161,22 @@ Yg4BAIQAAAAAAAAAAAA=
             <pardef id="8" keeptogether="true" keepwithnext="true"/>
             <par def="8">HTTPS Port</par>
           </tablecell>
+          <tablecell borderwidth="0px">
+            <pardef id="9" keeptogether="true" keepwithnext="true"/>
+            <par def="9">X-Forwarded-*</par>
+          </tablecell>
+          <tablecell borderwidth="0px">
+            <pardef id="10" keeptogether="true" keepwithnext="true"/>
+            <par def="10">$WS*</par>
+          </tablecell>
         </tablerow>
         <tablerow>
           <tablecell borderwidth="0px">
             <par def="6">
-              <field kind="computed" name="HTTPHost" type="text">
+              <field kind="editable" name="HTTPHost" type="text">
+                <code event="inputenabled">
+                  <formula>@False</formula>
+                </code>
                 <code event="defaultvalue">
                   <formula>@ThisValue</formula>
                 </code>
@@ -157,7 +190,10 @@ Yg4BAIQAAAAAAAAAAAA=
           </tablecell>
           <tablecell borderwidth="0px">
             <par def="7">
-              <field kind="computed" name="HTTPPort" type="text">
+              <field kind="editable" name="HTTPPort" type="text">
+                <code event="inputenabled">
+                  <formula>@False</formula>
+                </code>
                 <code event="defaultvalue">
                   <formula>@ThisValue</formula>
                 </code>
@@ -171,7 +207,10 @@ Yg4BAIQAAAAAAAAAAAA=
           </tablecell>
           <tablecell borderwidth="0px">
             <par def="8">
-              <field kind="computed" name="HTTPSPort" type="text">
+              <field kind="editable" name="HTTPSPort" type="text">
+                <code event="inputenabled">
+                  <formula>@False</formula>
+                </code>
                 <code event="defaultvalue">
                   <formula>@ThisValue</formula>
                 </code>
@@ -183,15 +222,46 @@ Yg4BAIQAAAAAAAAAAAA=
 </compositedata>
             </par>
           </tablecell>
+          <tablecell borderwidth="0px">
+            <par def="9">
+              <field kind="editable" name="UseXForwardedFor" type="keyword">
+                <keywords ui="dialoglist">
+                  <textlist>
+                    <text>Yes|Y</text>
+                    <text>No|N</text>
+                  </textlist>
+                </keywords>
+                <code event="inputenabled">
+                  <formula>@False</formula>
+                </code>
+                <code event="defaultvalue">
+                  <formula>@ThisValue</formula>
+                </code>
+              </field>
+            </par>
+          </tablecell>
+          <tablecell borderwidth="0px">
+            <par def="10">
+              <field kind="editable" name="UseWSHeaders" type="keyword">
+                <keywords ui="dialoglist">
+                  <textlist>
+                    <text>Yes|Y</text>
+                    <text>No|N</text>
+                  </textlist>
+                </keywords>
+                <code event="inputenabled">
+                  <formula>@False</formula>
+                </code>
+                <code event="defaultvalue">
+                  <formula>@ThisValue</formula>
+                </code>
+              </field>
+            </par>
+          </tablecell>
         </tablerow>
       </table>
       <par def="2"/>
-      <pardef id="9" leftmargin="1in" spaceafter="1.5">
-        <parstyle alldocuments="true" incyclekey="true" name="Headline" username="Jesse Gallagher-">
-          <font color="purple" name="sans-serif" size="12pt" style="bold"/>
-        </parstyle>
-      </pardef>
-      <par def="9">
+      <par def="5">
         <run>
           <font color="purple" size="12pt" style="bold"/>Runtime Configuration</run>
       </par>
@@ -202,12 +272,12 @@ Yg4BAIQAAAAAAAAAAAA=
         <tablecolumn width="100%"/>
         <tablerow>
           <tablecell borderwidth="0px">
-            <pardef id="10" keeptogether="true" keepwithnext="true"/>
-            <par def="10">Version</par>
+            <pardef id="11" keeptogether="true" keepwithnext="true"/>
+            <par def="11">Version</par>
           </tablecell>
           <tablecell borderwidth="0px">
-            <pardef id="11" keeptogether="true" keepwithnext="true"/>
-            <par def="11">
+            <pardef id="12" keeptogether="true" keepwithnext="true"/>
+            <par def="12">
               <field kind="editable" name="LibertyVersion" type="keyword">
                 <keywords allownew="true" ui="dialoglist">
                   <textlist>
@@ -223,12 +293,12 @@ Yg4BAIQAAAAAAAAAAAA=
         </tablerow>
         <tablerow>
           <tablecell borderwidth="0px">
-            <par def="10">Artifact <run>
+            <par def="11">Artifact <run>
                 <font color="gray" size="8pt"/>(advanced)</run>
             </par>
           </tablecell>
           <tablecell borderwidth="0px">
-            <par def="11">
+            <par def="12">
               <field kind="editable" name="LibertyArtfiact" type="text"/>
               <compositedata afterbegincount="3" aftercontainercount="1"
                 afterparcount="6" containertype="65418" nexttype="222"
@@ -236,9 +306,9 @@ Yg4BAIQAAAAAAAAAAAA=
 Yg4BAIQAAAAAAAAAAAA=
 </compositedata>
             </par>
-            <pardef hide="read print preview" id="12"
+            <pardef hide="read print preview" id="13"
               keeptogether="true" keepwithnext="true"/>
-            <par def="12">
+            <par def="13">
               <run>
                 <font color="gray" size="8pt"/>Default: io.openliberty:openliberty-runtime</run>
             </par>
@@ -246,12 +316,12 @@ Yg4BAIQAAAAAAAAAAAA=
         </tablerow>
         <tablerow>
           <tablecell borderwidth="0px">
-            <par def="10">Maven Repo <run>
+            <par def="11">Maven Repo <run>
                 <font color="gray" size="8pt"/>(advanced)</run>
             </par>
           </tablecell>
           <tablecell borderwidth="0px">
-            <par def="11">
+            <par def="12">
               <field kind="editable" name="LibertyMavenRepo" type="text"/>
               <compositedata afterbegincount="3" aftercontainercount="1"
                 afterparcount="6" containertype="65418" nexttype="222"
@@ -259,7 +329,7 @@ Yg4BAIQAAAAAAAAAAAA=
 Yg4BAIQAAAAAAAAAAAA=
 </compositedata>
             </par>
-            <par def="12">
+            <par def="13">
               <run>
                 <font color="gray" size="8pt"/>Default: https://repo.maven.apache.org/maven2/</run>
             </par>
@@ -267,11 +337,11 @@ Yg4BAIQAAAAAAAAAAAA=
         </tablerow>
         <tablerow>
           <tablecell borderwidth="0px">
-            <par def="10">Java Runtime</par>
+            <par def="11">Java Runtime</par>
           </tablecell>
           <tablecell borderwidth="0px">
-            <pardef id="13" keeptogether="true" keepwithnext="true" linespacing="1.5"/>
-            <par def="13">
+            <pardef id="14" keeptogether="true" keepwithnext="true" linespacing="1.5"/>
+            <par def="14">
               <field kind="editable" lookupaddressonrefresh="false"
                 lookupeachchar="false" name="JavaVersion" type="keyword">
                 <keywords allownew="true" columns="1"
@@ -288,12 +358,12 @@ Yg4BAIQAAAAAAAAAAAA=
                 </code>
               </field>
             </par>
-            <pardef id="14" keeptogether="true" keepwithnext="true" linespacing="1.5">
+            <pardef id="15" keeptogether="true" keepwithnext="true" linespacing="1.5">
               <code event="hidewhen">
                 <formula>JavaVersion="":"Domino"</formula>
               </code>
             </pardef>
-            <par def="14">
+            <par def="15">
               <field borderstyle="none" kind="editable"
                 lookupaddressonrefresh="false" lookupeachchar="false"
                 name="JavaJVM" type="keyword">
@@ -308,7 +378,7 @@ Yg4BAIQAAAAAAAAAAAA=
                 </code>
               </field>
             </par>
-            <par def="14">
+            <par def="15">
               <run>
                 <font color="gray" size="8pt"/>More Information: </run>
               <urllink href="https://adoptopenjdk.net/" showborder="false">
@@ -333,9 +403,9 @@ Yg4BAIQAAAAAAAAAAAA=
         <tablecolumn width="100%"/>
         <tablerow>
           <tablecell borderwidth="0px">
-            <pardef id="15" keeptogether="true" keepwithnext="true"/>
+            <pardef id="16" keeptogether="true" keepwithnext="true"/>
             <par
-                def="15">Configuration documentation is available <urllink
+                def="16">Configuration documentation is available <urllink
                 href="https://www.openliberty.io/docs/ref/config/serverConfiguration.html" showborder="false">
                 <run>
                   <font color="system"/>on openliberty.io</run>
@@ -350,8 +420,8 @@ Yg4BAIQAAAAAAAAAAAA=
         <tablecolumn width="100%"/>
         <tablerow tablabel="server.xml">
           <tablecell>
-            <pardef id="16" keeptogether="true" keepwithnext="true"/>
-            <par def="16"/>
+            <pardef id="17" keeptogether="true" keepwithnext="true"/>
+            <par def="17"/>
             <table altbgcolor="white" bgcolor="#efefef"
               colorstyle="left" columnspacing="0.0500in"
               leftmargin="0.0104in" refwidth="8.6174in"
@@ -360,12 +430,12 @@ Yg4BAIQAAAAAAAAAAAA=
               <tablecolumn width="100%"/>
               <tablerow>
                 <tablecell borderwidth="0px">
-                  <pardef id="18" keeptogether="true" keepwithnext="true"/>
-                  <par def="18">Integration Features</par>
+                  <pardef id="19" keeptogether="true" keepwithnext="true"/>
+                  <par def="19">Integration Features</par>
                 </tablecell>
                 <tablecell borderwidth="0px">
-                  <pardef id="19" keeptogether="true" keepwithnext="true"/>
-                  <par def="19">
+                  <pardef id="20" keeptogether="true" keepwithnext="true"/>
+                  <par def="20">
                     <field allowmultivalues="true"
                       description="Domino server names and groups that deploy this server"
                       fieldhint="*" kind="editable"
@@ -384,9 +454,9 @@ Yg4BAIQAAAAAAAAAAAA=
                 </tablecell>
               </tablerow>
             </table>
-            <par def="16"/>
-            <par def="16"/>
-            <par def="16">
+            <par def="17"/>
+            <par def="17"/>
+            <par def="17">
               <run>
                 <font name="monospace"/>
                 <field kind="editable" name="ServerXML" type="text">
@@ -420,7 +490,7 @@ Yg4BAIQAAAAAAAAAAAA=
         </tablerow>
         <tablerow tablabel="server.env">
           <tablecell>
-            <par def="16">
+            <par def="17">
               <run>
                 <font name="monospace"/>
                 <field kind="editable" name="ServerEnv" type="text"/>
@@ -435,7 +505,7 @@ Yg4BAIQAAAAAAAAAAAA=
         </tablerow>
         <tablerow tablabel="jvm.options">
           <tablecell>
-            <par def="16">
+            <par def="17">
               <run>
                 <font name="monospace"/>
                 <field kind="editable" name="JvmOptions" type="text"/>
@@ -450,7 +520,7 @@ Yg4BAIQAAAAAAAAAAAA=
         </tablerow>
         <tablerow tablabel="bootstrap.properties">
           <tablecell>
-            <par def="16">
+            <par def="17">
               <run>
                 <font name="monospace"/>
                 <field kind="editable" name="BootstrapProperties" type="text"/>
@@ -465,13 +535,13 @@ Yg4BAIQAAAAAAAAAAAA=
         </tablerow>
         <tablerow tablabel="Additional Deployment ZIPs">
           <tablecell>
-            <par def="16"/>
-            <par def="16">
+            <par def="17"/>
+            <par def="17">
               <run>
                 <font color="gray"/>Any attached ZIP files are expanded in the base directory of the deployed server.</run>
             </par>
-            <par def="16"/>
-            <par def="16">
+            <par def="17"/>
+            <par def="17">
               <field firstdisplay="attachment" kind="editable"
                 name="DeploymentZIPs" onlyallow="attachment" type="richtextlite"/>
             </par>
@@ -479,12 +549,12 @@ Yg4BAIQAAAAAAAAAAAA=
         </tablerow>
       </table>
       <subformref name="Footer"/>
-      <pardef align="right" id="20">
+      <pardef align="right" id="21">
         <code event="hidewhen">
           <formula>@IsNewDoc</formula>
         </code>
       </pardef>
-      <par def="20"/>
+      <par def="21"/>
     </richtext>
   </body>
   <item name="$SubForm_RepIDs" sign="true">

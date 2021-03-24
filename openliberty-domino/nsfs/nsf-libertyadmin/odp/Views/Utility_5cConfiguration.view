@@ -19,46 +19,6 @@
     <font color="system"/>
     <border style="solid" width="0px 0px 1px"/>
   </actionbar>
-  <column hidedetailrows="false" itemname="$0" resizable="true"
-    separatemultiplevalues="false" showaslinks="false"
-    sortnoaccent="true" sortnocase="true" width="10">
-    <columnheader title="#">
-      <font size="9pt" style="bold"/>
-    </columnheader>
-    <code event="value">
-      <formula>@DocNumber</formula>
-    </code>
-  </column>
-  <column hidedetailrows="false" itemname="Form" resizable="true"
-    separatemultiplevalues="false" showaslinks="false"
-    sortnoaccent="false" sortnocase="true" width="10">
-    <columnheader title="Form">
-      <font size="9pt" style="bold"/>
-    </columnheader>
-  </column>
-  <column hidedetailrows="false" itemname="$2" resizable="true"
-    separatemultiplevalues="false" showaslinks="false"
-    sortnoaccent="false" sortnocase="true" width="10">
-    <columnheader title="Size">
-      <font size="9pt" style="bold"/>
-    </columnheader>
-    <numberformat bytes="true" currencysym="$" currencysymtype="custom"
-      decimalsym="." format="fixed" parens="false" percent="false"
-      punctuated="false" thousandssep="," usecustomsym="false"/>
-    <code event="value">
-      <formula>@DocLength</formula>
-    </code>
-  </column>
-  <column hidedetailrows="false" itemname="$3" resizable="true"
-    separatemultiplevalues="false" showaslinks="false"
-    sortnoaccent="false" sortnocase="true" width="15.2500">
-    <columnheader title="Created">
-      <font size="9pt" style="bold"/>
-    </columnheader>
-    <code event="value">
-      <formula>@Created</formula>
-    </code>
-  </column>
   <column hidedetailrows="false" itemname="$4" resizable="true"
     separatemultiplevalues="false" showaslinks="false"
     sortnoaccent="false" sortnocase="true" width="15">
