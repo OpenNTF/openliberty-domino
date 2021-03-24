@@ -28,7 +28,7 @@ import org.openntf.openliberty.domino.util.commons.ibm.StringUtil;
  * @since 3.0.0
  */
 public class RunningJVMJavaRuntimeProvider implements JavaRuntimeProvider {
-	public static final String TYPE_RUNNINGJVM = "RunningJVM";
+	public static final String TYPE_RUNNINGJVM = "RunningJVM"; //$NON-NLS-1$
 
 	@Override
 	public boolean canProvide(JVMIdentifier identifier) {
@@ -37,7 +37,7 @@ public class RunningJVMJavaRuntimeProvider implements JavaRuntimeProvider {
 
 	@Override
 	public Path getJavaHome(JVMIdentifier identifier) {
-		String javaHome = System.getProperty("java.home");
+		String javaHome = System.getProperty("java.home"); //$NON-NLS-1$
 		if(StringUtil.isEmpty(javaHome)) {
 			throw new IllegalStateException("Unable to locate Java home from java.home property");
 		}

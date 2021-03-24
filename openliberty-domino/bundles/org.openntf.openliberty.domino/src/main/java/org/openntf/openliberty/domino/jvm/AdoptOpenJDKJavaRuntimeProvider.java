@@ -60,8 +60,8 @@ public class AdoptOpenJDKJavaRuntimeProvider implements JavaRuntimeProvider {
 	
 	public static final String API_RELEASES = "https://api.github.com/repos/AdoptOpenJDK/openjdk{0}-binaries/releases"; //$NON-NLS-1$
 	
-	public static final String TYPE_HOTSPOT = "HotSpot";
-	public static final String TYPE_OPENJ9 = "OpenJ9";
+	public static final String TYPE_HOTSPOT = "HotSpot"; //$NON-NLS-1$
+	public static final String TYPE_OPENJ9 = "OpenJ9"; //$NON-NLS-1$
 	
 	@Override
 	public boolean canProvide(JVMIdentifier identifier) {
