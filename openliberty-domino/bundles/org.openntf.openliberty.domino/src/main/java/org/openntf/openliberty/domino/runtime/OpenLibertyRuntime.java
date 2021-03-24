@@ -85,7 +85,7 @@ public enum OpenLibertyRuntime implements Runnable {
 					}
 					case STOP: {
 						String serverName = (String)command.args[0];
-						ServerInstance<?> serverInstance = this.serverInstances.remove(serverName);
+						ServerInstance<?> serverInstance = this.serverInstances.get(serverName);
 						serverInstance.close();
 						
 						runtimeServices.forEach(service -> {
