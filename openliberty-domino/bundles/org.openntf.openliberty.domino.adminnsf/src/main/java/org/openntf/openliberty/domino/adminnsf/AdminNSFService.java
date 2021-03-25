@@ -21,9 +21,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -38,7 +36,7 @@ import org.openntf.openliberty.domino.jvm.RunningJVMJavaRuntimeProvider;
 import org.openntf.openliberty.domino.log.OpenLibertyLog;
 import org.openntf.openliberty.domino.reverseproxy.ReverseProxyConfig;
 import org.openntf.openliberty.domino.reverseproxy.ReverseProxyConfigProvider;
-import org.openntf.openliberty.domino.reverseproxy.ReverseProxyService;
+import org.openntf.openliberty.domino.reverseproxy.event.ReverseProxyConfigChangedEvent;
 import org.openntf.openliberty.domino.runtime.OpenLibertyRuntime;
 import org.openntf.openliberty.domino.server.LibertyServerConfiguration;
 import org.openntf.openliberty.domino.util.OpenLibertyUtil;
@@ -120,8 +118,6 @@ public enum AdminNSFService implements Runnable {
 	
 	private static final Path TEMP_DIR = OpenLibertyUtil.getTempDirectory();
 	private static final Path APP_DIR = TEMP_DIR.resolve("apps"); //$NON-NLS-1$
-	
-	private final Set<ReverseProxyService> reverseProxies = new HashSet<>();
 
 	@Override
 	public void run() {
@@ -206,7 +202,7 @@ public enum AdminNSFService implements Runnable {
 					// Update the reverse proxy config
 					ReverseProxyConfigProvider configProvider = OpenLibertyUtil.findRequiredExtension(ReverseProxyConfigProvider.class);
 					ReverseProxyConfig reverseProxyConfig = configProvider.createConfiguration();
-					reverseProxies.forEach(proxy -> proxy.notifyConfigurationChanged(reverseProxyConfig));
+					OpenLibertyRuntime.instance.broadcastMessage(new ReverseProxyConfigChangedEvent(reverseProxyConfig));
 				}
 				
 			} finally {
@@ -379,10 +375,6 @@ public enum AdminNSFService implements Runnable {
 		} finally {
 			serverDoc.recycle();
 		}
-	}
-	
-	public void registerReverseProxy(ReverseProxyService proxy) {
-		this.reverseProxies.add(proxy);
 	}
 	
 	// *******************************************************************************

@@ -22,6 +22,7 @@ import java.net.HttpCookie;
 import java.net.URI;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.EventObject;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -51,11 +52,14 @@ import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.message.HeaderGroup;
 import org.apache.http.util.EntityUtils;
+import org.openntf.openliberty.domino.event.EventRecipient;
 import org.openntf.openliberty.domino.log.OpenLibertyLog;
 import org.openntf.openliberty.domino.reverseproxy.ReverseProxyConfig;
 import org.openntf.openliberty.domino.reverseproxy.ReverseProxyConfigProvider;
 import org.openntf.openliberty.domino.reverseproxy.ReverseProxyService;
 import org.openntf.openliberty.domino.reverseproxy.ReverseProxyTarget;
+import org.openntf.openliberty.domino.reverseproxy.event.ReverseProxyConfigChangedEvent;
+import org.openntf.openliberty.domino.runtime.OpenLibertyRuntime;
 import org.openntf.openliberty.domino.util.OpenLibertyUtil;
 
 import com.ibm.commons.util.StringUtil;
@@ -73,7 +77,7 @@ import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpSessionAdapter;
  * @since 3.0.0
  */
 @SuppressWarnings("deprecation")
-public class ReverseProxyHttpService extends HttpService implements ReverseProxyService {
+public class ReverseProxyHttpService extends HttpService implements ReverseProxyService, EventRecipient {
 	private static final Logger log = OpenLibertyLog.getLog();
 
 	public static final String TYPE = "NHTTP"; //$NON-NLS-1$
@@ -98,11 +102,11 @@ public class ReverseProxyHttpService extends HttpService implements ReverseProxy
 				this.targets = config.getTargets();
 				this.proxyClient = createHttpClient();
 			}
-			configProvider.registerConfigChangeListener(this);
 		} catch(Exception e) {
 			e.printStackTrace();
 			throw e;
 		}
+		OpenLibertyRuntime.instance.registerMessageRecipient(this);
 	}
 
 	@Override
@@ -111,8 +115,10 @@ public class ReverseProxyHttpService extends HttpService implements ReverseProxy
 	}
 	
 	@Override
-	public void notifyConfigurationChanged(ReverseProxyConfig config) {
-		this.targets = config.getTargets();
+	public void notifyMessage(EventObject event) {
+		if(event instanceof ReverseProxyConfigChangedEvent) {
+			this.targets = ((ReverseProxyConfigChangedEvent)event).getSource().getTargets();
+		}
 	}
 
 	@Override

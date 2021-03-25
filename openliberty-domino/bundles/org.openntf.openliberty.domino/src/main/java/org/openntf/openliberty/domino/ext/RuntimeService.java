@@ -15,7 +15,9 @@
  */
 package org.openntf.openliberty.domino.ext;
 
-import org.openntf.openliberty.domino.server.ServerInstance;
+import java.util.EventObject;
+
+import org.openntf.openliberty.domino.event.EventRecipient;
 
 /**
  * Defines a service that will be loaded and run asynchronously after the core
@@ -24,35 +26,12 @@ import org.openntf.openliberty.domino.server.ServerInstance;
  * <p>These services should be registered as {@code ServiceLoader} service using the
  * <code>org.openntf.openliberty.domino.ext.RuntimeService</code> name.</p>
  * 
+ * <p>These objects are also implicitly added to the runtime's message-recipient queue
+ * to receive {@link EventObject}s for runtime events.</p>
+ * 
  * @author Jesse Gallagher
  * @since 1.18004
  */
-public interface RuntimeService extends Runnable {
+public interface RuntimeService extends Runnable, EventRecipient {
 	public static final String SERVICE_ID = RuntimeService.class.getName();
-	
-	/**
-	 * This method is called asynchronously by the runtime whenever a new server is started.
-	 * 
-	 * @param instance the started server
-	 * @since 2.0.0
-	 */
-	default void notifyServerStart(ServerInstance<?> instance) {}
-	
-	/**
-	 * This method is called asynchronously by the runtime whenever a running server is stopped.
-	 * 
-	 * @param instance the stopped server
-	 * @since 2.0.0
-	 */
-	default void notifyServerStop(ServerInstance<?> instance) {}
-	
-	/**
-	 * This method is called asynchronously by the runtime whenever a server configuration is
-	 * deployed to the file system. The server is not guaranteed to be running when this is
-	 * called.
-	 * 
-	 * @param instance the deployed server
-	 * @since 2.0.0
-	 */
-	default void notifyServerDeploy(ServerInstance<?> instance) {}
 }

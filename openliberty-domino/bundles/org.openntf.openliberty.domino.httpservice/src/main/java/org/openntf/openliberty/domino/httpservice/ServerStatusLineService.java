@@ -16,11 +16,15 @@
 package org.openntf.openliberty.domino.httpservice;
 
 import java.text.MessageFormat;
+import java.util.EventObject;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import org.openntf.openliberty.domino.event.ServerDeployEvent;
+import org.openntf.openliberty.domino.event.ServerStartEvent;
+import org.openntf.openliberty.domino.event.ServerStopEvent;
 import org.openntf.openliberty.domino.ext.RuntimeService;
 import org.openntf.openliberty.domino.server.ServerInstance;
 
@@ -47,34 +51,33 @@ public class ServerStatusLineService implements RuntimeService {
 			}
 		}
 	}
-
-	@Override
-	public void notifyServerStart(ServerInstance<?> instance) {
-		synchronized(deleteSync) {
-			statusLines.computeIfAbsent(instance.getServerName(), serverName -> {
-				long result = DominoAPI.get().AddInCreateStatusLine(Messages.getString("ServerStatusLineService.serverTaskName")); //$NON-NLS-1$
-				DominoAPI.get().AddInSetStatusLine(result, MessageFormat.format(Messages.getString("ServerStatusLineService.serverRunning"), serverName)); //$NON-NLS-1$
-				return result;
-			});
-			
-			updateStatusLine(instance);
-		}
-	}
 	
 	@Override
-	public void notifyServerStop(ServerInstance<?> instance) {
-		synchronized(deleteSync) {
-			Long hDesc = statusLines.get(instance.getServerName());
-			if(hDesc != null) {
-				DominoAPI.get().AddInDeleteStatusLine(hDesc);
+	public void notifyMessage(EventObject event) {
+		if(event instanceof ServerStartEvent) {
+			synchronized(deleteSync) {
+				ServerInstance<?> instance = ((ServerStartEvent)event).getSource();
+				statusLines.computeIfAbsent(instance.getServerName(), serverName -> {
+					long result = DominoAPI.get().AddInCreateStatusLine(Messages.getString("ServerStatusLineService.serverTaskName")); //$NON-NLS-1$
+					DominoAPI.get().AddInSetStatusLine(result, MessageFormat.format(Messages.getString("ServerStatusLineService.serverRunning"), serverName)); //$NON-NLS-1$
+					return result;
+				});
+				
+				updateStatusLine(instance);
 			}
-		}
-	}
-	
-	@Override
-	public void notifyServerDeploy(ServerInstance<?> instance) {
-		synchronized(deleteSync) {
-			updateStatusLine(instance);
+		} else if(event instanceof ServerStopEvent) {
+			synchronized(deleteSync) {
+				ServerInstance<?> instance = ((ServerStopEvent)event).getSource();
+				Long hDesc = statusLines.get(instance.getServerName());
+				if(hDesc != null) {
+					DominoAPI.get().AddInDeleteStatusLine(hDesc);
+				}
+			}
+		} else if(event instanceof ServerDeployEvent) {
+			synchronized(deleteSync) {
+				ServerInstance<?> instance = ((ServerStopEvent)event).getSource();
+				updateStatusLine(instance);
+			}
 		}
 	}
 	

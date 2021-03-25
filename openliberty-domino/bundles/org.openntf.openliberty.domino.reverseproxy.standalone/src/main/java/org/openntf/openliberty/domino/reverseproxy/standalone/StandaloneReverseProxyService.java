@@ -35,16 +35,20 @@ import io.undertow.util.HttpString;
 
 import java.net.URI;
 import java.text.MessageFormat;
+import java.util.EventObject;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.openntf.openliberty.domino.event.EventRecipient;
 import org.openntf.openliberty.domino.ext.RuntimeService;
 import org.openntf.openliberty.domino.log.OpenLibertyLog;
 import org.openntf.openliberty.domino.reverseproxy.ReverseProxyConfig;
 import org.openntf.openliberty.domino.reverseproxy.ReverseProxyConfigProvider;
 import org.openntf.openliberty.domino.reverseproxy.ReverseProxyService;
 import org.openntf.openliberty.domino.reverseproxy.ReverseProxyTarget;
+import org.openntf.openliberty.domino.reverseproxy.event.ReverseProxyConfigChangedEvent;
+import org.openntf.openliberty.domino.runtime.OpenLibertyRuntime;
 
 /**
  * Reverse proxy implementation that opens a proxy on a configured port and supports
@@ -53,7 +57,7 @@ import org.openntf.openliberty.domino.reverseproxy.ReverseProxyTarget;
  * @author Jesse Gallagher
  * @since 2.1.0
  */
-public class StandaloneReverseProxyService implements RuntimeService, ReverseProxyService {
+public class StandaloneReverseProxyService implements RuntimeService, ReverseProxyService, EventRecipient {
 	private static final Logger log = OpenLibertyLog.getLog();
 	
 	public static final String TYPE = "Standalone"; //$NON-NLS-1$
@@ -66,15 +70,18 @@ public class StandaloneReverseProxyService implements RuntimeService, ReversePro
 	public String getProxyType() {
 		return TYPE;
 	}
-	
+
 	@Override
-	public void notifyConfigurationChanged(ReverseProxyConfig config) {
-		int newHash = config.hashCode();
-		if(this.configHash != newHash) {
-			this.config = config;
-			this.configHash = newHash;
-			
-			refreshServer();
+	public void notifyMessage(EventObject event) {
+		if(event instanceof ReverseProxyConfigChangedEvent) {
+			ReverseProxyConfig config = ((ReverseProxyConfigChangedEvent)event).getSource();
+			int newHash = config.hashCode();
+			if(this.configHash != newHash) {
+				this.config = config;
+				this.configHash = newHash;
+				
+				refreshServer();
+			}
 		}
 	}
 	
@@ -86,11 +93,11 @@ public class StandaloneReverseProxyService implements RuntimeService, ReversePro
 			this.configHash = this.config.hashCode();
 			
 			refreshServer();
-			
-			configProvider.registerConfigChangeListener(this);
 		} catch(Throwable t) {
 			t.printStackTrace();
 		}
+		
+		OpenLibertyRuntime.instance.registerMessageRecipient(this);
 	}
 	
 	private void refreshServer() {
@@ -103,7 +110,7 @@ public class StandaloneReverseProxyService implements RuntimeService, ReversePro
 		}
 	}
 	
-	private Undertow startServer() {
+	private synchronized Undertow startServer() {
 		PathHandler pathHandler = new PathHandler();
 		
 		// Add handlers for each target

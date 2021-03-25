@@ -46,13 +46,11 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 
-import org.openntf.openliberty.domino.adminnsf.AdminNSFService;
 import org.openntf.openliberty.domino.adminnsf.util.AdminNSFUtil;
 import org.openntf.openliberty.domino.config.RuntimeConfigurationProvider;
 import org.openntf.openliberty.domino.log.OpenLibertyLog;
 import org.openntf.openliberty.domino.reverseproxy.ReverseProxyConfig;
 import org.openntf.openliberty.domino.reverseproxy.ReverseProxyConfigProvider;
-import org.openntf.openliberty.domino.reverseproxy.ReverseProxyService;
 import org.openntf.openliberty.domino.reverseproxy.ReverseProxyTarget;
 import org.openntf.openliberty.domino.util.DominoThreadFactory;
 import org.openntf.openliberty.domino.util.OpenLibertyUtil;
@@ -199,11 +197,6 @@ public class AdminNSFProxyConfigProvider implements ReverseProxyConfigProvider {
 		}
 		
 		return result;
-	}
-	
-	@Override
-	public void registerConfigChangeListener(ReverseProxyService proxy) {
-		AdminNSFService.instance.registerReverseProxy(proxy);
 	}
 	
 	public static void readConfigurationDocument(ReverseProxyConfig result, Document config, boolean useDominoConnectorHeaders) {

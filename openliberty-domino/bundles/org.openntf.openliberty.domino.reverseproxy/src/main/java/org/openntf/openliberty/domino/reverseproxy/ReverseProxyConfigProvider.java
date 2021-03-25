@@ -24,11 +24,4 @@ package org.openntf.openliberty.domino.reverseproxy;
  */
 public interface ReverseProxyConfigProvider {
 	ReverseProxyConfig createConfiguration();
-	
-	/**
-	 * Registers a reverse proxy implementation to be notified when the configuration changes.
-	 * 
-	 * @param proxy the implementation to register
-	 */
-	void registerConfigChangeListener(ReverseProxyService proxy);
 }

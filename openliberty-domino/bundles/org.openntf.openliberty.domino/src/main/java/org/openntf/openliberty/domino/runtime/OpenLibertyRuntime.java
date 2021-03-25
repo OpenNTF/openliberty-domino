@@ -18,19 +18,28 @@ package org.openntf.openliberty.domino.runtime;
 import static java.text.MessageFormat.format;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.EventObject;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import org.openntf.openliberty.domino.event.EventRecipient;
+import org.openntf.openliberty.domino.event.ServerDeployEvent;
+import org.openntf.openliberty.domino.event.ServerStartEvent;
+import org.openntf.openliberty.domino.event.ServerStopEvent;
 import org.openntf.openliberty.domino.ext.RuntimeService;
 import org.openntf.openliberty.domino.log.OpenLibertyLog;
 import org.openntf.openliberty.domino.server.ServerConfiguration;
@@ -41,8 +50,9 @@ import org.openntf.openliberty.domino.util.OpenLibertyUtil;
 public enum OpenLibertyRuntime implements Runnable {
 	instance;
 	
-	private final BlockingQueue<RuntimeTask> taskQueue = new LinkedBlockingDeque<RuntimeTask>();
+	private final BlockingQueue<RuntimeTask> taskQueue = new LinkedBlockingDeque<>();
 	private final List<RuntimeService> runtimeServices = OpenLibertyUtil.findExtensions(RuntimeService.class).collect(Collectors.toList());
+	private final Collection<EventRecipient> messageRecipients = Collections.synchronizedList(new ArrayList<>());
 	
 	private Set<String> startedServers = Collections.synchronizedSet(new HashSet<>());
 	private Set<Process> subprocesses = Collections.synchronizedSet(new HashSet<>());
@@ -65,6 +75,7 @@ public enum OpenLibertyRuntime implements Runnable {
 		
 		try {
 			runtimeServices.forEach(DominoThreadFactory.executor::submit);
+			messageRecipients.addAll(runtimeServices);
 			
 			while(!Thread.interrupted()) {
 				RuntimeTask command = taskQueue.take();
@@ -78,9 +89,8 @@ public enum OpenLibertyRuntime implements Runnable {
 						ServerInstance<?> serverInstance = this.serverInstances.get(serverName);
 						serverInstance.start();
 						serverInstance.watchLogs(OpenLibertyLog.instance.out);
-						runtimeServices.forEach(service -> {
-							DominoThreadFactory.executor.submit(() -> service.notifyServerStart(serverInstance));
-						});
+						
+						broadcastMessage(new ServerStartEvent(serverInstance));
 						break;
 					}
 					case STOP: {
@@ -88,19 +98,15 @@ public enum OpenLibertyRuntime implements Runnable {
 						ServerInstance<?> serverInstance = this.serverInstances.get(serverName);
 						serverInstance.close();
 						
-						runtimeServices.forEach(service -> {
-							DominoThreadFactory.executor.submit(() -> service.notifyServerStop(serverInstance));
-						});
+						broadcastMessage(new ServerStopEvent(serverInstance));
 						break;
 					}
 					case CREATE_SERVER: {
 						String serverName = (String)command.args[0];
 						ServerInstance<?> serverInstance = this.serverInstances.get(serverName);
-
 						serverInstance.deploy();
-						runtimeServices.forEach(service -> {
-							DominoThreadFactory.executor.submit(() -> service.notifyServerDeploy(serverInstance));
-						});
+						
+						broadcastMessage(new ServerDeployEvent(serverInstance));
 						break;
 					}
 					case UPDATE_CONFIGURATION: {
@@ -191,6 +197,33 @@ public enum OpenLibertyRuntime implements Runnable {
 	 */
 	public void showStatus() {
 		taskQueue.add(new RuntimeTask(RuntimeTask.Type.STATUS));
+	}
+	
+	/**
+	 * Registers the provided recipient object in the list of broadcast-message targets.
+	 * 
+	 * @param target the recipient to register
+	 * @since 3.0.0
+	 */
+	public void registerMessageRecipient(EventRecipient target) {
+		this.messageRecipients.add(target);
+	}
+	
+	/**
+	 * Notifies all registered message listeners of the provided event.
+	 * 
+	 * <p>The {@link EventRecipient#notifyMessage(EventObject)} method on each recipient is
+	 * submitted to an {@link ExecutorService}.</p>
+	 * 
+	 * @param event the event to broadcast
+	 * @return a {@link List} of void-returning {@link Future} objects representing the asynchronous
+	 * 		completions of each broadcast
+	 */
+	public synchronized List<Future<?>> broadcastMessage(EventObject event) {
+		return this.messageRecipients
+			.stream()
+			.map(r -> DominoThreadFactory.executor.submit(() -> r.notifyMessage(event)))
+			.collect(Collectors.toList());
 	}
 	
 	// *******************************************************************************
