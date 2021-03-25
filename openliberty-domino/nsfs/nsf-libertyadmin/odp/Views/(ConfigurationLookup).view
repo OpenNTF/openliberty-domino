@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <view allowcustomizations="false" allownewdocuments="false"
   altrowcolor="#efefef" bgcolor="white" boldunreadrows="false"
+  comment="Provides programmatic lookup of Domino-server configurations"
   evaluateactions="false" extendlastcolumn="true" gridcolor="white"
   gridstyle="solid" headerbgcolor="white" headerlinecount="1"
   headers="beveled" hide="web" hidemarginborder="false"
-  marginbgcolor="white" marginwidth="0px" name="Configuration"
+  marginbgcolor="white" marginwidth="0px" name="(ConfigurationLookup)"
   onopengoto="lastopened" onrefresh="displayindicator"
   opencollapsed="false" publicaccess="false" rowlinecount="1"
   rowspacing="1" showhierarchies="false" showinmenu="false"
@@ -24,19 +25,13 @@
       </code>
     </action>
   </actionbar>
-  <column hidedetailrows="false" itemname="$3" resizable="true"
+  <column hidedetailrows="false" itemname="Server" resizable="true"
     separatemultiplevalues="false" showaslinks="false" sort="ascending"
     sortnoaccent="false" sortnocase="true" width="20">
     <columnheader title="Server">
       <font size="9pt" style="bold underline"/>
     </columnheader>
     <columnnamesformat columncontainsname="true" showonline="false"/>
-    <code event="value">
-      <formula>@If(
-	Server=""; "(Default)";
-	@Name([Abbreviate]; Server)
-)</formula>
-    </code>
   </column>
   <column hidedetailrows="false" itemname="$4" resizable="true"
     separatemultiplevalues="false" showaslinks="false"

@@ -1,16 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <view alias="ReverseProxyTargets" allowcustomizations="false"
   allownewdocuments="false" altrowcolor="#efefef" bgcolor="white"
-  boldunreadrows="false" evaluateactions="false" extendlastcolumn="true"
-  gridcolor="white" gridstyle="solid" headerbgcolor="white"
-  headerlinecount="1" headers="beveled" hidemarginborder="false"
-  marginbgcolor="white" marginwidth="0px"
-  name="Utility\Reverse Proxy Targets" onopengoto="lastopened"
-  onrefresh="displayindicator" opencollapsed="false"
-  publicaccess="false" rowlinecount="1" rowspacing="1"
-  showhierarchies="false" showinmenu="false" showmargin="true"
-  showresponsehierarchy="true" shrinkrows="false" totalscolor="black"
-  uniquekeys="false" unreadcolor="black" unreadmarks="none" xmlns="http://www.lotus.com/dxl">
+  boldunreadrows="false"
+  comment="Provides a programmatic description of reverse-proxy target URLs"
+  evaluateactions="false" extendlastcolumn="true" gridcolor="white"
+  gridstyle="solid" headerbgcolor="white" headerlinecount="1"
+  headers="beveled" hidemarginborder="false" marginbgcolor="white"
+  marginwidth="0px" name="Utility\Reverse Proxy Targets"
+  onopengoto="lastopened" onrefresh="displayindicator"
+  opencollapsed="false" publicaccess="false" rowlinecount="1"
+  rowspacing="1" showhierarchies="false" showinmenu="false"
+  showmargin="true" showresponsehierarchy="true" shrinkrows="false"
+  totalscolor="black" uniquekeys="false" unreadcolor="black"
+  unreadmarks="none" xmlns="http://www.lotus.com/dxl">
   <code event="selection">
     <formula>SELECT
 	(Form="Server" &amp; (HTTPPort != ""  | HTTPSPort != ""))

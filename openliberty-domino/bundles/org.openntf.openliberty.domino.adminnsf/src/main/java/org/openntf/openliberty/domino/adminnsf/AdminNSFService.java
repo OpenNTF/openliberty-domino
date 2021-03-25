@@ -71,7 +71,7 @@ public enum AdminNSFService implements Runnable {
 	private static final Logger log = OpenLibertyLog.instance.log;
 	
 	public static final String VIEW_SERVERS = "Servers"; //$NON-NLS-1$
-	public static final String VIEW_CONFIGURATION = "Configuration"; //$NON-NLS-1$
+	public static final String VIEW_CONFIGURATION = "ConfigurationLookup"; //$NON-NLS-1$
 	public static final String VIEW_SERVERSMODIFIED = "ServersModified"; //$NON-NLS-1$
 	
 	public static final String ITEM_SERVERNAME = "Name"; //$NON-NLS-1$

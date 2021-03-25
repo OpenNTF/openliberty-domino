@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.TreeSet;
 import java.util.concurrent.ExecutionException;
 
+import org.openntf.openliberty.domino.adminnsf.AdminNSFService;
 import org.openntf.openliberty.domino.adminnsf.config.AdminNSFProperties;
 import org.openntf.openliberty.domino.util.DominoThreadFactory;
 
@@ -53,7 +54,7 @@ public enum AdminNSFUtil {
 	}
 	
 	public static Document getConfigurationDocument(Database adminNsf) throws NotesException {
-		View configuration = adminNsf.getView("Configuration"); //$NON-NLS-1$
+		View configuration = adminNsf.getView(AdminNSFService.VIEW_CONFIGURATION);
 		configuration.setAutoUpdate(false);
 		try {
 			configuration.refresh();

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <view allowcustomizations="false" allownewdocuments="false"
   altrowcolor="#efefef" bgcolor="white" boldunreadrows="false"
+  comment="Provides a programmatic collection of servers and apps"
   evaluateactions="false" extendlastcolumn="true" gridcolor="white"
   gridstyle="solid" headerbgcolor="white" headerlinecount="1"
   headers="beveled" hidemarginborder="false" marginbgcolor="white"
