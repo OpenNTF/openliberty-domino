@@ -49,7 +49,19 @@
       <par def="1"/>
       <par def="1">
         <run>
-          <font size="18pt" style="bold"/>Configuration</run>
+          <font size="18pt" style="bold"/>
+        </run>
+        <run>
+          <font size="18pt" style="bold"/>
+          <computedtext>
+            <code event="value">
+              <formula>@If(Server=""; "Default Server Configuration"; "Configuration for " + @Name([Abbreviate]; Server))</formula>
+            </code>
+          </computedtext>
+        </run>
+        <run>
+          <font size="18pt" style="bold"/>
+        </run>
       </par>
       <par def="1"/>
       <pardef id="2" leftmargin="1in" spaceafter="1.5">
@@ -70,19 +82,35 @@
         <tablerow>
           <tablecell borderwidth="0px">
             <pardef id="4" keeptogether="true" keepwithnext="true"/>
-            <par def="4">Base Directory</par>
+            <par def="4">Server</par>
           </tablecell>
           <tablecell borderwidth="0px">
             <pardef id="5" keeptogether="true" keepwithnext="true"/>
             <par def="5">
+              <field choicesdialog="addressbook" kind="editable"
+                lookupaddressonrefresh="false" lookupeachchar="false"
+                name="Server" type="names"/>
+            </par>
+            <pardef hide="read print preview" id="6" keeptogether="true" keepwithnext="true"/>
+            <par def="6">
+              <run>
+                <font color="gray" size="8pt"/>Leave blank to apply as the default</run>
+            </par>
+          </tablecell>
+        </tablerow>
+        <tablerow>
+          <tablecell borderwidth="0px">
+            <par def="4">Base Directory</par>
+          </tablecell>
+          <tablecell borderwidth="0px">
+            <par def="5">
               <field kind="editable" name="BaseDirectory" type="text"/>
               <compositedata afterbegincount="3" aftercontainercount="1"
-                afterparcount="7" containertype="65418" nexttype="222"
+                afterparcount="6" containertype="65418" nexttype="222"
                 prevtype="65418" type="98">
 Yg4BAIQAAAAAAAAAAAA=
 </compositedata>
             </par>
-            <pardef hide="read print preview" id="6" keeptogether="true" keepwithnext="true"/>
             <par def="6">
               <run>
                 <font color="gray" size="8pt"/>Default: (program directory)/wlp</run>
@@ -121,6 +149,9 @@ Yg4BAIQAAAAAAAAAAAA=
                     <text>No|N</text>
                   </textlist>
                 </keywords>
+                <code event="defaultvalue">
+                  <formula>"No"</formula>
+                </code>
               </field>
               <run>
                 <font color="gray" size="8pt"/>

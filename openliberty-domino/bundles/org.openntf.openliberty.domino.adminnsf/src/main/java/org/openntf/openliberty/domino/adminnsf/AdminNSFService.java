@@ -223,12 +223,16 @@ public enum AdminNSFService implements Runnable {
 		try {
 			configuration.setAutoUpdate(false);
 			configuration.refresh();
-			ViewNavigator configNav = configuration.createViewNav();
-			configNav.setEntryOptions(ViewNavigator.VN_ENTRYOPT_NOCOUNTDATA);
-			ViewEntry configEntry = configNav.getFirst();
+			ViewEntry configEntry = configuration.getEntryByKey(adminNsf.getParent().getUserName(), true);
+			if(configEntry == null) {
+				configuration.getEntryByKey("", true); //$NON-NLS-1$
+			}
+			if(configEntry == null) {
+				return 0;
+			}
 			Vector<?> columnValues = configEntry.getColumnValues();
 			try {
-				DateTime mod = (DateTime)columnValues.get(0);
+				DateTime mod = (DateTime)columnValues.get(1);
 				return mod.toJavaDate().getTime();
 			} finally {
 				configEntry.recycle(columnValues);

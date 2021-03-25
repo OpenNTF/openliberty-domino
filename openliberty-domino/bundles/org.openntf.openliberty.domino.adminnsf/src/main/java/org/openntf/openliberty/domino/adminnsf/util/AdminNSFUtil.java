@@ -54,9 +54,15 @@ public enum AdminNSFUtil {
 	
 	public static Document getConfigurationDocument(Database adminNsf) throws NotesException {
 		View configuration = adminNsf.getView("Configuration"); //$NON-NLS-1$
+		configuration.setAutoUpdate(false);
 		try {
 			configuration.refresh();
-			Document doc = configuration.getFirstDocument();
+			
+			Document doc = configuration.getDocumentByKey(adminNsf.getParent().getUserName(), true);
+			if(doc == null) {
+				doc = configuration.getDocumentByKey("", true); //$NON-NLS-1$
+			}
+			
 			if(doc != null) {
 				return doc;
 			} else {
