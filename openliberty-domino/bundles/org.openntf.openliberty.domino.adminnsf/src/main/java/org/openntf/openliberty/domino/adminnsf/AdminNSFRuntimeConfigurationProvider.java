@@ -82,7 +82,11 @@ public class AdminNSFRuntimeConfigurationProvider implements RuntimeConfiguratio
 					String execDirName = config.getItemValueString(ITEM_BASEDIRECTORY);
 					Path execDir;
 					if(StringUtil.isEmpty(execDirName)) {
-						execDir = Paths.get(OpenLibertyUtil.getDominoProgramDirectory()).resolve("wlp"); //$NON-NLS-1$
+						if(OpenLibertyUtil.IS_WINDOWS) {
+							execDir = Paths.get(OpenLibertyUtil.getDominoProgramDirectory()).resolve("wlp"); //$NON-NLS-1$
+						} else {
+							execDir = Paths.get(OpenLibertyUtil.getDominoDataDirectory()).resolve("wlp"); //$NON-NLS-1$
+						}
 					} else {
 						execDir = Paths.get(execDirName);
 					}

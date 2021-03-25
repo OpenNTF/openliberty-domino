@@ -130,6 +130,25 @@ public enum OpenLibertyUtil {
 	}
 	
 	/**
+	 * @return the path of the active Domino data directory
+	 * @since 3.0.0
+	 */
+	public static String getDominoDataDirectory() {
+		try {
+			return DominoThreadFactory.executor.submit(() -> {
+				Session s = NotesFactory.createSession();
+				try {
+					return s.getEnvironmentString("Directory", true); //$NON-NLS-1$
+				} finally {
+					s.recycle();
+				}
+			}).get();
+		} catch (InterruptedException | ExecutionException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	/**
 	 * Loads extensions for the given service class, using the service class's ClassLoader.
 	 * 
 	 * @param <T> the service type to load
