@@ -43,9 +43,9 @@ import org.openntf.openliberty.domino.util.commons.ibm.StringUtil;
 public class LibertyRuntimeDeployment implements RuntimeDeploymentTask<LibertyServerConfiguration> {
 	private static final Logger log = OpenLibertyLog.instance.log;
 	
-	public static final String DEFAULT_VERSION = "21.0.0.2";
-	public static final String DEFAULT_ARTIFACT = "io.openliberty:openliberty-runtime";
-	public static final String DEFAULT_MAVENREPO = "https://repo.maven.apache.org/maven2/";
+	public static final String DEFAULT_VERSION = "21.0.0.2"; //$NON-NLS-1$
+	public static final String DEFAULT_ARTIFACT = "io.openliberty:openliberty-runtime"; //$NON-NLS-1$
+	public static final String DEFAULT_MAVENREPO = "https://repo.maven.apache.org/maven2/"; //$NON-NLS-1$
 	
 	public static final String URL_CORBA = "https://repo1.maven.org/maven2/org/glassfish/corba/glassfish-corba-omgapi/4.2.1/glassfish-corba-omgapi-4.2.1.jar"; //$NON-NLS-1$
 

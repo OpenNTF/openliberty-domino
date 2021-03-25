@@ -165,7 +165,7 @@ public enum OpenLibertyUtil {
 	 */
 	public static <T> T findRequiredExtension(Class<T> extensionClass) {
 		return findExtension(extensionClass)
-			.orElseThrow(() -> new IllegalStateException(format(Messages.getString("OpenLibertyUtil.unableToFindServiceProviding"), extensionClass.getName())));
+			.orElseThrow(() -> new IllegalStateException(format(Messages.getString("OpenLibertyUtil.unableToFindServiceProviding"), extensionClass.getName()))); //$NON-NLS-1$
 	}
 	
 	/**

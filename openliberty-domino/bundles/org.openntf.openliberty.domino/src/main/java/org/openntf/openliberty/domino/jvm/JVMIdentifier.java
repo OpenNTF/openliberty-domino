@@ -33,7 +33,7 @@ public class JVMIdentifier {
 	
 	@Override
 	public String toString() {
-		return MessageFormat.format("JVM version={0}, type={1}", version, type);
+		return MessageFormat.format("JVM version={0}, type={1}", version, type); //$NON-NLS-1$
 	}
 	
 	@Override
