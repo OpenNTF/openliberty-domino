@@ -16,6 +16,7 @@
 package org.openntf.openliberty.domino.reverseproxy.standalone;
 
 import org.openntf.openliberty.domino.util.OpenLibertyUtil;
+import org.openntf.openliberty.domino.util.commons.ibm.StringUtil;
 
 import io.undertow.Undertow;
 import io.undertow.UndertowOptions;
@@ -216,9 +217,13 @@ public class StandaloneReverseProxyService implements RuntimeService, ReversePro
 		@Override
 		public String readAttribute(HttpServerExchange exchange) {
 			String requestPath = exchange.getRequestPath();
+			String queryString = exchange.getQueryString();
+			if(StringUtil.isNotEmpty(queryString)) {
+				queryString = "?" + queryString; //$NON-NLS-1$
+			}
 			String requestHost = exchange.getHostName();
 			String portPart = httpsPort == 443 ? "" : (":" + httpsPort); //$NON-NLS-1$ //$NON-NLS-2$
-			return MessageFormat.format("https://{0}{1}{2}", requestHost, portPart, requestPath); //$NON-NLS-1$
+			return MessageFormat.format("https://{0}{1}{2}{3}", requestHost, portPart, requestPath, queryString); //$NON-NLS-1$
 		}
 
 		@Override
