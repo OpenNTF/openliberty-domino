@@ -11,6 +11,7 @@ import java.util.Vector;
 import org.openntf.openliberty.domino.adminnsf.util.AdminNSFUtil;
 import org.openntf.openliberty.domino.runtime.AppDeploymentProvider;
 import org.openntf.openliberty.domino.util.OpenLibertyUtil;
+import org.openntf.openliberty.domino.util.commons.ibm.StringUtil;
 
 import lotus.domino.Database;
 import lotus.domino.Document;
@@ -33,7 +34,14 @@ public class AdminNSFAppDeploymentProvider implements AppDeploymentProvider {
 	public static final String ITEM_REVERSEPROXY = "IncludeInReverseProxy"; //$NON-NLS-1$
 
 	@Override
-	public void deployApp(String serverName, String appName, String contextPath, String fileName, boolean includeInReverseProxy, InputStream appData) {
+	public void deployApp(String serverName, String appName, String contextPath, String fileName, Boolean includeInReverseProxy, InputStream appData) {
+		if(StringUtil.isEmpty(serverName)) {
+			throw new IllegalArgumentException("serverName cannot be empty");
+		}
+		if(StringUtil.isEmpty(appName)) {
+			throw new IllegalArgumentException("appName cannot be empty");
+		}
+		
 		try {
 			Session session = NotesFactory.createSession();
 			try {
@@ -71,11 +79,17 @@ public class AdminNSFAppDeploymentProvider implements AppDeploymentProvider {
 				}
 				
 				String path = contextPath;
-				if(path.startsWith("/")) { //$NON-NLS-1$
-					path = path.substring(1);
+				if(StringUtil.isEmpty(path)) {
+					// Determine whether to change an existing value
+					String existing = appDoc.getItemValueString(ITEM_CONTEXTPATH);
+					if(StringUtil.isEmpty(existing)) {
+						path = appName;
+						appDoc.replaceItemValue(ITEM_CONTEXTPATH, path);
+					}
+				} else {
+					appDoc.replaceItemValue(ITEM_CONTEXTPATH, path);
 				}
-				appDoc.replaceItemValue(ITEM_CONTEXTPATH, path);
-				appDoc.replaceItemValue(ITEM_REVERSEPROXY, includeInReverseProxy ? "Y" : "N"); //$NON-NLS-1$ //$NON-NLS-2$
+				appDoc.replaceItemValue(ITEM_REVERSEPROXY, includeInReverseProxy != null && includeInReverseProxy ? "Y" : "N"); //$NON-NLS-1$ //$NON-NLS-2$
 				
 				if(appDoc.hasItem(ITEM_FILE)) {
 					appDoc.removeItem(ITEM_FILE);
@@ -84,7 +98,12 @@ public class AdminNSFAppDeploymentProvider implements AppDeploymentProvider {
 				
 				Path tempDir = Files.createTempDirectory(OpenLibertyUtil.getTempDirectory(), getClass().getName());
 				try {
-					Path file = tempDir.resolve(fileName);
+					String fname = fileName;
+					if(StringUtil.isEmpty(fname)) {
+						// TODO consider a non-WAR default
+						fname = appName + ".war"; //$NON-NLS-1$
+					}
+					Path file = tempDir.resolve(fname);
 					Files.copy(appData, file, StandardCopyOption.REPLACE_EXISTING);
 					fileItem.embedObject(EmbeddedObject.EMBED_ATTACHMENT, "", file.toString(), null); //$NON-NLS-1$
 				} finally {

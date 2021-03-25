@@ -19,6 +19,9 @@
 <?eclipse version="3.4"?>
 <fragment>
 	<extension point="org.eclipse.equinox.http.registry.servlets">
-		<servlet alias="/org.openntf.openliberty.domino/admin/deployapp" class="org.openntf.openliberty.domino.httpapi.AppDeploymentServlet"/>
+		<servlet alias="/org.openntf.openliberty.domino/admin" class="org.openntf.openliberty.domino.httpapi.RestEasyServlet">
+			<init-param name="resteasy.servlet.mapping.prefix" value="/org.openntf.openliberty.domino/admin"/>
+			<init-param name="javax.ws.rs.Application" value="org.openntf.openliberty.domino.httpapi.AdminApplication"/>
+		</servlet>
 	</extension>
 </fragment>

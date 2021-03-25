@@ -10,20 +10,15 @@
 	<artifactId>org.openntf.openliberty.domino.httpapi</artifactId>
 	<packaging>bundle</packaging>
 	
+	<properties>
+		<resteasy-version>3.11.2.Final</resteasy-version>
+	</properties>
+	
 	<dependencies>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>org.openntf.openliberty.domino</artifactId>
 			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.ibm.sbt</groupId>
-			<artifactId>com.ibm.commons</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.ibm.sbt</groupId>
-			<artifactId>com.ibm.commons.xml</artifactId>
 			<scope>provided</scope>
 		</dependency>
 
@@ -32,6 +27,18 @@
 			<artifactId>servlet-api</artifactId>
 			<version>2.4</version>
 			<scope>provided</scope>
+		</dependency>
+
+		<!-- RESTEasy and support -->
+		<dependency>
+			<groupId>org.jboss.spec.javax.ws.rs</groupId>
+			<artifactId>jboss-jaxrs-api_2.1_spec</artifactId>
+			<version>2.0.1.Final</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jboss.resteasy</groupId>
+			<artifactId>resteasy-jaxrs</artifactId>
+			<version>${resteasy-version}</version>
 		</dependency>
 	</dependencies>
 	
@@ -57,6 +64,12 @@
 					<instructions>
 						<Bundle-SymbolicName>${project.artifactId};singleton:=true</Bundle-SymbolicName>
 						<Export-Package/>
+						<Import-Package>
+							javax.servlet,
+							javax.servlet.http
+						</Import-Package>
+						<Embed-Dependency>*;scope=compile</Embed-Dependency>
+						<Embed-Transitive>true</Embed-Transitive>
 						<Fragment-Host>org.openntf.openliberty.domino</Fragment-Host>
 					</instructions>
 				</configuration>
