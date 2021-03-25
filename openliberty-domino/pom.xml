@@ -337,7 +337,6 @@
 							<Bundle-RequiredExecutionEnvironment>JavaSE-1.8</Bundle-RequiredExecutionEnvironment>
 							<Automatic-Module-Name>${project.artifactId}</Automatic-Module-Name>
 							<_snapshot>${osgi.qualifier}</_snapshot>
-							<_dsannotations>*</_dsannotations>
 						</instructions>
 					</configuration>
 				</plugin>
