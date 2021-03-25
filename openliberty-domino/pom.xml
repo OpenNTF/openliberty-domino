@@ -56,6 +56,7 @@
 		<module>bundles/org.openntf.openliberty.domino.reverseproxy.httpservice</module>
 		<module>bundles/org.openntf.openliberty.domino.reverseproxy</module>
 		<module>bundles/org.openntf.openliberty.domino.runjava</module>
+		<module>bundles/org.openntf.openliberty.domino.httpapi</module>
 		
 		<module>releng/org.openntf.openliberty.domino.updatesite</module>
 		<module>releng/org.openntf.openliberty.domino.source.updatesite</module>
