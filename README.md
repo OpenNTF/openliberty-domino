@@ -46,6 +46,10 @@ The runtime supports several Domino console commands, all of which are prefixed 
 
 The installation contains a reverse proxy that can be enabled in the main configuration document of `libertyadmin.nsf`. In there, you can specify ports to listen on as well as a TLS private key and certificate chain, if desired. By default, the reverse proxy will relay all requests to the Domino server, while individual WAR apps deployed to Liberty servers can also be included via their documents. When they are marked as such, their context roots will be forward to them first, rather than to Domino.
 
+## Admin REST API
+
+When installed on Domino, the runtime provides an Admin API at `/org.openntf.openliberty.domino/admin`. The available resources are described in "adminapi.yaml".
+
 ## Liberty Server Extensions
 
 Deployed Liberty servers are installed with several custom features, which can be enabled per-server in the server configuration document in the NSF.

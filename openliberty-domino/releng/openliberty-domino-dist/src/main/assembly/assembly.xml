@@ -73,6 +73,16 @@
 			<unpack>false</unpack>
 			<useTransitiveDependencies>false</useTransitiveDependencies>
 		</dependencySet>
+		<dependencySet>
+			<includes>
+				<include>org.openntf:org.openntf.openliberty.domino.httpapi:*</include>
+			</includes>
+			
+			<outputDirectory>.</outputDirectory>
+			<unpack>false</unpack>
+			<useTransitiveDependencies>false</useTransitiveDependencies>
+			<outputFileNameMapping>adminapi.yaml</outputFileNameMapping>
+		</dependencySet>
 	</dependencySets>
 	
 	<moduleSets>

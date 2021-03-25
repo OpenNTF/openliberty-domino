@@ -11,6 +11,7 @@ import javax.ws.rs.core.MediaType;
 
 import org.openntf.openliberty.domino.runtime.AppDeploymentProvider;
 import org.openntf.openliberty.domino.util.OpenLibertyUtil;
+import org.openntf.openliberty.domino.util.commons.ibm.StringUtil;
 
 @Path("apps")
 public class AppsResource {
@@ -22,11 +23,12 @@ public class AppsResource {
 		@PathParam("appName") String appName,
 		@QueryParam("fileName") String fileName,
 		@QueryParam("contextPath") String contextPath,
-		@QueryParam("includeInReverseProxy") Boolean includeInReverseProxy,
+		@QueryParam("includeInReverseProxy") String includeInReverseProxy,
 		InputStream fileData
 	) {
 		AppDeploymentProvider deploymentProvider = OpenLibertyUtil.findRequiredExtension(AppDeploymentProvider.class);
-		deploymentProvider.deployApp(serverName, appName, contextPath, fileName, includeInReverseProxy, fileData);
+		Boolean reverseProxy = StringUtil.isEmpty(includeInReverseProxy) ? null : Boolean.valueOf(includeInReverseProxy);
+		deploymentProvider.deployApp(serverName, appName, contextPath, fileName, reverseProxy, fileData);
 		
 		return "Deployment successful";
 	}
