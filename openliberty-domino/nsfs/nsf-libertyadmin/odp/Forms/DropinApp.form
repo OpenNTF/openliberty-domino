@@ -73,11 +73,10 @@ Yg4BAIQAAAAAAAAAAAA=
         </tablerow>
         <tablerow>
           <tablecell borderwidth="0px">
-            <par def="3">Context Root</par>
+            <par def="3">Context Path</par>
           </tablecell>
           <tablecell borderwidth="0px">
-            <par def="4">
-              <field kind="editable" name="ContextRoot" type="text">
+            <par def="4">/<field kind="editable" name="ContextRoot" type="text">
                 <code event="inputtranslation">
                   <formula>@If(@ThisValue=""; AppName; @ThisValue)</formula>
                 </code>
