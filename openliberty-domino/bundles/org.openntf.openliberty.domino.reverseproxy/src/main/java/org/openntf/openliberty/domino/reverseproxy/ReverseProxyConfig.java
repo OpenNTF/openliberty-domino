@@ -31,11 +31,12 @@ public class ReverseProxyConfig {
 	
 	public String proxyHostName;
 	public int proxyHttpPort = PORT_DISABLED;
+	public boolean redirectHttpToHttps;
 	public int proxyHttpsPort = PORT_DISABLED;
 	public SSLContext proxyHttpsContext;
 	public long maxEntitySize;
 	
-	public String dominoHostName = "localhost";
+	public String dominoHostName = "localhost"; //$NON-NLS-1$
 	public int dominoHttpPort;
 	public boolean dominoHttps;
 	public boolean useDominoConnectorHeaders;

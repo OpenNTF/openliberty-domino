@@ -29,6 +29,7 @@ import io.undertow.attribute.RequestSchemeAttribute;
 import io.undertow.attribute.SecureExchangeAttribute;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.handlers.PathHandler;
+import io.undertow.server.handlers.RedirectHandler;
 import io.undertow.server.handlers.proxy.LoadBalancingProxyClient;
 import io.undertow.server.handlers.proxy.ProxyHandler;
 import io.undertow.util.HttpString;
@@ -169,7 +170,14 @@ public class StandaloneReverseProxyService implements RuntimeService, ReversePro
 			// Obligatory for XPages minifiers
 			.setServerOption(UndertowOptions.ALLOW_ENCODED_SLASH, true);
 		if(config.proxyHttpPort != -1) {
-			serverBuilder.addHttpListener(config.proxyHttpPort, config.proxyHostName);
+			if(config.redirectHttpToHttps) {
+				if(config.proxyHttpsPort == ReverseProxyConfig.PORT_DISABLED) {
+					throw new IllegalStateException("HTTP-to-HTTPS redirection cannot be enabled when HTTPS is disabled");
+				}
+				serverBuilder.addHttpListener(config.proxyHttpPort, config.proxyHostName, new RedirectHandler(new HttpRedirectAttribute(config.proxyHttpsPort)));
+			} else {
+				serverBuilder.addHttpListener(config.proxyHttpPort, config.proxyHostName);
+			}
 		}
 		if(config.proxyHttpsPort != -1) {
 			serverBuilder.addHttpsListener(config.proxyHttpsPort, config.proxyHostName, config.proxyHttpsContext);
@@ -193,6 +201,24 @@ public class StandaloneReverseProxyService implements RuntimeService, ReversePro
 		@Override
 		public String readAttribute(HttpServerExchange exchange) {
 			return value;
+		}
+
+		@Override
+		public void writeAttribute(HttpServerExchange exchange, String newValue) throws ReadOnlyAttributeException { }
+	}
+	
+	private static class HttpRedirectAttribute implements ExchangeAttribute {
+		private final int httpsPort;
+		public HttpRedirectAttribute(int httpsPort) {
+			this.httpsPort = httpsPort;
+		}
+
+		@Override
+		public String readAttribute(HttpServerExchange exchange) {
+			String requestPath = exchange.getRequestPath();
+			String requestHost = exchange.getHostName();
+			String portPart = httpsPort == 443 ? "" : (":" + httpsPort); //$NON-NLS-1$ //$NON-NLS-2$
+			return MessageFormat.format("https://{0}{1}{2}", requestHost, portPart, requestPath); //$NON-NLS-1$
 		}
 
 		@Override

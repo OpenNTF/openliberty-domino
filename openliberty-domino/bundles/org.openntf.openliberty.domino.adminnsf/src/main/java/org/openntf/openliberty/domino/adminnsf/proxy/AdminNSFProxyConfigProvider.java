@@ -223,12 +223,14 @@ public class AdminNSFProxyConfigProvider implements ReverseProxyConfigProvider {
 			}
 			
 			// Check for HTTP
-			boolean enableHttp = "Y".equals(config.getItemValueString(ITEM_REVERSEPROXYHTTP)); //$NON-NLS-1$
+			String httpVal = config.getItemValueString(ITEM_REVERSEPROXYHTTP);
+			boolean enableHttp = "Y".equals(httpVal) || "Redirect".equals(httpVal); //$NON-NLS-1$ //$NON-NLS-2$
 			if(enableHttp) {
-				if(enableHttp) {
-					int port = config.getItemValueInteger(ITEM_REVERSEPROXYHTTPPORT);
-					result.proxyHttpPort = port;
-				}
+				int port = config.getItemValueInteger(ITEM_REVERSEPROXYHTTPPORT);
+				result.proxyHttpPort = port;
+			}
+			if("Redirect".equals(httpVal)) { //$NON-NLS-1$
+				result.redirectHttpToHttps = true;
 			}
 			
 			// Check for HTTPS
