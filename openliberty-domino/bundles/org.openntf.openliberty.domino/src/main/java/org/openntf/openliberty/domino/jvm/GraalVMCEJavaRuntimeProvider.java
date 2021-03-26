@@ -50,24 +50,22 @@ import org.openntf.openliberty.domino.util.json.parser.ParseException;
 
 /**
  * Implementation of {@link JavaRuntimeProvider} that downloads and references
- * a build from AdoptOpenJDK.
+ * a build from GraalVM CE.
  * 
  * @author Jesse Gallagher
  * @since 3.0.0
  */
-public class AdoptOpenJDKJavaRuntimeProvider implements JavaRuntimeProvider {
+public class GraalVMCEJavaRuntimeProvider implements JavaRuntimeProvider {
 	private static final Logger log = OpenLibertyLog.instance.log;
 	
-	public static final String API_RELEASES = "https://api.github.com/repos/AdoptOpenJDK/openjdk{0}-binaries/releases"; //$NON-NLS-1$
+	public static final String API_RELEASES = "https://api.github.com/repos/graalvm/graalvm-ce-builds/releases"; //$NON-NLS-1$
 	
-	public static final String TYPE_HOTSPOT = "HotSpot"; //$NON-NLS-1$
-	public static final String TYPE_OPENJ9 = "OpenJ9"; //$NON-NLS-1$
-	
-	public static final String PROVIDER_NAME = "AdoptOpenJDK"; //$NON-NLS-1$
+	public static final String TYPE_GRAALVMCE = "GraalVMCE"; //$NON-NLS-1$
+	public static final String PROVIDER_NAME = "GraalVM CE"; //$NON-NLS-1$
 	
 	@Override
 	public boolean canProvide(JVMIdentifier identifier) {
-		return TYPE_HOTSPOT.equals(identifier.getType()) || TYPE_OPENJ9.equals(identifier.getType());
+		return TYPE_GRAALVMCE.equals(identifier.getType());
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -75,12 +73,8 @@ public class AdoptOpenJDKJavaRuntimeProvider implements JavaRuntimeProvider {
 	public Path getJavaHome(JVMIdentifier identifier) {
 		String version = identifier.getVersion();
 		String javaJvm = identifier.getType();
-		if(StringUtil.isEmpty(javaJvm)) {
-			javaJvm = "HotSpot"; //$NON-NLS-1$
-		}
-		boolean isJ9 = "OpenJ9".equals(javaJvm); //$NON-NLS-1$
 		if(log.isLoggable(Level.FINE)) {
-			log.fine(format(Messages.getString("JavaRuntimeProvider.configuredJavaRuntimeWithJVM"), version , javaJvm)); //$NON-NLS-1$
+			log.fine(format(Messages.getString("JavaRuntimeProvider.configuredJavaRuntimeWithJVM"), version , PROVIDER_NAME)); //$NON-NLS-1$
 		}	
 		
 		// Check for an existing JVM
@@ -101,7 +95,7 @@ public class AdoptOpenJDKJavaRuntimeProvider implements JavaRuntimeProvider {
 		if("1.8".equals(version)) { //$NON-NLS-1$
 			version = "8"; //$NON-NLS-1$
 		}
-		String releasesUrl = format(API_RELEASES, version);
+		String releasesUrl = API_RELEASES;
 		if(log.isLoggable(Level.FINE)) {
 			log.fine(format(Messages.getString("JavaRuntimeProvider.downloadingReleaseListFrom"), PROVIDER_NAME, releasesUrl)); //$NON-NLS-1$
 		}
@@ -122,14 +116,6 @@ public class AdoptOpenJDKJavaRuntimeProvider implements JavaRuntimeProvider {
 		List<Map<String, Object>> validReleases = releases.stream()
 			.filter(release -> !(Boolean)release.get("prerelease")) //$NON-NLS-1$
 			.filter(release -> !(Boolean)release.get("draft")) //$NON-NLS-1$
-			.filter(release -> {
-				String name = StringUtil.toString(release.get("name")); //$NON-NLS-1$
-				if(isJ9) {
-					return name.contains("_openj9"); //$NON-NLS-1$
-				} else {
-					return !name.contains("_openj9"); //$NON-NLS-1$
-				}
-			})
 			.filter(release -> release.containsKey("assets")) //$NON-NLS-1$
 			.collect(Collectors.toList());
 		if(validReleases.isEmpty()) {
@@ -140,24 +126,20 @@ public class AdoptOpenJDKJavaRuntimeProvider implements JavaRuntimeProvider {
 		//    Linux: https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.6%2B10/OpenJDK11U-jdk_x64_linux_hotspot_11.0.6_10.tar.gz
 		//    Windows x64: https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.6%2B10/OpenJDK11U-jdk_x64_windows_hotspot_11.0.6_10.zip
 		//    Windows x86: https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.6%2B10/OpenJDK11U-jdk_x86-32_windows_hotspot_11.0.6_10.zip
-		// OpenJ9:
-		//    Linux: https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.6%2B10_openj9-0.18.1/OpenJDK11U-jdk_x64_linux_openj9_11.0.6_10_openj9-0.18.1.tar.gz
-		//    Windows x64: https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.6%2B10_openj9-0.18.1/OpenJDK11U-jdk_x64_windows_openj9_11.0.6_10_openj9-0.18.1.zip
-		String qualifier = format("jdk_{0}_{1}", getOsArch(), getOsName()); //$NON-NLS-1$
+		String qualifier = format("graalvm-ce-java{0}-{1}-{2}", version, getOsName(), getOsArch()); //$NON-NLS-1$
 		Map<String, Object> download = validReleases.stream()
 			.map(release -> (List<Map<String, Object>>)release.get("assets")) //$NON-NLS-1$
 			.flatMap(Collection::stream)
-			.filter(asset -> !StringUtil.toString(asset.get("name")).contains("-testimage")) //$NON-NLS-1$ //$NON-NLS-2$
-			.filter(asset -> !StringUtil.toString(asset.get("name")).contains("-debugimage")) //$NON-NLS-1$ //$NON-NLS-2$
-			.filter(asset -> StringUtil.toString(asset.get("name")).contains("-" + qualifier + "_")) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			.filter(asset -> "application/x-compressed-tar".equals(asset.get("content_type")) || "application/zip".equals(asset.get("content_type"))) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			.filter(asset -> validDownloadName(qualifier, StringUtil.toString(asset.get("name")))) //$NON-NLS-1$
 			.findFirst()
 			.orElseThrow(() -> new IllegalStateException(format(Messages.getString("JavaRuntimeProvider.unableToFindJDKBuildFor"), PROVIDER_NAME, qualifier))); //$NON-NLS-1$
 		if(log.isLoggable(Level.INFO)) {
 			log.info(format(Messages.getString("JavaRuntimeProvider.downloadingJDKFrom"), PROVIDER_NAME, download.get("browser_download_url")));  //$NON-NLS-1$//$NON-NLS-2$
 		}
 		
-		String contentType = (String)download.get("content_type"); //$NON-NLS-1$
+		// GraalVM content types are all "application/binary", so we have to use the extension
+		String assetName = StringUtil.toString(download.get("name")); //$NON-NLS-1$
+		String contentType = assetName.endsWith(".zip") ? "application/zip" : "application/x-compressed-tar"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		// TODO consider replacing with NIO filesystem operations, though they don't inherently support .tar.gz
 		try {
 			OpenLibertyUtil.download(new URL((String)download.get("browser_download_url")), is -> { //$NON-NLS-1$
@@ -207,6 +189,10 @@ public class AdoptOpenJDKJavaRuntimeProvider implements JavaRuntimeProvider {
 		return jvmDir;
 	}
 	
+	private static boolean validDownloadName(String qualifier, String assetName) {
+		return assetName.startsWith(qualifier) && (assetName.endsWith(".zip") || assetName.endsWith(".tar.gz")); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
 	private static void extract(ZipInputStream zis, Path dest) throws IOException {
 		ZipEntry entry = zis.getNextEntry();
 		while(entry != null) {
@@ -228,6 +214,7 @@ public class AdoptOpenJDKJavaRuntimeProvider implements JavaRuntimeProvider {
 					if(entry.isDirectory()) {
 						Files.createDirectories(path);
 					} else {
+						Files.createDirectories(path.getParent());
 						Files.copy(zis, path, StandardCopyOption.REPLACE_EXISTING);
 					}
 				}
@@ -259,6 +246,7 @@ public class AdoptOpenJDKJavaRuntimeProvider implements JavaRuntimeProvider {
 					if(entry.isDirectory()) {
 						Files.createDirectories(path);
 					} else {
+						Files.createDirectories(path.getParent());
 						Files.copy(tis, path, StandardCopyOption.REPLACE_EXISTING);
 					}
 				}
@@ -275,7 +263,7 @@ public class AdoptOpenJDKJavaRuntimeProvider implements JavaRuntimeProvider {
 	private static String getOsArch() {
 		String arch = System.getProperty("os.arch"); //$NON-NLS-1$
 		if("x86_64".equals(arch) || "amd64".equals(arch)) { //$NON-NLS-1$ //$NON-NLS-2$
-			return "x64"; //$NON-NLS-1$
+			return "amd64"; //$NON-NLS-1$
 		} else {
 			return "x86"; //$NON-NLS-1$
 		}

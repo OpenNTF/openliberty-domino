@@ -1,2 +1,3 @@
 org.openntf.openliberty.domino.jvm.AdoptOpenJDKJavaRuntimeProvider
 org.openntf.openliberty.domino.jvm.RunningJVMJavaRuntimeProvider
+org.openntf.openliberty.domino.jvm.GraalVMCEJavaRuntimeProvider
