@@ -184,7 +184,7 @@ public class LibertyServerInstance extends AbstractJavaServerInstance<LibertySer
 					.filter(task -> task.canDeploy(config))
 					.map(task -> (RuntimeDeploymentTask<LibertyServerConfiguration>)task)
 					.findFirst()
-					.orElseThrow(() -> new IllegalStateException(format(Messages.getString("OpenLibertyRuntime.noDeploymentFor"), config.getClass().getName())));
+					.orElseThrow(() -> new IllegalStateException(format(Messages.getString("OpenLibertyRuntime.noDeploymentFor"), config.getClass().getName()))); //$NON-NLS-1$
 			try {
 				return deploymentService.deploy(config);
 			} catch (IOException e) {
