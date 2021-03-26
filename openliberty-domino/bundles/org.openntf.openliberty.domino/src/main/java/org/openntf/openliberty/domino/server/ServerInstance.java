@@ -19,7 +19,7 @@ import java.io.PrintStream;
 import java.util.Collection;
 
 /**
- * Represented a registered instance of a server
+ * Represents a registered instance of a server.
  * 
  * @param <T> the corresponding {@link ServerConfiguration} type
  * @author Jesse Gallagher
