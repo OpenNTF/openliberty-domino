@@ -38,3 +38,13 @@ The runtime may automatically download and execute the following 3rd party code:
 - AdoptOpenJDK, which is available from https://adoptopenjdk.net and is licensed as:
 	- The OpenJDK code is licensed under GPL v2 with Classpath Exception (GPLv2+CE)
 	- OpenJ9 is licensed under Eclipse Public License 2, with compatible sub-project licenses enumerated at https://github.com/eclipse/openj9/blob/master/LICENSE
+- GraalVM CD builds, which are available from https://github.com/graalvm/graalvm-ce-builds and contains components licensed with the following (https://github.com/oracle/graal/):
+	- [Truffle Framework](/truffle/) and its dependency [GraalVM SDK](/sdk/) are licensed under the [Universal Permissive License](truffle/LICENSE.md).
+	- [Tools](/tools/) project is licensed under the [GPL 2 with Classpath exception](tools/LICENSE).
+	- [TRegex](/regex/) project is licensed under the [Universal Permissive License](regex/LICENSE.md).
+	- [GraalVM compiler](/compiler/) is licensed under the [GPL 2 with Classpath exception](compiler/LICENSE.md).
+	- [Substrate VM](/substratevm/) is licensed under the [GPL 2 with Classpath exception](substratevm/LICENSE).
+	- [Sulong](/sulong/) is licensed under [3-clause BSD](sulong/LICENSE).
+	- [GraalWasm](/wasm/) is licensed under the [Universal Permissive License](wasm/LICENSE).
+	- [VM](/vm/) is licensed under the [GPL 2 with Classpath exception](vm/LICENSE_GRAALVM_CE).
+	- [VS Code](/vscode/) extensions are distributed under the [UPL 1.0 license](/vscode/graalvm/LICENSE.txt).
