@@ -439,6 +439,7 @@ public class LibertyServerInstance extends AbstractJavaServerInstance<LibertySer
 						if(entry.isDirectory()) {
 							Files.createDirectories(outputPath);
 						} else {
+							Files.createDirectories(outputPath.getParent());
 							Files.copy(zis, outputPath, StandardCopyOption.REPLACE_EXISTING);
 						}
 					}
