@@ -102,6 +102,14 @@ public class StandaloneReverseProxyService implements RuntimeService, ReversePro
 		OpenLibertyRuntime.instance.registerMessageRecipient(this);
 	}
 	
+	@Override
+	public void close() {
+		if(this.server != null) {
+			this.server.stop();
+			this.server = null;
+		}
+	}
+	
 	private void refreshServer() {
 		if(this.server != null) {
 			this.server.stop();

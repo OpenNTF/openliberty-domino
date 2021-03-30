@@ -29,16 +29,20 @@ public class DominoThreadFactory implements ThreadFactory {
 
 	public static final DominoThreadFactory instance = new DominoThreadFactory();
 
-	public static ExecutorService executor;
-	public static ScheduledExecutorService scheduler;
+	private static ExecutorService executor;
+	private static ScheduledExecutorService scheduler;
 	
-	static {
+	public static synchronized ExecutorService getExecutor() {
 		if(executor == null) {
 			executor = Executors.newCachedThreadPool(instance);
 		}
+		return executor;
+	}
+	public static synchronized ScheduledExecutorService getScheduler() {
 		if(scheduler == null) {
 			scheduler = Executors.newScheduledThreadPool(5, instance);
 		}
+		return scheduler;
 	}
 	
 	public static void term() {

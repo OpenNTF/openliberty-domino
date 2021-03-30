@@ -48,7 +48,7 @@ public class OpenLibertyService extends HttpService {
 		
 		delegate.start();
 		
-		DominoThreadFactory.executor.submit(() -> {
+		DominoThreadFactory.getExecutor().submit(() -> {
 			long hDesc = DominoAPI.get().AddInCreateStatusLine(Messages.getString("OpenLibertyService.taskName")); //$NON-NLS-1$
 			DominoAPI.get().AddInSetStatusLine(hDesc, Messages.getString("OpenLibertyService.statusRunning")); //$NON-NLS-1$
 			try {

@@ -53,6 +53,11 @@ public class ServerStatusLineService implements RuntimeService {
 	}
 	
 	@Override
+	public void close() {
+		// NOP - will be handled above
+	}
+	
+	@Override
 	public void notifyMessage(EventObject event) {
 		if(event instanceof ServerStartEvent) {
 			synchronized(deleteSync) {

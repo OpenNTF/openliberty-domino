@@ -381,8 +381,8 @@ public class LibertyServerInstance extends AbstractJavaServerInstance<LibertySer
 			Process process = pb.start();
 			subprocesses.add(process);
 			
-			DominoThreadFactory.executor.submit(new StreamRedirector(process.getInputStream()));
-			DominoThreadFactory.executor.submit(new StreamRedirector(process.getErrorStream()));
+			DominoThreadFactory.getExecutor().submit(new StreamRedirector(process.getInputStream()));
+			DominoThreadFactory.getExecutor().submit(new StreamRedirector(process.getErrorStream()));
 			
 			return process;
 		} catch(IOException e) {

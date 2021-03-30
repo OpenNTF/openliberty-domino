@@ -32,6 +32,9 @@ import org.openntf.openliberty.domino.event.EventRecipient;
  * @author Jesse Gallagher
  * @since 1.18004
  */
-public interface RuntimeService extends Runnable, EventRecipient {
+public interface RuntimeService extends Runnable, EventRecipient, AutoCloseable {
 	public static final String SERVICE_ID = RuntimeService.class.getName();
+	
+	@Override
+	void close();
 }

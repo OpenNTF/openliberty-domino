@@ -115,9 +115,6 @@ public enum AdminNSFService implements Runnable {
 	 * Contains the count of server and app config documents from the last run
 	 */
 	private int lastRunServerConfigCount;
-	
-	private static final Path TEMP_DIR = OpenLibertyUtil.getTempDirectory();
-	private static final Path APP_DIR = TEMP_DIR.resolve("apps"); //$NON-NLS-1$
 
 	@Override
 	public void run() {
@@ -218,6 +215,18 @@ public enum AdminNSFService implements Runnable {
 		}
 	}
 	
+	/**
+	 * Resets the service's internal state to its pre-run configuration.
+	 * 
+	 * @since 3.0.0
+	 */
+	public void reset() {
+		this.lastRun = -1;
+		this.lastRunConfigMod = 0;
+		this.lastRunServerConfigCount = 0;
+		this.lastRunServerConfigMod = 0;
+	}
+	
 	private long getConfigurationModTime(Database adminNsf) throws NotesException {
 		View configuration = adminNsf.getView(VIEW_CONFIGURATION);
 		try {
@@ -283,7 +292,7 @@ public enum AdminNSFService implements Runnable {
 						List<EmbeddedObject> objects = deploymentItem.getEmbeddedObjects();
 						for(EmbeddedObject eo : objects) {
 							if(eo.getType() == EmbeddedObject.EMBED_ATTACHMENT) {
-								Path zip = Files.createTempFile(TEMP_DIR, "nsfdeployment", ".zip"); //$NON-NLS-1$ //$NON-NLS-2$
+								Path zip = Files.createTempFile(OpenLibertyUtil.getTempDirectory(), "nsfdeployment", ".zip"); //$NON-NLS-1$ //$NON-NLS-2$
 								Files.deleteIfExists(zip);
 								eo.extractFile(zip.toString());
 								config.addAdditionalZip(zip);
@@ -321,11 +330,10 @@ public enum AdminNSFService implements Runnable {
 						// Shave off the last digit, to avoid trouble with Domino TIMEDATE limitations
 						long docMod = dropinDoc.getLastModified().toJavaDate().getTime();
 						docMod = docMod / 10 * 10;
-						Path appDir = APP_DIR.resolve(dropinDoc.getNoteID());
-						if(!Files.exists(appDir)) {
-							Files.createDirectories(appDir);
-						}
-						Path warPath = appDir.resolve(docMod + ".war"); //$NON-NLS-1$
+						Path appsRoot = OpenLibertyUtil.getTempDirectory().resolve("apps"); //$NON-NLS-1$
+						Path appDir = appsRoot.resolve(dropinDoc.getNoteID() + '-' + docMod);
+						Files.createDirectories(appDir);
+						Path warPath = appDir.resolve("app.war"); //$NON-NLS-1$
 						
 						// See if we need to deploy the file
 						if(!Files.exists(warPath)) {
@@ -338,13 +346,17 @@ public enum AdminNSFService implements Runnable {
 								if(warItem.getType() == Item.RICHTEXT) {
 									RichTextItem rtItem = (RichTextItem)warItem;
 									@SuppressWarnings("unchecked")
-									List<EmbeddedObject> objects = rtItem.getEmbeddedObjects();
-									for(EmbeddedObject eo : objects) {
-										// Deploy all attached files
-										if(eo.getType() == EmbeddedObject.EMBED_ATTACHMENT) {
-											eo.extractFile(warPath.toString());
-											break;
+									Vector<EmbeddedObject> objects = rtItem.getEmbeddedObjects();
+									try {
+										for(EmbeddedObject eo : objects) {
+											// Deploy all attached files
+											if(eo.getType() == EmbeddedObject.EMBED_ATTACHMENT) {
+												eo.extractFile(warPath.toString());
+												break;
+											}
 										}
+									} finally {
+										rtItem.recycle(objects);
 									}
 								}
 							}

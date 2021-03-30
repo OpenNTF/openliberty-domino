@@ -73,7 +73,7 @@ public class AdminNSFRuntimeConfigurationProvider implements RuntimeConfiguratio
 
 	private synchronized void loadData() {
 		try {
-			DominoThreadFactory.executor.submit(() -> {
+			DominoThreadFactory.getExecutor().submit(() -> {
 				Session session = NotesFactory.createSession();
 				try {
 					// Read configuration from the Runtime configuration NSF

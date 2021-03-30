@@ -116,7 +116,7 @@ public enum OpenLibertyUtil {
 	 */
 	public static String getDominoProgramDirectory() {
 		try {
-			return DominoThreadFactory.executor.submit(() -> {
+			return DominoThreadFactory.getExecutor().submit(() -> {
 				Session s = NotesFactory.createSession();
 				try {
 					return s.getEnvironmentString("NotesProgram", true); //$NON-NLS-1$
@@ -135,7 +135,7 @@ public enum OpenLibertyUtil {
 	 */
 	public static String getDominoDataDirectory() {
 		try {
-			return DominoThreadFactory.executor.submit(() -> {
+			return DominoThreadFactory.getExecutor().submit(() -> {
 				Session s = NotesFactory.createSession();
 				try {
 					return s.getEnvironmentString("Directory", true); //$NON-NLS-1$
@@ -224,6 +224,7 @@ public enum OpenLibertyUtil {
 				deltree(tempDirectory);
 			} catch (IOException e) {
 			}
+			tempDirectory = null;
 		}
 	}
 }

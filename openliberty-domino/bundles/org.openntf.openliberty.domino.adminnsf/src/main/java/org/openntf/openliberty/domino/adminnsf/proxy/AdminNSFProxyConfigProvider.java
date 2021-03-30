@@ -89,7 +89,7 @@ public class AdminNSFProxyConfigProvider implements ReverseProxyConfigProvider {
 		result.dominoHttps = runtimeConfig.isDominoHttps();
 		
 		try {
-			DominoThreadFactory.executor.submit(() -> {
+			DominoThreadFactory.getExecutor().submit(() -> {
 				try {
 					Session session = NotesFactory.createSession();
 					try {
@@ -165,7 +165,7 @@ public class AdminNSFProxyConfigProvider implements ReverseProxyConfigProvider {
 			
 			if(result.isGlobalEnabled()) {
 				// Determine the local server port from the server doc
-				DominoThreadFactory.executor.submit(() -> {
+				DominoThreadFactory.getExecutor().submit(() -> {
 					try {
 						Session session = NotesFactory.createSession();
 						try {

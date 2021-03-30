@@ -37,7 +37,7 @@ public class CLIManagerDelegate implements AutoCloseable {
 	 */
 	public void start() {
 		if(this.runner == null) {
-			this.runner = DominoThreadFactory.executor.submit(OpenLibertyRuntime.instance);
+			this.runner = DominoThreadFactory.getExecutor().submit(OpenLibertyRuntime.instance);
 		}
 	}
 	
@@ -52,6 +52,7 @@ public class CLIManagerDelegate implements AutoCloseable {
 			this.runner.cancel(true);
 			this.runner = null;
 		}
+		OpenLibertyRuntime.instance.stop();
 		OpenLibertyUtil.performShutdownCleanup();
 	}
 	

@@ -67,7 +67,7 @@ public class LogFileWatcher implements AutoCloseable {
 			}
 		}
 		String consoleLog = logFile.getFileName().toString();
-		watcherThread = DominoThreadFactory.executor.submit(() -> {
+		watcherThread = DominoThreadFactory.getExecutor().submit(() -> {
 			try(WatchService watchService = FileSystems.getDefault().newWatchService()) {
 				long pos = 0;
 				logs.register(watchService, StandardWatchEventKinds.ENTRY_MODIFY);
@@ -127,7 +127,7 @@ public class LogFileWatcher implements AutoCloseable {
 			File consoleLogPath = logs.resolve(consoleLog).toFile();
 			// Spawn a second thread to nudge the filesystem every so often, since the above polling
 			//   doesn't actually work particularly well on Windows
-			fileTouchThread = DominoThreadFactory.scheduler.scheduleWithFixedDelay(() -> {
+			fileTouchThread = DominoThreadFactory.getScheduler().scheduleWithFixedDelay(() -> {
 				if(consoleLogPath.exists()) {
 					consoleLogPath.length();
 				}

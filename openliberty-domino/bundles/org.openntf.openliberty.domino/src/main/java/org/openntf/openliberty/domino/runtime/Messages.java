@@ -15,6 +15,7 @@
  */
 package org.openntf.openliberty.domino.runtime;
 
+import java.text.MessageFormat;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
@@ -32,5 +33,9 @@ public class Messages {
 		} catch (MissingResourceException e) {
 			return '!' + key + '!';
 		}
+	}
+	
+	public static String getString(String key, Object... formatParams) {
+		return MessageFormat.format(getString(key), formatParams);
 	}
 }

@@ -32,6 +32,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -51,11 +52,10 @@ public enum OpenLibertyRuntime implements Runnable {
 	instance;
 	
 	private final BlockingQueue<RuntimeTask> taskQueue = new LinkedBlockingDeque<>();
-	private final List<RuntimeService> runtimeServices = OpenLibertyUtil.findExtensions(RuntimeService.class).collect(Collectors.toList());
+	private final List<RuntimeService> runtimeServices = new ArrayList<>();
 	private final Collection<EventRecipient> messageRecipients = Collections.synchronizedList(new ArrayList<>());
 	
 	private Set<String> startedServers = Collections.synchronizedSet(new HashSet<>());
-	private Set<Process> subprocesses = Collections.synchronizedSet(new HashSet<>());
 	
 	/**
 	 * Maps server names to their configurations.
@@ -74,7 +74,9 @@ public enum OpenLibertyRuntime implements Runnable {
 		}
 		
 		try {
-			runtimeServices.forEach(DominoThreadFactory.executor::submit);
+			OpenLibertyUtil.findExtensions(RuntimeService.class).forEach(runtimeServices::add);
+			
+			runtimeServices.forEach(DominoThreadFactory.getExecutor()::submit);
 			messageRecipients.addAll(runtimeServices);
 			
 			while(!Thread.interrupted()) {
@@ -135,30 +137,39 @@ public enum OpenLibertyRuntime implements Runnable {
 				t.printStackTrace(OpenLibertyLog.instance.out);
 			}
 		} finally {
-			for(String serverName : startedServers) {
-				try {
-					if(log.isLoggable(Level.INFO)) {
-						log.info(format(Messages.getString("OpenLibertyRuntime.shuttingDownServer"), serverName)); //$NON-NLS-1$
-					}
-					this.serverInstances.get(serverName).close();
-				} catch (Exception e) {
-					// Nothing to do here
-				}
-			}
-			
-			for(Process p : subprocesses) {
-				if(p.isAlive()) {
-					try {
-						p.waitFor();
-					} catch (InterruptedException e) {
-					}
-				}
-			}
+			stop();
 			
 			if(log.isLoggable(Level.INFO)) {
 				log.info(Messages.getString("OpenLibertyRuntime.shutdown")); //$NON-NLS-1$
 			}
 		}
+	}
+	
+	public synchronized void stop() {
+		for(String serverName : startedServers) {
+			try {
+				if(log.isLoggable(Level.INFO)) {
+					log.info(format(Messages.getString("OpenLibertyRuntime.shuttingDownServer"), serverName)); //$NON-NLS-1$
+				}
+				this.serverInstances.get(serverName).close();
+			} catch(RejectedExecutionException | InterruptedException e) {
+				// Ignore
+			} catch(Throwable t) {
+				log.log(Level.SEVERE, "Exception while terminating server " + serverName, t);
+			}
+		}
+		this.serverInstances.clear();
+		this.startedServers.clear();
+		
+		for(RuntimeService svc : this.runtimeServices) {
+			try {
+				svc.close();
+			} catch(Throwable t) {
+				log.log(Level.SEVERE, "Exception while terminating service " + svc, t);
+			}
+		}
+		this.runtimeServices.clear();
+		this.messageRecipients.clear();
 	}
 	
 	/**
@@ -222,7 +233,7 @@ public enum OpenLibertyRuntime implements Runnable {
 	public synchronized List<Future<?>> broadcastMessage(EventObject event) {
 		return this.messageRecipients
 			.stream()
-			.map(r -> DominoThreadFactory.executor.submit(() -> r.notifyMessage(event)))
+			.map(r -> DominoThreadFactory.getExecutor().submit(() -> r.notifyMessage(event)))
 			.collect(Collectors.toList());
 	}
 	

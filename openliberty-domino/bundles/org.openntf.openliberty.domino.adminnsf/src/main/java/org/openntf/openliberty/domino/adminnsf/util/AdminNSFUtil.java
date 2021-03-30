@@ -94,7 +94,7 @@ public enum AdminNSFUtil {
 	
 	public static Collection<String> getCurrentServerNamesList() {
 		try {
-			return DominoThreadFactory.executor.submit(() -> {
+			return DominoThreadFactory.getExecutor().submit(() -> {
 				return AccessController.doPrivileged((PrivilegedExceptionAction<Collection<String>>)() -> {
 					Session session = NotesFactory.createSession();
 					try {
