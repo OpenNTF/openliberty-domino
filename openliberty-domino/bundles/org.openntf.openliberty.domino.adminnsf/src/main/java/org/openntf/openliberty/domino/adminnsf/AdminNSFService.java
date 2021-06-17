@@ -248,7 +248,9 @@ public enum AdminNSFService implements Runnable {
 				configEntry.recycle();
 			}
 		} finally {
-			configuration.recycle();
+			if(configuration != null) {
+				configuration.recycle();
+			}
 		}
 	}
 	
