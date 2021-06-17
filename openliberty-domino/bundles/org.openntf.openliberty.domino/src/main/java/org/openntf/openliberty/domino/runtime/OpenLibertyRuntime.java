@@ -181,7 +181,11 @@ public enum OpenLibertyRuntime implements Runnable {
 	 * @since 3.0.0
 	 */
 	public void registerServer(String serverName, ServerConfiguration config) {
-		this.serverInstances.put(serverName, config.createInstance(serverName));
+		if(this.serverInstances.containsKey(serverName)) {
+			taskQueue.add(new RuntimeTask(RuntimeTask.Type.UPDATE_CONFIGURATION, serverName, config));
+		} else {
+			this.serverInstances.put(serverName, config.createInstance(serverName));
+		}
 	}
 	
 	public void startServer(String serverName) {
