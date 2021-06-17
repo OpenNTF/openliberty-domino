@@ -17,6 +17,7 @@ package org.openntf.openliberty.domino.server;
 
 import static java.text.MessageFormat.format;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,6 +26,7 @@ import java.io.PrintStream;
 import java.io.UncheckedIOException;
 import java.io.Writer;
 import java.net.InetAddress;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -195,10 +197,8 @@ public class LibertyServerInstance extends AbstractJavaServerInstance<LibertySer
 	
 	public void deployServerXml(String serverXml) throws IOException {
 		Path xmlFile = getWlpRoot().resolve("usr").resolve("servers").resolve(serverName).resolve("server.xml"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		try(OutputStream os = Files.newOutputStream(xmlFile, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
-			try(PrintStream ps = new PrintStream(os)) {
-				ps.print(serverXml);
-			}
+		try(BufferedWriter w = Files.newBufferedWriter(xmlFile, StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
+			w.write(serverXml);
 		}
 	}
 	
