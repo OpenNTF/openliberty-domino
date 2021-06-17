@@ -299,7 +299,7 @@ Yg4BAIQAAAAAAAAAAAA=
           </tablecell>
           <tablecell borderwidth="0px">
             <par def="12">
-              <field kind="editable" name="LibertyArtfiact" type="text"/>
+              <field kind="editable" name="LibertyArtifact" type="text"/>
               <compositedata afterbegincount="3" aftercontainercount="1"
                 afterparcount="6" containertype="65418" nexttype="222"
                 prevtype="65418" type="98">
