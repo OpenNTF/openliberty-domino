@@ -15,6 +15,9 @@
  */
 package org.openntf.openliberty.wlp.notesruntime;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Arrays;
@@ -47,9 +50,27 @@ public class RuntimeActivator implements BundleActivator {
 			return null;
 		});
 		
+		String notesProgramDir = System.getenv("Notes_ExecDirectory"); //$NON-NLS-1$
+		
+		if(StringUtil.isNotEmpty(notesProgramDir)) {
+			// Attempt to load lsxbe and jnotes
+			
+			String lsxbeFileName = System.mapLibraryName("lsxbe"); //$NON-NLS-1$
+			Path lsxbe = Paths.get(notesProgramDir).resolve(lsxbeFileName);
+			if(Files.isRegularFile(lsxbe)) {
+				System.load(lsxbe.toString());
+			}
+			
+			String jnotesFileName = System.mapLibraryName("jnotes"); //$NON-NLS-1$
+			Path jnotes = Paths.get(notesProgramDir).resolve(jnotesFileName);
+			if(Files.isRegularFile(jnotes)) {
+				System.load(jnotes.toString());
+			}
+		}
+		
+		
 		notesExecutor.submit(() -> {
 			try {
-				String notesProgramDir = System.getenv("Notes_ExecDirectory"); //$NON-NLS-1$
 				String notesIniPath = System.getenv("NotesINI"); //$NON-NLS-1$ 
 				if (StringUtil.isNotEmpty(notesProgramDir)) {
 					String[] initArgs = new String[] {
