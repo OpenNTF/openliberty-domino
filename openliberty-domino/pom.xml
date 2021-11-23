@@ -436,6 +436,23 @@
 				</plugins>
 			</build>
 		</profile>
+		
+		<!-- Add CORBA API for compilation on Java 9+ -->
+		<profile>
+			<id>corbaapi</id>
+			<activation>
+				<jdk>[9,</jdk>
+			</activation>
+			
+			<dependencies>
+				<dependency>
+					<groupId>org.glassfish.corba</groupId>
+					<artifactId>glassfish-corba-omgapi</artifactId>
+					<version>4.2.2</version>
+					<scope>provided</scope>
+				</dependency>
+			</dependencies>
+		</profile>
 	</profiles>
 	
 </project>
