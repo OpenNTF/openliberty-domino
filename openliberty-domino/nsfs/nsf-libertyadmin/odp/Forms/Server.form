@@ -459,7 +459,6 @@ Yg4BAIQAAAAAAAAAAAA=
                       <keywords ui="dialoglist">
                         <textlist>
                           <text>Notes Runtime|notesRuntime</text>
-                          <text>Domino Proxy|dominoProxy</text>
                           <text>Domino User Registry|dominoUserRegistry</text>
                         </textlist>
                       </keywords>
