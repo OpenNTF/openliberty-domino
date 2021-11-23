@@ -258,12 +258,12 @@
 											<source>false</source>
 										</artifact>
 										<artifact>
-											<id>${project.groupId}:org.openntf.openliberty.domino.userregistry:${project.version}</id>
+											<id>${project.groupId}:org.openntf.openliberty.domino.wlp.userregistry:${project.version}</id>
 											<transitive>false</transitive>
 											<source>false</source>
 										</artifact>
 										<artifact>
-											<id>${project.groupId}:org.openntf.openliberty.domino.notesruntime:${project.version}</id>
+											<id>${project.groupId}:org.openntf.openliberty.domino.wlp.notesruntime:${project.version}</id>
 											<transitive>false</transitive>
 											<source>false</source>
 										</artifact>

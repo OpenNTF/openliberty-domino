@@ -50,13 +50,17 @@
 		<module>bundles/org.openntf.openliberty.domino.httpservice</module>
 		<module>bundles/org.openntf.openliberty.domino.httpident</module>
 		<module>bundles/org.openntf.openliberty.domino.adminnsf</module>
-		<module>bundles/org.openntf.openliberty.domino.userregistry</module>
-		<module>bundles/org.openntf.openliberty.domino.notesruntime</module>
 		<module>bundles/org.openntf.openliberty.domino.reverseproxy.standalone</module>
 		<module>bundles/org.openntf.openliberty.domino.reverseproxy.httpservice</module>
 		<module>bundles/org.openntf.openliberty.domino.reverseproxy</module>
 		<module>bundles/org.openntf.openliberty.domino.runjava</module>
 		<module>bundles/org.openntf.openliberty.domino.httpapi</module>
+		
+		<!--
+			Liberty Extension Deployment 
+		-->
+		<module>bundles/org.openntf.openliberty.domino.wlp.userregistry</module>
+		<module>bundles/org.openntf.openliberty.domino.wlp.notesruntime</module>
 		
 		<module>releng/org.openntf.openliberty.domino.updatesite</module>
 		<module>releng/org.openntf.openliberty.domino.source.updatesite</module>
