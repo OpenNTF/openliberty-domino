@@ -274,6 +274,19 @@ public class ReverseProxyHttpService extends HttpService implements ReverseProxy
 	}
 	
 	private void handleRequestException(HttpRequest proxyRequest, Exception e) throws ServletException, IOException {
+
+		// Special handling for an empty exception when the client terminates the connection.
+		Throwable root = e;
+		while(root.getCause() != null) {
+			root = root.getCause();
+		}
+		if("com.ibm.domino.xsp.bridge.http.exception.XspCmdException".equals(root.getClass().getName())) { //$NON-NLS-1$
+			if("HTTP: Internal error: ".equals(root.getMessage())) { //$NON-NLS-1$
+				// No need to log or bubble this
+				return;
+			}
+		}
+		
 		e.printStackTrace();
         //abort request, according to best practice with HttpClient
         if (proxyRequest instanceof AbortableHttpRequest) {
