@@ -200,10 +200,15 @@ public class ReverseProxyHttpService extends HttpService implements ReverseProxy
 		HttpResponse proxyResponse = null;
 		try {
 			String method = servletRequest.getMethod();
+			URI targetUri = target.getUri();
 			
 			// Incoming request will be in the form foo/bar
 			// Target will be in the form http://localhost/foo - for now, we can assume there's no substring replacement
-			String proxyRequestUri = target.getUri().resolve(servletRequest.getPathInfo()).toString();
+			String proxyRequestUri = targetUri.resolve(servletRequest.getPathInfo()).toString();
+			String queryString = servletRequest.getQueryString();
+			if(queryString != null && !queryString.isEmpty()) {
+				proxyRequestUri += '?' + queryString;
+			}
 
 			// spec: RFC 2616, sec 4.3: either of these two headers signal that there is a
 			// message body.
@@ -219,7 +224,8 @@ public class ReverseProxyHttpService extends HttpService implements ReverseProxy
 			setForwardingHeaders(target, servletRequest, proxyRequest);
 			
 			// Execute the request
-			proxyResponse = doExecute(target.getUri(), servletRequest, servletResponse, proxyRequest);
+			HttpHost host = new HttpHost(targetUri.getHost(), targetUri.getPort(), targetUri.getScheme());
+			proxyResponse = proxyClient.execute(host, proxyRequest);
 
 			// Process the response:
 
@@ -283,13 +289,7 @@ public class ReverseProxyHttpService extends HttpService implements ReverseProxy
         throw new RuntimeException(e);
     }
 
-	private HttpResponse doExecute(URI target, HttpServletRequestAdapter servletRequest, HttpServletResponseAdapter servletResponse,
-                                   HttpRequest proxyRequest) throws IOException {
-        HttpHost host = new HttpHost(target.getHost(), target.getPort(), target.getScheme());
-        return proxyClient.execute(host, proxyRequest);
-    }
-
-    private HttpRequest newProxyRequestWithEntity(String method, String proxyRequestUri,
+	private HttpRequest newProxyRequestWithEntity(String method, String proxyRequestUri,
                                                   HttpServletRequestAdapter servletRequest)
             throws IOException {
         HttpEntityEnclosingRequest eProxyRequest =
