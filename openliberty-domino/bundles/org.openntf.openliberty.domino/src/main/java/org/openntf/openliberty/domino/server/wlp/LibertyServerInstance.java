@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openntf.openliberty.domino.server;
+package org.openntf.openliberty.domino.server.wlp;
 
 import static java.text.MessageFormat.format;
 
@@ -51,10 +51,11 @@ import java.util.zip.ZipInputStream;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.openntf.openliberty.domino.config.RuntimeConfigurationProvider;
-import org.openntf.openliberty.domino.ext.ExtensionDeployer;
 import org.openntf.openliberty.domino.log.OpenLibertyLog;
 import org.openntf.openliberty.domino.runtime.Messages;
 import org.openntf.openliberty.domino.runtime.RuntimeDeploymentTask;
+import org.openntf.openliberty.domino.server.AbstractJavaServerInstance;
+import org.openntf.openliberty.domino.server.ServerConfiguration;
 import org.openntf.openliberty.domino.util.DominoThreadFactory;
 import org.openntf.openliberty.domino.util.LogFileWatcher;
 import org.openntf.openliberty.domino.util.OpenLibertyUtil;
@@ -309,9 +310,9 @@ public class LibertyServerInstance extends AbstractJavaServerInstance<LibertySer
 		Path features = lib.resolve("features"); //$NON-NLS-1$
 		Files.createDirectories(features);
 		
-		List<ExtensionDeployer> extensions = OpenLibertyUtil.findExtensions(ExtensionDeployer.class).collect(Collectors.toList());
+		List<LibertyExtensionDeployer> extensions = OpenLibertyUtil.findExtensions(LibertyExtensionDeployer.class).collect(Collectors.toList());
 		if(extensions != null) {
-			for(ExtensionDeployer ext : extensions) {
+			for(LibertyExtensionDeployer ext : extensions) {
 				try(InputStream is = ext.getEsaData()) {
 					try(ZipInputStream zis = new ZipInputStream(is)) {
 						ZipEntry entry = zis.getNextEntry();

@@ -35,8 +35,8 @@ import java.util.zip.ZipInputStream;
 
 import org.openntf.openliberty.domino.config.RuntimeConfigurationProvider;
 import org.openntf.openliberty.domino.log.OpenLibertyLog;
-import org.openntf.openliberty.domino.server.LibertyServerConfiguration;
 import org.openntf.openliberty.domino.server.ServerConfiguration;
+import org.openntf.openliberty.domino.server.wlp.LibertyServerConfiguration;
 import org.openntf.openliberty.domino.util.OpenLibertyUtil;
 import org.openntf.openliberty.domino.util.commons.ibm.StringUtil;
 

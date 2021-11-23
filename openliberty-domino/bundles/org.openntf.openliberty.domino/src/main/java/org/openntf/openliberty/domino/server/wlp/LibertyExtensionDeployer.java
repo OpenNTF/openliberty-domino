@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openntf.openliberty.domino.ext;
+package org.openntf.openliberty.domino.server.wlp;
 
 import java.io.InputStream;
 
@@ -27,8 +27,8 @@ import java.io.InputStream;
  * @author Jesse Gallagher
  * @since 1.18004
  */
-public interface ExtensionDeployer {
-	public static String SERVICE_ID = ExtensionDeployer.class.getName();
+public interface LibertyExtensionDeployer {
+	public static String SERVICE_ID = LibertyExtensionDeployer.class.getName();
 	
 	/**
 	 * @return an {@link InputStream} for the ESA bundle file data

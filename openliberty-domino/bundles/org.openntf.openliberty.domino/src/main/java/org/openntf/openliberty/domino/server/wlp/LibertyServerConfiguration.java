@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openntf.openliberty.domino.server;
+package org.openntf.openliberty.domino.server.wlp;
 
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 
+import org.openntf.openliberty.domino.server.AbstractJavaServerConfiguration;
 import org.openntf.openliberty.domino.util.xml.XMLDocument;
 
 /**

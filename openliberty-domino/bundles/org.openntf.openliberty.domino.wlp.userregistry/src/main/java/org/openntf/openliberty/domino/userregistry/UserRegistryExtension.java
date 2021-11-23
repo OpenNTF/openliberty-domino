@@ -17,9 +17,9 @@ package org.openntf.openliberty.domino.userregistry;
 
 import java.io.InputStream;
 
-import org.openntf.openliberty.domino.ext.ExtensionDeployer;
+import org.openntf.openliberty.domino.server.wlp.LibertyExtensionDeployer;
 
-public class UserRegistryExtension implements ExtensionDeployer {
+public class UserRegistryExtension implements LibertyExtensionDeployer {
 	@Override
 	public InputStream getEsaData() {
 		return getClass().getResourceAsStream("/ext/dominoUserRegistry-1.0.esa"); //$NON-NLS-1$

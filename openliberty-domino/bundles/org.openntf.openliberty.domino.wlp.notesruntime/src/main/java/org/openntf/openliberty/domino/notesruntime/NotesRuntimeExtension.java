@@ -17,9 +17,9 @@ package org.openntf.openliberty.domino.notesruntime;
 
 import java.io.InputStream;
 
-import org.openntf.openliberty.domino.ext.ExtensionDeployer;
+import org.openntf.openliberty.domino.server.wlp.LibertyExtensionDeployer;
 
-public class NotesRuntimeExtension implements ExtensionDeployer {
+public class NotesRuntimeExtension implements LibertyExtensionDeployer {
 
 	@Override
 	public InputStream getEsaData() {

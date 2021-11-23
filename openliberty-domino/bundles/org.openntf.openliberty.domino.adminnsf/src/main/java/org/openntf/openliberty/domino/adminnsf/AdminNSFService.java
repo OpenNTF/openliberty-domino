@@ -30,7 +30,6 @@ import java.util.stream.Collectors;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.openntf.openliberty.domino.adminnsf.util.AdminNSFUtil;
-import org.openntf.openliberty.domino.ext.ExtensionDeployer;
 import org.openntf.openliberty.domino.jvm.JVMIdentifier;
 import org.openntf.openliberty.domino.jvm.RunningJVMJavaRuntimeProvider;
 import org.openntf.openliberty.domino.log.OpenLibertyLog;
@@ -38,7 +37,8 @@ import org.openntf.openliberty.domino.reverseproxy.ReverseProxyConfig;
 import org.openntf.openliberty.domino.reverseproxy.ReverseProxyConfigProvider;
 import org.openntf.openliberty.domino.reverseproxy.event.ReverseProxyConfigChangedEvent;
 import org.openntf.openliberty.domino.runtime.OpenLibertyRuntime;
-import org.openntf.openliberty.domino.server.LibertyServerConfiguration;
+import org.openntf.openliberty.domino.server.wlp.LibertyExtensionDeployer;
+import org.openntf.openliberty.domino.server.wlp.LibertyServerConfiguration;
 import org.openntf.openliberty.domino.util.OpenLibertyUtil;
 import org.openntf.openliberty.domino.util.commons.ibm.StringUtil;
 import org.openntf.openliberty.domino.util.xml.XMLDocument;
@@ -408,7 +408,7 @@ public enum AdminNSFService implements Runnable {
 		integrationFeatures.remove(null);
 		integrationFeatures.remove(""); //$NON-NLS-1$
 		if(!integrationFeatures.isEmpty()) {
-			List<ExtensionDeployer> extensions = OpenLibertyUtil.findExtensions(ExtensionDeployer.class).collect(Collectors.toList());
+			List<LibertyExtensionDeployer> extensions = OpenLibertyUtil.findExtensions(LibertyExtensionDeployer.class).collect(Collectors.toList());
 			XMLNode featuresElement = serverXml.selectSingleNode("/server/featureManager"); //$NON-NLS-1$
 			if(featuresElement == null) {
 				featuresElement = serverXml.getDocumentElement().addChildElement("featureManager"); //$NON-NLS-1$
@@ -418,7 +418,7 @@ public enum AdminNSFService implements Runnable {
 				// Map the feature to the right version from the current runtime
 				String version = extensions.stream()
 					.filter(ext -> featureName.equals(ext.getShortName()))
-					.map(ExtensionDeployer::getFeatureVersion)
+					.map(LibertyExtensionDeployer::getFeatureVersion)
 					.findFirst()
 					.orElse(""); //$NON-NLS-1$
 				if(!version.isEmpty()) {
