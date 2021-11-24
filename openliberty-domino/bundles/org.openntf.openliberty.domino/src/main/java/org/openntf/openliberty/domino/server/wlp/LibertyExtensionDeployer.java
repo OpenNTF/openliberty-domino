@@ -22,7 +22,7 @@ import java.io.InputStream;
  * to be deployed alongside the servers.
  * 
  * <p>These services should be registered as a {@code ServiceLoader} service using the
- * {@code org.openntf.openliberty.domino.ext.ExtensionDeployer} name.</p>
+ * {@code org.openntf.openliberty.domino.server.wlp.LibertyExtensionDeployer} name.</p>
  * 
  * @author Jesse Gallagher
  * @since 1.18004

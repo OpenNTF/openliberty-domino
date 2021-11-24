@@ -26,7 +26,7 @@ The runtime has several extension points available, some of which are intended t
 
 * `org.openntf.openliberty.domino.jvm.JavaRuntimeProvider` is used to find the location of a Java runtime for a given version and type (such as "HotSpot"). Standard implementations of this, which provide the currently-running JVM and AdoptOpenJDK builds as options, are found in the core module.
 * `org.openntf.openliberty.domino.ext.RuntimeService` allows for an extended `Runnable` to be launched when the core starts, and to receive notifications about server lifecycles and other events.
-* `org.openntf.openliberty.domino.ext.ExtensionDeployer` allows for the deployment of ESA-based Liberty extensions into the runtime. It also provides the information needed by the "Integration Features" checkboxes in the admin NSF to auto-register in the deployed server.xml
+* `org.openntf.openliberty.domino.server.wlp.LibertyExtensionDeployer` allows for the deployment of ESA-based Liberty extensions into the runtime. It also provides the information needed by the "Integration Features" checkboxes in the admin NSF to auto-register in the deployed server.xml
 
 ### Event Queue
 
