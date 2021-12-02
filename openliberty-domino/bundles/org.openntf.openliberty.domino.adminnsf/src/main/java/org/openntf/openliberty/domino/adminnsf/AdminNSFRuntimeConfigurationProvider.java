@@ -40,6 +40,7 @@ public class AdminNSFRuntimeConfigurationProvider implements RuntimeConfiguratio
 	private int dominoPort;
 	private boolean dominoHttps;
 	private boolean dominoConnectorHeaders;
+	private String dominoVersion;
 
 	@Override
 	public Path getBaseDirectory() {
@@ -70,12 +71,20 @@ public class AdminNSFRuntimeConfigurationProvider implements RuntimeConfiguratio
 		if(this.baseDirectory == null) { loadData(); }
 		return this.dominoConnectorHeaders;
 	}
+	
+	@Override
+	public String getDominoVersion() {
+		if(this.dominoVersion == null) { loadData(); }
+		return this.dominoVersion;
+	}
 
 	private synchronized void loadData() {
 		try {
 			DominoThreadFactory.getExecutor().submit(() -> {
 				Session session = NotesFactory.createSession();
 				try {
+					this.dominoVersion = StringUtil.toString(session.evaluate(" @Version ").get(0)); //$NON-NLS-1$
+					
 					// Read configuration from the Runtime configuration NSF
 					Database adminNsf = AdminNSFUtil.getAdminDatabase(session);
 					Document config = AdminNSFUtil.getConfigurationDocument(adminNsf);
@@ -91,7 +100,6 @@ public class AdminNSFRuntimeConfigurationProvider implements RuntimeConfiguratio
 						execDir = Paths.get(execDirName);
 					}
 					this.baseDirectory = execDir;
-					
 					
 					// Read Domino server config from names.nsf
 					Database names = session.getDatabase("", "names.nsf"); //$NON-NLS-1$ //$NON-NLS-2$

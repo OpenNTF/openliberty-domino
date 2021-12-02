@@ -44,4 +44,10 @@ public interface RuntimeConfigurationProvider {
 	 * @return whether Domino is configured to use HTTP connector headers
 	 */
 	boolean isUseDominoConnectorHeaders();
+	
+	/**
+	 * @return the current Domino runtime version
+	 * @since 3.0.0
+	 */
+	String getDominoVersion();
 }

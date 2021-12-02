@@ -23,7 +23,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.PosixFilePermission;
 import java.util.EnumSet;
@@ -130,23 +129,6 @@ public class LibertyRuntimeDeployment implements RuntimeDeploymentTask<LibertySe
 					}
 				}
 			}
-			
-
-			Path sharedLib = wlp.resolve("usr").resolve("shared").resolve("config").resolve("lib").resolve("global"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
-			Files.createDirectories(sharedLib);
-			// Copy in Notes.jar in case we're not using the Domino JVM
-			Path runningJava = Paths.get(System.getProperty("java.home")); //$NON-NLS-1$
-			Path notesJar = runningJava.resolve("lib").resolve("ext").resolve("Notes.jar"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			if(Files.isRegularFile(notesJar)) {
-				Files.copy(notesJar, sharedLib.resolve("Notes.jar")); //$NON-NLS-1$
-			}
-			
-			// Also download an implementation of the org.omg CORBA API for JVM >= 9
-			OpenLibertyUtil.download(new URL(URL_CORBA), is -> {
-				Path corbaOut = sharedLib.resolve("corba.jar"); //$NON-NLS-1$
-				Files.copy(is, corbaOut, StandardCopyOption.REPLACE_EXISTING);
-				return null;
-			});
 		}
 		
 		verifyRuntime(wlp);

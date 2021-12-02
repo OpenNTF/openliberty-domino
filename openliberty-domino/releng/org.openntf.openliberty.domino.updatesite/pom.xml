@@ -268,6 +268,11 @@
 											<source>false</source>
 										</artifact>
 										<artifact>
+											<id>${project.groupId}:org.openntf.openliberty.domino.wlp.dominoapi:${project.version}</id>
+											<transitive>false</transitive>
+											<source>false</source>
+										</artifact>
+										<artifact>
 											<id>${project.groupId}:org.openntf.openliberty.domino.httpident:${project.version}</id>
 											<transitive>false</transitive>
 											<source>false</source>

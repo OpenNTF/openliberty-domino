@@ -458,8 +458,9 @@ Yg4BAIQAAAAAAAAAAAA=
                       name="IntegrationFeatures" type="keyword">
                       <keywords ui="dialoglist">
                         <textlist>
-                          <text>Notes Runtime|notesRuntime</text>
+                          <text>Domino Runtime|notesRuntime</text>
                           <text>Domino User Registry|dominoUserRegistry</text>
+                          <text>Domino API|dominoApi</text>
                         </textlist>
                       </keywords>
                     </field>
