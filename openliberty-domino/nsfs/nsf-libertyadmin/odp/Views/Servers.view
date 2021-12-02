@@ -1,82 +1,48 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<view allowcustomizations="false" allownewdocuments="false"
-  altrowcolor="#efefef" bgcolor="white" boldunreadrows="false"
-  comment="Provides a programmatic collection of servers and apps"
-  evaluateactions="false" extendlastcolumn="true" gridcolor="white"
-  gridstyle="solid" headerbgcolor="white" headerlinecount="1"
-  headers="beveled" hidemarginborder="false" marginbgcolor="white"
-  marginwidth="0px" name="Servers" onopengoto="lastopened"
-  onrefresh="displayindicator" opencollapsed="false"
-  publicaccess="false" rowlinecount="1" rowspacing="1"
-  showhierarchies="false" showinmenu="false" showmargin="true"
-  showresponsehierarchy="true" shrinkrows="false" totalscolor="black"
-  uniquekeys="false" unreadcolor="black" unreadmarks="none" xmlns="http://www.lotus.com/dxl">
-  <code event="selection">
-    <formula>SELECT Form="Server":"DropinApp" &amp; !@IsAvailable($Conflict)</formula>
-  </code>
-  <actionbar bgcolor="#d4d0c8" bordercolor="black">
-    <actionbuttonstyle bgcolor="#d4d0c8"/>
-    <font color="system"/>
-    <border style="solid" width="0px 0px 1px"/>
-    <action title="Create\Liberty Server">
-      <code event="click">
-        <formula>@Command([Compose]; "Server")</formula>
-      </code>
-    </action>
-    <action title="Create\Application">
-      <code event="click">
-        <formula>@Command([Compose]; "DropinApp")</formula>
-      </code>
-    </action>
-  </actionbar>
-  <column hidedetailrows="false" itemname="$5" resizable="true"
-    responsesonly="true" separatemultiplevalues="false"
-    showaslinks="false" sortnoaccent="false" sortnocase="true" width="1.1250">
-    <columnheader>
-      <font size="9pt" style="bold"/>
-    </columnheader>
-    <code event="value">
-      <formula>ctx := @If(ContextRoot=""; AppName; ContextRoot);
-"/" + ctx + @If(AppName=ctx; ""; " (" + AppName + ")")</formula>
-    </code>
-  </column>
-  <column hidedetailrows="false" itemname="Name" resizable="true"
-    separatemultiplevalues="false" showaslinks="false" sort="ascending"
-    sortnoaccent="false" sortnocase="true" width="16.2500">
-    <columnheader title="Name">
-      <font size="9pt" style="bold underline"/>
-    </columnheader>
-  </column>
-  <column hidedetailrows="false" itemname="HTTPHost" resizable="true"
-    separatemultiplevalues="false" showaslinks="false"
-    sortnoaccent="false" sortnocase="true" width="14.5000">
-    <columnheader title="Host">
-      <font size="9pt" style="bold"/>
-    </columnheader>
-  </column>
-  <column hidedetailrows="false" itemname="HTTPPort" resizable="true"
-    separatemultiplevalues="false" showaslinks="false"
-    sortnoaccent="false" sortnocase="true" width="8">
-    <columnheader title="HTTP Port">
-      <font size="9pt" style="bold"/>
-    </columnheader>
-  </column>
-  <column hidedetailrows="false" itemname="HTTPSPort" resizable="true"
-    separatemultiplevalues="false" showaslinks="false"
-    sortnoaccent="false" sortnocase="true" width="8">
-    <columnheader title="HTTPS Port">
-      <font size="9pt" style="bold"/>
-    </columnheader>
-  </column>
-  <column hidedetailrows="false" itemname="$4" resizable="true"
-    separatemultiplevalues="false" showaslinks="false"
-    sortnoaccent="false" sortnocase="true" width="20.1250">
-    <columnheader title="Domino Servers">
-      <font size="9pt" style="bold"/>
-    </columnheader>
-    <columnnamesformat columncontainsname="true" showonline="false"/>
-    <code event="value">
-      <formula>@If(@Trim(DominoServers)=""; "*"; @Name([Abbreviate]; DominoServers))</formula>
-    </code>
-  </column>
-</view>
+<?xml version='1.0' encoding='utf-8'?>
+<view name='Servers' xmlns='http://www.lotus.com/dxl' version='12.0' maintenanceversion='1.0'
+ replicaid='85258371005A4D98' showinmenu='false' publicaccess='false' designerversion='8.5.3'
+ comment='Provides a programmatic collection of servers and apps' unreadmarks='none'
+ onopengoto='lastopened' onrefresh='displayindicator' headers='beveled' opencollapsed='false'
+ showresponsehierarchy='true' showmargin='true' shrinkrows='false' extendlastcolumn='true'
+ showhierarchies='false' unreadcolor='black' rowlinecount='1' headerlinecount='1'
+ rowspacing='1' bgcolor='white' altrowcolor='#efefef' totalscolor='black'
+ headerbgcolor='white' boldunreadrows='false' evaluateactions='false' allownewdocuments='false'
+ allowcustomizations='false' hidemarginborder='false' marginwidth='0px' marginbgcolor='white'
+ gridstyle='solid' gridcolor='white' uniquekeys='false' formatnoteid='3F6C69A1856EEC94852577EF006863F1'>
+<noteinfo noteid='4c2' unid='4863193A8081A34E8525851200643B1C' sequence='21'>
+<created><datetime>20200218T131447,32-05</datetime></created>
+<modified><datetime>20211202T152310,58-05</datetime></modified>
+<revised><datetime>20211202T152310,57-05</datetime></revised>
+<lastaccessed><datetime>20211202T152310,57-05</datetime></lastaccessed>
+<addedtofile><datetime>20200218T131447,33-05</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Jesse Gallagher/O=IKSG</name></updatedby>
+<wassignedby><name>CN=Jesse Gallagher/O=IKSG</name></wassignedby><code event='selection'><formula
+>SELECT Form="Server":"DropinApp" &amp; !@IsAvailable($Conflict)</formula></code>
+<actionbar bgcolor='#d4d0c8' bordercolor='black'>
+<actionbuttonstyle bgcolor='#d4d0c8'/><font color='system'/><border style='solid'
+ width='0px 0px 1px'/>
+<action title='Create\Liberty Server'><code event='click'><formula>@Command([Compose]; "Server")</formula></code></action>
+<action title='Create\Application'><code event='click'><formula>@Command([Compose]; "DropinApp")</formula></code></action></actionbar>
+<column hidedetailrows='false' itemname='$5' width='1.1250' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='false' sortnocase='true' showaslinks='false'
+ responsesonly='true'><columnheader><font size='9pt' style='bold'/></columnheader><code
+ event='value'><formula>ctx := @If(ContextRoot=""; AppName; ContextRoot);
+@If(@Begins(ctx; "/"); ""; "/") + ctx + @If("/"+AppName=ctx; ""; " (" + AppName + ")")</formula></code></column>
+<column sort='ascending' hidedetailrows='false' itemname='Name' width='16.2500'
+ resizable='true' separatemultiplevalues='false' sortnoaccent='false' sortnocase='true'
+ showaslinks='false'><columnheader title='Name'><font size='9pt' style='bold underline'/></columnheader></column>
+<column hidedetailrows='false' itemname='HTTPHost' width='14.5000' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='false' sortnocase='true' showaslinks='false'><columnheader
+ title='Host'><font size='9pt' style='bold'/></columnheader></column>
+<column hidedetailrows='false' itemname='HTTPPort' width='8' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='false' sortnocase='true' showaslinks='false'><columnheader
+ title='HTTP Port'><font size='9pt' style='bold'/></columnheader></column>
+<column hidedetailrows='false' itemname='HTTPSPort' width='8' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='false' sortnocase='true' showaslinks='false'><columnheader
+ title='HTTPS Port'><font size='9pt' style='bold'/></columnheader></column>
+<column hidedetailrows='false' itemname='$4' width='20.1250' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='false' sortnocase='true' showaslinks='false'><columnheader
+ title='Domino Servers'><font size='9pt' style='bold'/></columnheader><columnnamesformat
+ showonline='false' columncontainsname='true'/><code event='value'><formula
+>@If(@Trim(DominoServers)=""; "*"; @Name([Abbreviate]; DominoServers))</formula></code></column></view>
+
