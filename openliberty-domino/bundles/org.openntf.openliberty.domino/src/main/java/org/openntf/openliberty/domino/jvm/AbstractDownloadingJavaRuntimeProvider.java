@@ -93,24 +93,32 @@ public abstract class AbstractDownloadingJavaRuntimeProvider implements JavaRunt
 	protected static void markExecutables(Path jvmDir) {
 		Path bin = jvmDir.resolve("bin"); //$NON-NLS-1$
 		if(Files.isDirectory(bin)) {
-			if(bin.getFileSystem().supportedFileAttributeViews().contains("posix")) { //$NON-NLS-1$
-				try {
-					Files.list(bin)
-						.filter(Files::isRegularFile)
-						.forEach(p -> {
-							try {
-								Set<PosixFilePermission> perms = EnumSet.copyOf(Files.getPosixFilePermissions(p));
-								perms.add(PosixFilePermission.OWNER_EXECUTE);
-								perms.add(PosixFilePermission.GROUP_EXECUTE);
-								perms.add(PosixFilePermission.OTHERS_EXECUTE);
-								Files.setPosixFilePermissions(p, perms);
-							} catch (IOException e) {
-								throw new RuntimeException(e);
-							}
-						});
-				} catch(IOException e) {
-					throw new UncheckedIOException(e);
-				}
+			markExecutablesInBinDir(bin);
+		}
+		Path jreBin = jvmDir.resolve("jre").resolve("bin"); //$NON-NLS-1$ //$NON-NLS-2$
+		if(Files.isDirectory(jreBin)) {
+			markExecutablesInBinDir(jreBin);
+		}
+	}
+	
+	protected static void markExecutablesInBinDir(Path bin) {
+		if(bin.getFileSystem().supportedFileAttributeViews().contains("posix")) { //$NON-NLS-1$
+			try {
+				Files.list(bin)
+					.filter(Files::isRegularFile)
+					.forEach(p -> {
+						try {
+							Set<PosixFilePermission> perms = EnumSet.copyOf(Files.getPosixFilePermissions(p));
+							perms.add(PosixFilePermission.OWNER_EXECUTE);
+							perms.add(PosixFilePermission.GROUP_EXECUTE);
+							perms.add(PosixFilePermission.OTHERS_EXECUTE);
+							Files.setPosixFilePermissions(p, perms);
+						} catch (IOException e) {
+							throw new RuntimeException(e);
+						}
+					});
+			} catch(IOException e) {
+				throw new UncheckedIOException(e);
 			}
 		}
 	}
