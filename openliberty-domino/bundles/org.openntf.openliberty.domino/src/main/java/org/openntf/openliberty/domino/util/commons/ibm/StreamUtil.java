@@ -19,45 +19,12 @@ package org.openntf.openliberty.domino.util.commons.ibm;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Contains methods extracted from IBM Commons StreamUtil.
  */
 public class StreamUtil {
-	/**
-     * Copy contents of one stream onto another
-     * @param is input stream
-     * @param os output stream
-	 * @return the amount read
-	 * @throws IOException if there is an underlying problem
-     */
-    public static long copyStream(InputStream is, OutputStream os) throws IOException {
-        return copyStream(is, os, 8192);
-    }
-
-    /**
-     * Copy contents of one stream onto another
-     * <p>Note: there are cases where InputStream.available() returns &gt; 0 but in
-     * actual fact the stream won't be able to read anything, so we need to
-     * handle the fact that InputStream.read() may return -1</p>
-     * 
-     * @param is input stream
-     * @param os output stream
-     * @param bufferSize size of buffer to use for copy
-	 * @return the amount read
-	 * @throws IOException if there is an underlying problem
-     */
-    public static long copyStream(InputStream is, OutputStream os, int bufferSize) throws IOException {
-		byte[] buffer = new byte[bufferSize];
-		long totalBytes = 0;
-		int readBytes;
-		while( (readBytes = is.read(buffer))>0 ) {
-			os.write(buffer, 0, readBytes);
-			totalBytes += readBytes;
-		}
-		return totalBytes;
-    }
     
     /**
      * Read a string from an input stream using the default encoding.
@@ -67,7 +34,7 @@ public class StreamUtil {
      */
 	public static String readString(InputStream is) throws IOException {
 		FastStringBuffer sb = new FastStringBuffer();
-		sb.load(new InputStreamReader(is));
+		sb.load(new InputStreamReader(is, StandardCharsets.UTF_8));
 		return sb.toString();
 	}
 }

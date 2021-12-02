@@ -47,165 +47,367 @@
     <richtext>
       <pardef id="1"/>
       <par def="1"/>
+      <par def="1">
+        <run>
+          <font size="18pt" style="bold"/>
+        </run>
+        <run>
+          <font size="18pt" style="bold"/>
+          <computedtext>
+            <code event="value">
+              <formula>@If(Server=""; "Default Server Configuration"; "Configuration for " + @Name([Abbreviate]; Server))</formula>
+            </code>
+          </computedtext>
+        </run>
+        <run>
+          <font size="18pt" style="bold"/>
+        </run>
+      </par>
+      <par def="1"/>
+      <pardef id="2" leftmargin="1in" spaceafter="1.5">
+        <parstyle alldocuments="true" incyclekey="true" name="Headline" username="Jesse Gallagher-">
+          <font color="purple" name="sans-serif" size="12pt" style="bold"/>
+        </parstyle>
+      </pardef>
+      <par def="2">
+        <run>
+          <font color="purple" size="12pt" style="bold"/>General</run>
+      </par>
       <par def="1"/>
       <table altbgcolor="white" bgcolor="#efefef" colorstyle="left"
-        columnspacing="0.0500in" refwidth="14.7396in"
+        columnspacing="0.0500in" refwidth="8.7292in"
         rowspacing="0.0500in" widthtype="fitmargins">
-        <tablecolumn width="2in"/>
+        <tablecolumn width="2.5000in"/>
         <tablecolumn width="100%"/>
         <tablerow>
           <tablecell borderwidth="0px">
-            <pardef id="3" keeptogether="true" keepwithnext="true"/>
-            <par def="3">Base Directory</par>
+            <pardef id="4" keeptogether="true" keepwithnext="true"/>
+            <par def="4">Server</par>
           </tablecell>
           <tablecell borderwidth="0px">
-            <pardef id="4" keeptogether="true" keepwithnext="true"/>
-            <par def="4">
+            <pardef id="5" keeptogether="true" keepwithnext="true"/>
+            <par def="5">
+              <field choicesdialog="addressbook" kind="editable"
+                lookupaddressonrefresh="false" lookupeachchar="false"
+                name="Server" type="names"/>
+            </par>
+            <pardef hide="read print preview" id="6" keeptogether="true" keepwithnext="true"/>
+            <par def="6">
+              <run>
+                <font color="gray" size="8pt"/>Leave blank to apply as the default</run>
+            </par>
+          </tablecell>
+        </tablerow>
+        <tablerow>
+          <tablecell borderwidth="0px">
+            <par def="4">Base Directory</par>
+          </tablecell>
+          <tablecell borderwidth="0px">
+            <par def="5">
               <field kind="editable" name="BaseDirectory" type="text"/>
               <compositedata afterbegincount="3" aftercontainercount="1"
-                afterparcount="7" containertype="65418" nexttype="222"
+                afterparcount="6" containertype="65418" nexttype="222"
                 prevtype="65418" type="98">
 Yg4BAIQAAAAAAAAAAAA=
 </compositedata>
             </par>
-            <pardef hide="read print preview" id="5" keeptogether="true" keepwithnext="true"/>
-            <par def="5">
+            <par def="6">
               <run>
                 <font color="gray" size="8pt"/>Default: (program directory)/wlp</run>
             </par>
           </tablecell>
         </tablerow>
+      </table>
+      <pardef firstlineleftmargin="1in" id="3"/>
+      <par def="3"/>
+      <par def="2">
+        <run>
+          <font color="purple" size="12pt" style="bold"/>Reverse Proxy</run>
+      </par>
+      <par def="1"/>
+      <table altbgcolor="white" bgcolor="#efefef" colorstyle="left"
+        columnspacing="0.0500in" refwidth="8.7292in"
+        rowspacing="0.0500in" widthtype="fitmargins">
+        <tablecolumn width="2.5000in"/>
+        <tablecolumn width="100%"/>
         <tablerow>
           <tablecell borderwidth="0px">
-            <par def="3">Version</par>
+            <par def="4">Enable Reverse Proxy</par>
           </tablecell>
           <tablecell borderwidth="0px">
-            <par def="4">
-              <field kind="editable" name="Version" type="keyword">
-                <keywords allownew="true" ui="dialoglist">
-                  <textlist>
-                    <text>20.0.0.5</text>
-                  </textlist>
-                </keywords>
-                <code event="defaultvalue">
-                  <formula>"19.0.0.7"</formula>
-                </code>
-              </field>
-            </par>
-          </tablecell>
-        </tablerow>
-        <tablerow>
-          <tablecell borderwidth="0px">
-            <par def="3">Artifact <run>
-                <font color="gray" size="8pt"/>(advanced)</run>
-            </par>
-          </tablecell>
-          <tablecell borderwidth="0px">
-            <par def="4">
-              <field kind="editable" name="Artfiact" type="text"/>
-              <compositedata afterbegincount="3" aftercontainercount="1"
-                afterparcount="6" containertype="65418" nexttype="222"
-                prevtype="65418" type="98">
-Yg4BAIQAAAAAAAAAAAA=
-</compositedata>
-            </par>
             <par def="5">
               <run>
-                <font color="gray" size="8pt"/>Default: io.openliberty:openliberty-runtime</run>
-            </par>
-          </tablecell>
-        </tablerow>
-        <tablerow>
-          <tablecell borderwidth="0px">
-            <par def="3">Maven Repo <run>
-                <font color="gray" size="8pt"/>(advanced)</run>
-            </par>
-          </tablecell>
-          <tablecell borderwidth="0px">
-            <par def="4">
-              <field kind="editable" name="MavenRepo" type="text"/>
-              <compositedata afterbegincount="3" aftercontainercount="1"
-                afterparcount="6" containertype="65418" nexttype="222"
-                prevtype="65418" type="98">
-Yg4BAIQAAAAAAAAAAAA=
-</compositedata>
-            </par>
-            <par def="5">
-              <run>
-                <font color="gray" size="8pt"/>Default: https://repo.maven.apache.org/maven2/</run>
-            </par>
-          </tablecell>
-        </tablerow>
-        <tablerow>
-          <tablecell borderwidth="0px">
-            <par def="3">Java Runtime</par>
-          </tablecell>
-          <tablecell borderwidth="0px">
-            <pardef id="6" keeptogether="true" keepwithnext="true" linespacing="1.5"/>
-            <par def="6">
-              <field kind="editable" lookupaddressonrefresh="false"
-                lookupeachchar="false" name="JavaVersion" type="keyword">
-                <keywords allownew="true" columns="1"
-                  recalconchange="true" ui="dialoglist">
-                  <textlist>
-                    <text>Domino JVM|Domino</text>
-                    <text>1.8 (LTS)|1.8</text>
-                    <text>11 (LTS)|11</text>
-                    <text>14</text>
-                  </textlist>
-                </keywords>
-                <code event="defaultvalue">
-                  <formula>"Domino"</formula>
-                </code>
-              </field>
-            </par>
-            <pardef id="7" keeptogether="true" keepwithnext="true" linespacing="1.5">
-              <code event="hidewhen">
-                <formula>JavaVersion="":"Domino"</formula>
-              </code>
-            </pardef>
-            <par def="7">
+                <font color="gray" size="8pt"/>
+              </run>
               <field borderstyle="none" kind="editable"
                 lookupaddressonrefresh="false" lookupeachchar="false"
-                name="JavaJVM" type="keyword">
-                <keywords columns="2" helperbutton="false" ui="radiobutton">
+                name="ReverseProxyEnable" type="keyword">
+                <keywords columns="2" helperbutton="false"
+                  recalconchange="true" ui="radiobutton">
                   <textlist>
-                    <text>HotSpot</text>
-                    <text>OpenJ9</text>
+                    <text>Yes|Y</text>
+                    <text>No|N</text>
                   </textlist>
                 </keywords>
                 <code event="defaultvalue">
-                  <formula>"HotSpot"</formula>
+                  <formula>"No"</formula>
                 </code>
               </field>
-            </par>
-            <par def="7">
-              <run>
-                <font color="gray" size="8pt"/>More Information: </run>
-              <urllink href="https://adoptopenjdk.net/" showborder="false">
-                <run>
-                  <font color="gray" size="8pt"/>https://adoptopenjdk.net</run>
-              </urllink>
               <run>
                 <font color="gray" size="8pt"/>
               </run>
             </par>
           </tablecell>
         </tablerow>
+        <tablerow>
+          <tablecell borderwidth="0px">
+            <pardef id="7" keeptogether="true" keepwithnext="true">
+              <code event="hidewhen">
+                <formula>!(ReverseProxyEnable="Y")</formula>
+              </code>
+            </pardef>
+            <par def="7">Type</par>
+          </tablecell>
+          <tablecell borderwidth="0px">
+            <pardef id="8" keeptogether="true" keepwithnext="true">
+              <code event="hidewhen">
+                <formula>!(ReverseProxyEnable="Y")</formula>
+              </code>
+            </pardef>
+            <par def="8">
+              <field allowmultivalues="true" kind="editable"
+                listdisplayseparator="comma" listinputseparators="comma"
+                lookupaddressonrefresh="false" lookupeachchar="false"
+                name="ReverseProxyTypes" type="keyword">
+                <keywords columns="2" recalconchange="true" ui="dialoglist">
+                  <textlist>
+                    <text>Standalone</text>
+                    <text>Domino HTTP|NHTTP</text>
+                  </textlist>
+                </keywords>
+                <code event="defaultvalue">
+                  <formula>"NHTTP"</formula>
+                </code>
+              </field>
+            </par>
+          </tablecell>
+        </tablerow>
+        <tablerow>
+          <tablecell borderwidth="0px">
+            <pardef id="9" keeptogether="true" keepwithnext="true">
+              <code event="hidewhen">
+                <formula>!(ReverseProxyEnable="Y" &amp; ReverseProxyTypes="Standalone")</formula>
+              </code>
+            </pardef>
+            <par def="9">Bind to Host</par>
+          </tablecell>
+          <tablecell borderwidth="0px">
+            <pardef id="10" keeptogether="true" keepwithnext="true">
+              <code event="hidewhen">
+                <formula>!(ReverseProxyEnable="Y" &amp; ReverseProxyTypes="Standalone")</formula>
+              </code>
+            </pardef>
+            <par def="10">
+              <field fieldhint="*" kind="editable"
+                name="ReverseProxyHostName" type="text"/>
+              <compositedata afterbegincount="4" aftercontainercount="2"
+                afterparcount="9" containertype="65418" nexttype="222"
+                prevtype="65513" type="98">
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata>
+            </par>
+            <pardef hide="read print preview" id="11"
+              keeptogether="true" keepwithnext="true">
+              <code event="hidewhen">
+                <formula>!(ReverseProxyEnable="Y" &amp; ReverseProxyTypes="Standalone")</formula>
+              </code>
+            </pardef>
+            <par def="11">
+              <run>
+                <font color="gray" size="8pt"/>Default: *</run>
+            </par>
+          </tablecell>
+        </tablerow>
+        <tablerow>
+          <tablecell borderwidth="0px">
+            <pardef id="12" keeptogether="true" keepwithnext="true">
+              <code event="hidewhen">
+                <formula>!(ReverseProxyEnable="Y" &amp; ReverseProxyTypes="Standalone")</formula>
+              </code>
+            </pardef>
+            <par def="12">HTTP</par>
+          </tablecell>
+          <tablecell borderwidth="0px">
+            <pardef id="13" keeptogether="true" keepwithnext="true">
+              <code event="hidewhen">
+                <formula>!(ReverseProxyEnable="Y" &amp; ReverseProxyTypes="Standalone")</formula>
+              </code>
+            </pardef>
+            <par def="13">
+              <field kind="editable" lookupaddressonrefresh="false"
+                lookupeachchar="false" name="ReverseProxyHTTP" type="keyword">
+                <keywords columns="3" recalconchange="true" ui="dialoglist">
+                  <textlist>
+                    <text>Yes|Y</text>
+                    <text>No|N</text>
+                    <text>Redirect to HTTPS|Redirect</text>
+                  </textlist>
+                </keywords>
+                <code event="defaultvalue">
+                  <formula>"Y"</formula>
+                </code>
+              </field>
+            </par>
+          </tablecell>
+        </tablerow>
+        <tablerow>
+          <tablecell borderwidth="0px">
+            <pardef id="14" keeptogether="true" keepwithnext="true">
+              <code event="hidewhen">
+                <formula>!(ReverseProxyEnable="Y" &amp; ReverseProxyHTTP="Y":"Redirect" &amp; ReverseProxyTypes="Standalone")</formula>
+              </code>
+            </pardef>
+            <par def="14">        Port</par>
+          </tablecell>
+          <tablecell borderwidth="0px">
+            <pardef id="15" keeptogether="true" keepwithnext="true">
+              <code event="hidewhen">
+                <formula>!(ReverseProxyEnable="Y" &amp; ReverseProxyHTTP="Y":"Redirect" &amp; ReverseProxyTypes="Standalone")</formula>
+              </code>
+            </pardef>
+            <par def="15">
+              <field kind="editable" name="ReverseProxyHTTPPort" type="number">
+                <numberformat bytes="false" digits="2" format="general"
+                  parens="false" percent="false" punctuated="false"/>
+                <code event="defaultvalue">
+                  <formula>8080</formula>
+                </code>
+                <code event="inputtranslation">
+                  <formula>@If(@Text(@ThisValue)=""; 8080; @ThisValue)</formula>
+                </code>
+              </field>
+            </par>
+          </tablecell>
+        </tablerow>
+        <tablerow>
+          <tablecell borderwidth="0px">
+            <par def="12">HTTPS</par>
+          </tablecell>
+          <tablecell borderwidth="0px">
+            <par def="13">
+              <field kind="editable" lookupaddressonrefresh="false"
+                lookupeachchar="false" name="ReverseProxyHTTPS" type="keyword">
+                <keywords columns="2" recalconchange="true" ui="dialoglist">
+                  <textlist>
+                    <text>Yes|Y</text>
+                    <text>No|N</text>
+                  </textlist>
+                </keywords>
+                <code event="defaultvalue">
+                  <formula>"N"</formula>
+                </code>
+              </field>
+            </par>
+          </tablecell>
+        </tablerow>
+        <tablerow>
+          <tablecell borderwidth="0px">
+            <pardef id="16" keeptogether="true" keepwithnext="true">
+              <code event="hidewhen">
+                <formula>!(ReverseProxyEnable="Y" &amp; ReverseProxyHTTPS="Y" &amp; ReverseProxyTypes="Standalone")</formula>
+              </code>
+            </pardef>
+            <par def="16">        Port</par>
+          </tablecell>
+          <tablecell borderwidth="0px">
+            <pardef id="17" keeptogether="true" keepwithnext="true">
+              <code event="hidewhen">
+                <formula>!(ReverseProxyEnable="Y" &amp; ReverseProxyHTTPS="Y" &amp; ReverseProxyTypes="Standalone")</formula>
+              </code>
+            </pardef>
+            <par def="17">
+              <field kind="editable" name="ReverseProxyHTTPSPort" type="number">
+                <numberformat bytes="false" digits="2" format="general"
+                  parens="false" percent="false" punctuated="false"/>
+                <code event="defaultvalue">
+                  <formula>8443</formula>
+                </code>
+                <code event="inputtranslation">
+                  <formula>@If(@Text(@ThisValue)=""; 8443; @ThisValue)</formula>
+                </code>
+              </field>
+            </par>
+          </tablecell>
+        </tablerow>
+        <tablerow>
+          <tablecell borderwidth="0px">
+            <pardef id="18" keeptogether="true" keepwithnext="true">
+              <code event="hidewhen">
+                <formula>!(ReverseProxyEnable="Y" &amp; ReverseProxyHTTPS="Y" &amp; ReverseProxyTypes="Standalone")</formula>
+              </code>
+            </pardef>
+            <par def="18">        Private Key (PEM)</par>
+          </tablecell>
+          <tablecell borderwidth="0px">
+            <pardef id="19" keeptogether="true" keepwithnext="true">
+              <code event="hidewhen">
+                <formula>!(ReverseProxyEnable="Y" &amp; ReverseProxyHTTPS="Y" &amp; ReverseProxyTypes="Standalone")</formula>
+              </code>
+            </pardef>
+            <par def="19">
+              <run>
+                <font name="monospace"/>
+                <field kind="editable" name="ReverseProxyHTTPSKey" type="text"/>
+              </run>
+              <compositedata afterbegincount="3" aftercontainercount="1"
+                afterparcount="8" containertype="65418" nexttype="222"
+                prevtype="65418" type="98">
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata>
+            </par>
+          </tablecell>
+        </tablerow>
+        <tablerow>
+          <tablecell borderwidth="0px">
+            <par def="18">        Certificates (PEM)</par>
+          </tablecell>
+          <tablecell borderwidth="0px">
+            <par def="19">
+              <run>
+                <font name="monospace"/>
+                <field kind="editable" name="ReverseProxyHTTPSChain" type="text"/>
+              </run>
+              <compositedata afterbegincount="3" aftercontainercount="1"
+                afterparcount="7" containertype="65418" nexttype="222"
+                prevtype="65418" type="98">
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata>
+            </par>
+          </tablecell>
+        </tablerow>
       </table>
-      <pardef firstlineleftmargin="1in" id="2"/>
-      <par def="2"/>
+      <par def="3"/>
+      <par def="3"/>
       <subformref name="Footer"/>
-      <pardef align="right" id="8">
+      <pardef align="right" id="20">
         <code event="hidewhen">
           <formula>@IsNewDoc</formula>
         </code>
       </pardef>
-      <par def="8"/>
+      <par def="20"/>
     </richtext>
   </body>
+  <item name="ReverseProxyPort" summary="false">
+    <number>0</number>
+  </item>
   <item name="$SubForm_RepIDs" sign="true">
     <text>0000000000000000</text>
+  </item>
+  <item name="ReverseProxyHTTPPort" summary="false">
+    <number>0</number>
+  </item>
+  <item name="ReverseProxyHTTPSPort" summary="false">
+    <number>0</number>
   </item>
   <item name="DateComposed" summary="false">
     <rawitemdata type="400">

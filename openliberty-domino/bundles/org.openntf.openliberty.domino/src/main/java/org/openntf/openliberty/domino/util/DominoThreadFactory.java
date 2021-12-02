@@ -1,5 +1,5 @@
 /*
- * Copyright © 2018-2020 Jesse Gallagher
+ * Copyright © 2018-2021 Jesse Gallagher
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,17 +29,22 @@ public class DominoThreadFactory implements ThreadFactory {
 
 	public static final DominoThreadFactory instance = new DominoThreadFactory();
 
-	public static ExecutorService executor;
-	public static ScheduledExecutorService scheduler;
+	private static ExecutorService executor;
+	private static ScheduledExecutorService scheduler;
 	
-	public static void init() {
+	public static synchronized ExecutorService getExecutor() {
 		if(executor == null) {
 			executor = Executors.newCachedThreadPool(instance);
 		}
+		return executor;
+	}
+	public static synchronized ScheduledExecutorService getScheduler() {
 		if(scheduler == null) {
 			scheduler = Executors.newScheduledThreadPool(5, instance);
 		}
+		return scheduler;
 	}
+	
 	public static void term() {
 		if(executor != null) {
 			executor.shutdownNow();

@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Subsystem-ManifestVersion: 1
+IBM-Feature-Version: 2
+Subsystem-Type: osgi.subsystem.feature
+IBM-App-ForceRestart: install,
+ uninstall

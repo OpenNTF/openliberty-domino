@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.openntf</groupId>
 		<artifactId>openliberty-domino</artifactId>
-		<version>2.0.0</version>
+		<version>3.0.0</version>
 		<relativePath>../..</relativePath>
 	</parent>
 	<artifactId>org.openntf.openliberty.domino.updatesite</artifactId>
@@ -37,7 +37,7 @@
 									<providerName>OpenNTF</providerName>
 									<description>Open Liberty Runtime managed by the Domino server</description>
 									<generateSourceFeature>false</generateSourceFeature>
-									<copyright>Copyright 2018-2020 Jesse Gallagher</copyright>
+									<copyright>Copyright 2018-2021 Jesse Gallagher</copyright>
 									<license>      Apache License
                            Version 2.0, January 2004
                         http://www.apache.org/licenses/
@@ -258,12 +258,17 @@
 											<source>false</source>
 										</artifact>
 										<artifact>
-											<id>${project.groupId}:org.openntf.openliberty.domino.userregistry:${project.version}</id>
+											<id>${project.groupId}:org.openntf.openliberty.domino.wlp.userregistry:${project.version}</id>
 											<transitive>false</transitive>
 											<source>false</source>
 										</artifact>
 										<artifact>
-											<id>${project.groupId}:org.openntf.openliberty.domino.notesruntime:${project.version}</id>
+											<id>${project.groupId}:org.openntf.openliberty.domino.wlp.notesruntime:${project.version}</id>
+											<transitive>false</transitive>
+											<source>false</source>
+										</artifact>
+										<artifact>
+											<id>${project.groupId}:org.openntf.openliberty.domino.wlp.dominoapi:${project.version}</id>
 											<transitive>false</transitive>
 											<source>false</source>
 										</artifact>
@@ -273,7 +278,23 @@
 											<source>false</source>
 										</artifact>
 										<artifact>
-											<id>${project.groupId}:org.openntf.openliberty.domino.dominoproxy:${project.version}</id>
+											<id>${project.groupId}:org.openntf.openliberty.domino.httpapi:${project.version}</id>
+											<transitive>false</transitive>
+											<source>false</source>
+										</artifact>
+										
+										<artifact>
+											<id>${project.groupId}:org.openntf.openliberty.domino.reverseproxy:${project.version}</id>
+											<transitive>false</transitive>
+											<source>false</source>
+										</artifact>
+										<artifact>
+											<id>${project.groupId}:org.openntf.openliberty.domino.reverseproxy.standalone:${project.version}</id>
+											<transitive>false</transitive>
+											<source>false</source>
+										</artifact>
+										<artifact>
+											<id>${project.groupId}:org.openntf.openliberty.domino.reverseproxy.httpservice:${project.version}</id>
 											<transitive>false</transitive>
 											<source>false</source>
 										</artifact>

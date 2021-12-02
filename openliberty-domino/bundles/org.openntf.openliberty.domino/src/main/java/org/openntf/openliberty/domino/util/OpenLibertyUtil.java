@@ -1,5 +1,5 @@
 /*
- * Copyright © 2018-2020 Jesse Gallagher
+ * Copyright © 2018-2021 Jesse Gallagher
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,13 +19,16 @@ import static java.text.MessageFormat.format;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.List;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import org.openntf.openliberty.domino.runtime.Messages;
@@ -44,6 +47,7 @@ public enum OpenLibertyUtil {
 		IS_WINDOWS = os.toLowerCase().contains("windows"); //$NON-NLS-1$
 		IS_LINUX = os.toLowerCase().contains("linux"); //$NON-NLS-1$
 	}
+	private static Path tempDirectory;
 	
 	/**
 	 * Returns an appropriate temp directory for the system. On Windows, this is
@@ -53,12 +57,21 @@ public enum OpenLibertyUtil {
 	 *
 	 * @return an appropriate temp directory for the system
 	 */
-	public static String getTempDirectory() {
-		if (!IS_WINDOWS) {
-			return "/tmp"; //$NON-NLS-1$
-		} else {
-			return System.getProperty("java.io.tmpdir"); //$NON-NLS-1$
+	public static synchronized Path getTempDirectory() {
+		if(tempDirectory == null) {
+			String base;
+			if (!IS_WINDOWS) {
+				base = "/tmp"; //$NON-NLS-1$
+			} else {
+				base = System.getProperty("java.io.tmpdir"); //$NON-NLS-1$
+			}
+			try {
+				tempDirectory = Files.createTempDirectory(Paths.get(base), OpenLibertyUtil.class.getPackage().getName());
+			} catch (IOException e) {
+				throw new UncheckedIOException(e);
+			}
 		}
+		return tempDirectory;
 	}
 	
 	@FunctionalInterface
@@ -103,10 +116,29 @@ public enum OpenLibertyUtil {
 	 */
 	public static String getDominoProgramDirectory() {
 		try {
-			return DominoThreadFactory.executor.submit(() -> {
+			return DominoThreadFactory.getExecutor().submit(() -> {
 				Session s = NotesFactory.createSession();
 				try {
 					return s.getEnvironmentString("NotesProgram", true); //$NON-NLS-1$
+				} finally {
+					s.recycle();
+				}
+			}).get();
+		} catch (InterruptedException | ExecutionException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	/**
+	 * @return the path of the active Domino data directory
+	 * @since 3.0.0
+	 */
+	public static String getDominoDataDirectory() {
+		try {
+			return DominoThreadFactory.getExecutor().submit(() -> {
+				Session s = NotesFactory.createSession();
+				try {
+					return s.getEnvironmentString("Directory", true); //$NON-NLS-1$
 				} finally {
 					s.recycle();
 				}
@@ -121,11 +153,11 @@ public enum OpenLibertyUtil {
 	 * 
 	 * @param <T> the service type to load
 	 * @param extensionClass a {@link Class} object representing {@code <T>}
-	 * @return a {@link List} of extension implementations
+	 * @return a {@link Stream} of extension implementations
 	 * @since 2.0.0
 	 */
-	public static <T> List<T> findExtensions(Class<T> extensionClass) {
-		return StreamSupport.stream(ServiceLoader.load(extensionClass, extensionClass.getClassLoader()).spliterator(), false).collect(Collectors.toList());
+	public static <T> Stream<T> findExtensions(Class<T> extensionClass) {
+		return StreamSupport.stream(ServiceLoader.load(extensionClass, extensionClass.getClassLoader()).spliterator(), false);
 	}
 	
 	/**
@@ -137,6 +169,62 @@ public enum OpenLibertyUtil {
 	 * @since 2.0.0
 	 */
 	public static <T> Optional<T> findExtension(Class<T> extensionClass) {
-		return Optional.ofNullable(ServiceLoader.load(extensionClass, extensionClass.getClassLoader()).iterator().next());
+		return findExtensions(extensionClass).findFirst();
+	}
+	
+	/**
+	 * Loads a single extension for the given service class, using the service class's ClassLoader and throwing
+	 * {@link IllegalStateException} when no implementation is available.
+	 * 
+	 * @param <T> the service type to load
+	 * @param extensionClass a {@link Class} object representing {@code <T>}
+	 * @return the first available implementation of {@code <T>}
+	 * @throws IllegalStateException if no implementation of {@code <T>} can be found
+	 * @since 3.0.0
+	 */
+	public static <T> T findRequiredExtension(Class<T> extensionClass) {
+		return findExtension(extensionClass)
+			.orElseThrow(() -> new IllegalStateException(format(Messages.getString("OpenLibertyUtil.unableToFindServiceProviding"), extensionClass.getName()))); //$NON-NLS-1$
+	}
+	
+	/**
+	 * Recursively deletes the named file or directory.
+	 * 
+	 * @param path the file or directory to delete
+	 * @throws IOException if there is a problem deleting the target
+	 * @since 2.1.0
+	 */
+	public static void deltree(Path path) throws IOException {
+		if(Files.isDirectory(path)) {
+			Files.list(path)
+			    .forEach(t -> {
+					try {
+						deltree(t);
+					} catch (IOException e) {
+						throw new RuntimeException(e);
+					}
+				});
+		}
+		try {
+			Files.deleteIfExists(path);
+		} catch(IOException e) {
+		}
+	}
+	
+	/**
+	 * Performs shutdown cleanup, such as deleting temporary files. This should be called when
+	 * the runtime is stopping.
+	 * 
+	 * @since 2.1.0
+	 */
+	public static void performShutdownCleanup() {
+		DominoThreadFactory.term();
+		if(tempDirectory != null) {
+			try {
+				deltree(tempDirectory);
+			} catch (IOException e) {
+			}
+			tempDirectory = null;
+		}
 	}
 }

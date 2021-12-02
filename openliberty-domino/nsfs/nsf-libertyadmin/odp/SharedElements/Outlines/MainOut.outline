@@ -6,11 +6,6 @@
       <formula>!(@UserAccess(@DbName; [AccessLevel]) = "5":"6")</formula>
     </code>
   </outlineentry>
-  <outlineentry keepfocus="true" label="Edit Configuration" type="action">
-    <code event="value">
-      <formula>@Command([ToolsRunMacro]; "Edit Configuration")</formula>
-    </code>
-  </outlineentry>
   <outlineentry type="otherviews">
     <code event="hidewhen">
       <formula>@GetProfileField("Preferences"; "HiddenViews"; @UserName) = "Other Views"</formula>

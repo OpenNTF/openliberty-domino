@@ -1,5 +1,5 @@
 /*
- * Copyright © 2018-2020 Jesse Gallagher
+ * Copyright © 2018-2021 Jesse Gallagher
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.openntf.openliberty.domino.log.OpenLibertyLog;
 import org.openntf.openliberty.domino.util.DominoThreadFactory;
+import org.openntf.openliberty.domino.util.OpenLibertyUtil;
 
 /**
  * This class handles shared code for CLI-based runtime managers.
@@ -35,9 +36,8 @@ public class CLIManagerDelegate implements AutoCloseable {
 	 * Initializes the delegate and the Open Liberty thread provider.
 	 */
 	public void start() {
-		DominoThreadFactory.init();
 		if(this.runner == null) {
-			this.runner = DominoThreadFactory.executor.submit(OpenLibertyRuntime.instance);
+			this.runner = DominoThreadFactory.getExecutor().submit(OpenLibertyRuntime.instance);
 		}
 	}
 	
@@ -52,7 +52,8 @@ public class CLIManagerDelegate implements AutoCloseable {
 			this.runner.cancel(true);
 			this.runner = null;
 		}
-		DominoThreadFactory.term();
+		OpenLibertyRuntime.instance.stop();
+		OpenLibertyUtil.performShutdownCleanup();
 	}
 	
 	/**

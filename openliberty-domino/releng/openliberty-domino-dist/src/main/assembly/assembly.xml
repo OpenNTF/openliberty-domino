@@ -1,6 +1,6 @@
 <!--
 
-    Copyright © 2018-2020 Jesse Gallagher
+    Copyright © 2018-2021 Jesse Gallagher
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -72,6 +72,16 @@
 			<outputDirectory>RunJava</outputDirectory>
 			<unpack>false</unpack>
 			<useTransitiveDependencies>false</useTransitiveDependencies>
+		</dependencySet>
+		<dependencySet>
+			<includes>
+				<include>org.openntf:org.openntf.openliberty.domino.httpapi:*</include>
+			</includes>
+			
+			<outputDirectory>.</outputDirectory>
+			<unpack>false</unpack>
+			<useTransitiveDependencies>false</useTransitiveDependencies>
+			<outputFileNameMapping>adminapi.yaml</outputFileNameMapping>
 		</dependencySet>
 	</dependencySets>
 	

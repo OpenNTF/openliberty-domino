@@ -42,6 +42,14 @@ The runtime supports several Domino console commands, all of which are prefixed 
 * `restart`: Equivalent to `stop` followed by `start`
 * `help`: Get a listing of currently-supported options
 
+## Reverse Proxy
+
+The installation contains a reverse proxy that can be enabled in the main configuration document of `libertyadmin.nsf`. In there, you can specify ports to listen on as well as a TLS private key and certificate chain, if desired. By default, the reverse proxy will relay all requests to the Domino server, while individual WAR apps deployed to Liberty servers can also be included via their documents. When they are marked as such, their context roots will be forward to them first, rather than to Domino.
+
+## Admin REST API
+
+When installed on Domino, the runtime provides an Admin API at `/org.openntf.openliberty.domino/admin`. The available resources are described in "adminapi.yaml".
+
 ## Liberty Server Extensions
 
 Deployed Liberty servers are installed with several custom features, which can be enabled per-server in the server configuration document in the NSF.
@@ -50,32 +58,9 @@ Deployed Liberty servers are installed with several custom features, which can b
 
 The `notesRuntime-1.0` feature handles initialization and termination of the Notes runtime for the Liberty process, allowing individual web apps to skip this step and not compete.  This feature sets the Java property `notesruntime.init` to `"true"` when enabled, so  apps can check for that and skip process initialization.
 
-### Domino Proxy
-
-bootstrap.properties or server.env:
-
-```properties
-Domino_HTTP=http://localhost:8080/
-DominoProxyServlet.sendWsis=false
-```
-
-This feature can be used to cause any unmatched requests to the Liberty server to proxy to the equivalent URL on Domino, allowing it to serve as the main front-end HTTP server.
-
-The  property should point to your configured Domino HTTP stack. In this case, Domino can be configured to bind to HTTP on "localhost" only for security purposes.  If the proxy target should be different from `dominoUserRegistry` below, you can specify `DominoProxyServlet.targetUri` as the target instead and it will take priority.
-
-The `DominoProxyServlet.sendWsis` property tells the proxy whether or not to send the connector header to Domino that indicates whether or not the incoming connection is SSL. It's often useful to leave this as the default of "true", but it may be necessary in some cases to set it to "false" to work around the Domino HTTP stack's lack of knowledge of multiple SSL-enabled web sites.
-
-Finally, to enable advanced proxy features, set `HTTPEnableConnectorHeaders=1` in your Domino server's notes.ini. This property allows Domino to treat proxied requests as if they were coming from the original client machine instead of the local proxy. If you enable this, it is *very important* that you ensure that the Domino server's HTTP stack is not publicly available, and ideally is bound to "localhost" only.
-
 ### Domino User Registry
 
-server.env:
-
-```properties
-Domino_HTTP=http://localhost:8080/
-```
-
-This feature allows the use of Domino credentials for Liberty authentication, when applicable. It proxies authentication requests through to the backing Domino server specified by `Domino_HTTP`, and so it should allow any authentication that is configured on the Domino server.
+This feature allows the use of Domino credentials for Liberty authentication, when applicable. It proxies authentication requests through to the backing Domino server specified by `Domino_HTTP`, and so it should allow any authentication that is configured on the Domino server. By default, `Domino_HTTP` is configured to be the local server, but it can be overridden in server.env.
 
 Additionally, it allows for a shared login by proxying cookies containing Domino authentication information to the backing Domino server to determine the username.
 

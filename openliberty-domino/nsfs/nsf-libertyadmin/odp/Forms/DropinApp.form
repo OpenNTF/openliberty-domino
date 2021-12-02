@@ -2,55 +2,47 @@
 <form name="DropinApp" publicaccess="false" renderpassthrough="true"
   type="response" xmlns="http://www.lotus.com/dxl">
   <code event="windowtitle">
-    <formula>"Dropin App"</formula>
+    <formula>"Application"</formula>
   </code>
   <actionbar bgcolor="#d4d0c8" bordercolor="black">
     <actionbuttonstyle bgcolor="#d4d0c8"/>
     <font color="system"/>
     <border style="solid" width="0px 0px 1px"/>
-    <sharedactionref id="4">
-      <action align="right" hide="edit previewedit" icon="4" title="Delete">
-        <code event="click">
-          <formula>@Command([EditClear])</formula>
-        </code>
-      </action>
-    </sharedactionref>
-    <sharedactionref id="1">
-      <action hide="edit previewedit" icon="5" title="Edit">
-        <code event="click">
-          <formula>@Command([EditDocument])</formula>
-        </code>
-        <code event="hidewhen">
-          <formula>@ToNumber(@UserAccess(@DbName; [AccessLevel])) &lt; 4 &amp; !(@Name([Abbreviate]; @UserName)=@Author)</formula>
-        </code>
-      </action>
-    </sharedactionref>
-    <sharedactionref id="2">
-      <action hide="preview read" title="Save">
-        <code event="click">
-          <formula>@If(
+    <action align="right" hide="edit previewedit" icon="4" title="Delete">
+      <code event="click">
+        <formula>@Command([EditClear])</formula>
+      </code>
+    </action>
+    <action hide="edit previewedit" icon="5" title="Edit">
+      <code event="click">
+        <formula>@Command([EditDocument])</formula>
+      </code>
+      <code event="hidewhen">
+        <formula>@ToNumber(@UserAccess(@DbName; [AccessLevel])) &lt; 4 &amp; !(@Name([Abbreviate]; @UserName)=@Author)</formula>
+      </code>
+    </action>
+    <action hide="preview read" title="Save">
+      <code event="click">
+        <formula>@If(
 	@ClientType="Web" | @IsValid; @Do(
 		@Command([FileSave]);
 		@Command([EditDocument])
 	);
 	""
 )</formula>
-        </code>
-      </action>
-    </sharedactionref>
-    <sharedactionref id="3">
-      <action hide="preview read" title="Save and Close">
-        <code event="click">
-          <formula>@If(
+      </code>
+    </action>
+    <action hide="preview read" title="Save and Close">
+      <code event="click">
+        <formula>@If(
 	@ClientType="Web" | @IsValid; @Do(
 		@Command([FileSave]);
 		@Command([FileCloseWindow])
 	);
 	""
 )</formula>
-        </code>
-      </action>
-    </sharedactionref>
+      </code>
+    </action>
   </actionbar>
   <body>
     <richtext>
@@ -58,18 +50,18 @@
       <par def="1"/>
       <par def="1"/>
       <table altbgcolor="white" bgcolor="#efefef" colorstyle="left"
-        columnspacing="0.0500in" refwidth="8.2917in"
+        columnspacing="0.0500in" refwidth="8.8958in"
         rowspacing="0.0500in" widthtype="fitmargins">
         <tablecolumn width="2in"/>
         <tablecolumn width="100%"/>
         <tablerow>
           <tablecell borderwidth="0px">
-            <pardef id="2" keeptogether="true" keepwithnext="true"/>
-            <par def="2">Name</par>
+            <pardef id="3" keeptogether="true" keepwithnext="true"/>
+            <par def="3">Name</par>
           </tablecell>
           <tablecell borderwidth="0px">
-            <pardef id="3" keeptogether="true" keepwithnext="true"/>
-            <par def="3">
+            <pardef id="4" keeptogether="true" keepwithnext="true"/>
+            <par def="4">
               <field kind="editable" name="AppName" type="text"/>
               <compositedata afterbegincount="3" aftercontainercount="1"
                 afterparcount="7" containertype="65418" nexttype="222"
@@ -81,10 +73,50 @@ Yg4BAIQAAAAAAAAAAAA=
         </tablerow>
         <tablerow>
           <tablecell borderwidth="0px">
-            <par def="2">WAR</par>
+            <par def="3">Context Path</par>
           </tablecell>
           <tablecell borderwidth="0px">
-            <par def="3">
+            <par def="4">/<field kind="editable" name="ContextRoot" type="text">
+                <code event="inputtranslation">
+                  <formula>@If(@ThisValue=""; AppName; @ThisValue)</formula>
+                </code>
+              </field>
+              <compositedata afterbegincount="3" aftercontainercount="1"
+                afterparcount="6" containertype="65418" nexttype="222"
+                prevtype="65418" type="98">
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata>
+            </par>
+          </tablecell>
+        </tablerow>
+        <tablerow>
+          <tablecell borderwidth="0px">
+            <par def="3">Include in Reverse Proxy</par>
+          </tablecell>
+          <tablecell borderwidth="0px">
+            <par def="4">
+              <field borderstyle="none" kind="editable"
+                lookupaddressonrefresh="false" lookupeachchar="false"
+                name="IncludeInReverseProxy" type="keyword">
+                <keywords columns="2" helperbutton="false" ui="radiobutton">
+                  <textlist>
+                    <text>Yes|Y</text>
+                    <text>No|N</text>
+                  </textlist>
+                </keywords>
+                <code event="defaultvalue">
+                  <formula>"No"</formula>
+                </code>
+              </field>
+            </par>
+          </tablecell>
+        </tablerow>
+        <tablerow>
+          <tablecell borderwidth="0px">
+            <par def="3">WAR</par>
+          </tablecell>
+          <tablecell borderwidth="0px">
+            <par def="4">
               <field firstdisplay="attachment" kind="editable"
                 name="WarFile" onlyallow="attachment" type="richtextlite"/>
             </par>
@@ -93,14 +125,17 @@ Yg4BAIQAAAAAAAAAAAA=
       </table>
       <par def="1"/>
       <subformref name="Footer"/>
-      <pardef align="right" id="4">
+      <pardef align="right" id="5">
         <code event="hidewhen">
           <formula>@IsNewDoc</formula>
         </code>
       </pardef>
-      <par def="4"/>
+      <par def="5"/>
     </richtext>
   </body>
+  <item name="$SubForm_RepIDs" sign="true">
+    <text>0000000000000000</text>
+  </item>
   <item name="DateComposed" summary="false">
     <rawitemdata type="400">
 AAAAAAAAAAA=

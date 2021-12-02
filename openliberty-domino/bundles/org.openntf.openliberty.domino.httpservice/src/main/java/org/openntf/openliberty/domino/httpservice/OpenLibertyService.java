@@ -1,5 +1,5 @@
 /*
- * Copyright © 2018-2020 Jesse Gallagher
+ * Copyright © 2018-2021 Jesse Gallagher
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,7 +48,7 @@ public class OpenLibertyService extends HttpService {
 		
 		delegate.start();
 		
-		DominoThreadFactory.executor.submit(() -> {
+		DominoThreadFactory.getExecutor().submit(() -> {
 			long hDesc = DominoAPI.get().AddInCreateStatusLine(Messages.getString("OpenLibertyService.taskName")); //$NON-NLS-1$
 			DominoAPI.get().AddInSetStatusLine(hDesc, Messages.getString("OpenLibertyService.statusRunning")); //$NON-NLS-1$
 			try {

@@ -1,161 +1,259 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<form name="Server" publicaccess="false" renderpassthrough="true" xmlns="http://www.lotus.com/dxl">
-  <code event="windowtitle">
-    <formula>"Server"</formula>
-  </code>
-  <actionbar bgcolor="#d4d0c8" bordercolor="black">
-    <actionbuttonstyle bgcolor="#d4d0c8"/>
-    <font color="system"/>
-    <border style="solid" width="0px 0px 1px"/>
-    <action align="right" hide="edit previewedit" icon="4" title="Delete">
-      <code event="click">
-        <formula>@Command([EditClear])</formula>
-      </code>
-    </action>
-    <action hide="edit previewedit" icon="5" title="Edit">
-      <code event="click">
-        <formula>@Command([EditDocument])</formula>
-      </code>
-      <code event="hidewhen">
-        <formula>@ToNumber(@UserAccess(@DbName; [AccessLevel])) &lt; 4 &amp; !(@Name([Abbreviate]; @UserName)=@Author)</formula>
-      </code>
-    </action>
-    <action hide="preview read" title="Save">
-      <code event="click">
-        <formula>@If(
+<?xml version='1.0' encoding='utf-8'?>
+<form name='Server' xmlns='http://www.lotus.com/dxl' version='12.0' maintenanceversion='1.0'
+ replicaid='85258371005A4D98' publicaccess='false' designerversion='8.5.3'
+ renderpassthrough='true'>
+<noteinfo noteid='49e' unid='00AD252532A13C818525851200643A9B' sequence='48'>
+<created><datetime>20200218T131446,03-05</datetime></created>
+<modified><datetime>20211202T143830,59-05</datetime></modified>
+<revised><datetime>20211202T143830,58-05</datetime></revised>
+<lastaccessed><datetime>20211202T143830,58-05</datetime></lastaccessed>
+<addedtofile><datetime>20200218T131446,03-05</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Jesse Gallagher/O=IKSG</name></updatedby>
+<wassignedby><name>CN=Jesse Gallagher/O=IKSG</name></wassignedby><code event='windowtitle'><formula
+>"Liberty Server"</formula></code><code event='querysave'><lotusscript>Sub Querysave(Source As Notesuidocument, Continue As Variant)
+	Dim session As New NotesSession
+	
+	Dim xml As String, parser As NotesDOMParser
+	xml = Source.FieldGetText("ServerXML")
+	Set parser = session.CreateDOMParser
+	Call parser.Parse(xml)
+	
+	Dim httpEndpoints As NotesDOMNodeList, httpEndpoint As NotesDOMElementNode
+	Set httpEndpoints = parser.Document.GetElementsByTagName("httpEndpoint")
+	If httpEndpoints.NumberOfEntries &gt; 0 Then
+		Set httpEndpoint = httpEndpoints.GetItem(1)
+		Source.Document.HTTPHost = httpEndpoint.GetAttribute("host")
+		Source.Document.HTTPPort = httpEndpoint.GetAttribute("httpPort")
+		Source.Document.HTTPSPort = httpEndpoint.GetAttribute("httpsPort")
+		
+		Dim remoteIpElements As NotesDOMNodeList
+		Set remoteIpElements = httpEndpoint.GetElementsByTagName("remoteIp")
+		If remoteIpElements.NumberOfEntries &gt; 0 Then
+			Source.Document.UseXForwardedFor = "Y"
+		Else
+			Source.Document.UseXForwardedFor = "N"
+		End If
+	End If
+	
+	Dim trustedHeaderOrigins As NotesDOMNodeList
+	Set trustedHeaderOrigins = parser.Document.GetElementsByTagName("trustedSensitiveHeaderOrigin")
+	If trustedHeaderOrigins.NumberOfEntries &gt; 0 Then
+		Source.Document.UseWSHeaders = "Y"
+	Else
+		Source.Document.UseWSHeaders = "N"
+	End If
+End Sub
+</lotusscript></code>
+<actionbar bgcolor='#d4d0c8' bordercolor='black'>
+<actionbuttonstyle bgcolor='#d4d0c8'/><font color='system'/><border style='solid'
+ width='0px 0px 1px' color='system'/>
+<action title='Delete' icon='4' hide='edit previewedit' align='right'><code
+ event='click'><formula>@Command([EditClear])</formula></code></action>
+<action title='Edit' icon='5' hide='edit previewedit'><code event='click'><formula
+>@Command([EditDocument])</formula></code><code event='hidewhen'><formula
+>@ToNumber(@UserAccess(@DbName; [AccessLevel])) &lt; 4 &amp; !(@Name([Abbreviate]; @UserName)=@Author)</formula></code></action>
+<action title='Save' hide='preview read'><code event='click'><formula>@If(
 	@ClientType="Web" | @IsValid; @Do(
 		@Command([FileSave]);
 		@Command([EditDocument])
 	);
 	""
-)</formula>
-      </code>
-    </action>
-    <action hide="preview read" title="Save and Close">
-      <code event="click">
-        <formula>@If(
+)</formula></code></action>
+<action title='Save and Close' hide='preview read'><code event='click'><formula
+>@If(
 	@ClientType="Web" | @IsValid; @Do(
 		@Command([FileSave]);
 		@Command([FileCloseWindow])
 	);
 	""
-)</formula>
-      </code>
-    </action>
-  </actionbar>
-  <body>
-    <richtext>
-      <pardef id="1"/>
-      <par def="1"/>
-      <par def="1"/>
-      <table altbgcolor="white" bgcolor="#efefef" colorstyle="left"
-        columnspacing="0.0500in" refwidth="8.7292in"
-        rowspacing="0.0500in" widthtype="fitmargins">
-        <tablecolumn width="2in"/>
-        <tablecolumn width="100%"/>
-        <tablerow>
-          <tablecell borderwidth="0px">
-            <pardef id="3" keeptogether="true" keepwithnext="true"/>
-            <par def="3">Name</par>
-          </tablecell>
-          <tablecell borderwidth="0px">
-            <pardef id="4" keeptogether="true" keepwithnext="true"/>
-            <par def="4">
-              <field kind="editable" name="Name" type="text">
-                <code event="defaultvalue">
-                  <formula>"defaultServer"</formula>
-                </code>
-              </field>
-              <compositedata afterbegincount="3" aftercontainercount="1"
-                afterparcount="7" containertype="65418" nexttype="222"
-                prevtype="65418" type="98">
+)</formula></code></action></actionbar>
+<body><richtext>
+<pardef id='1'/>
+<par def='1'/>
+<par def='1'><run><font size='18pt' style='bold'/>Liberty Server</run></par>
+<par def='1'/>
+<table widthtype='fitmargins' colorstyle='left' bgcolor='#efefef' altbgcolor='white'
+ rowspacing='0.0500in' columnspacing='0.0500in' refwidth='11.1042in'><tablecolumn
+ width='2in'/><tablecolumn width='100%'/>
+<tablerow>
+<tablecell borderwidth='0px'>
+<pardef id='3' keepwithnext='true' keeptogether='true'/>
+<par def='3'>Name</par></tablecell>
+<tablecell borderwidth='0px'>
+<pardef id='4' keepwithnext='true' keeptogether='true'/>
+<par def='4'><field type='text' kind='editable' name='Name'><code event='defaultvalue'><formula
+>"defaultServer"</formula></code></field><compositedata type='98' prevtype='65418'
+ nexttype='222' afterparcount='7' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
 Yg4BAIQAAAAAAAAAAAA=
-</compositedata>
-            </par>
-          </tablecell>
-        </tablerow>
-        <tablerow>
-          <tablecell borderwidth="0px">
-            <par def="3">Domino Servers:</par>
-          </tablecell>
-          <tablecell borderwidth="0px">
-            <par def="4">
-              <field allowmultivalues="true"
-                description="Domino server names and groups that deploy this server"
-                fieldhint="*" kind="editable"
-                listdisplayseparator="comma"
-                listinputseparators="comma semicolon newline"
-                name="DominoServers" type="names"/>
-            </par>
-          </tablecell>
-        </tablerow>
-      </table>
-      <pardef firstlineleftmargin="1in" id="2"/>
-      <par def="2"/>
-      <table bgcolor="#ffffc2" colorstyle="solid"
-        columnspacing="0.0500in" refwidth="8.7292in"
-        rowspacing="0.0500in" widthtype="fitmargins">
-        <tablecolumn width="100%"/>
-        <tablerow>
-          <tablecell borderwidth="0px">
-            <pardef id="5" keeptogether="true" keepwithnext="true"/>
-            <par
-                def="5">Configuration documentation is available <urllink
-                href="https://www.openliberty.io/docs/ref/config/serverConfiguration.html" showborder="false">
-                <run>
-                  <font color="system"/>on openliberty.io</run>
-              </urllink>
-            </par>
-          </tablecell>
-        </tablerow>
-      </table>
-      <par def="2"/>
-      <table columnspacing="0.0500in" refwidth="8.7278in"
-        rowdisplay="tabs" rowspacing="0.0500in" widthtype="fitmargins">
-        <tablecolumn width="100%"/>
-        <tablerow tablabel="server.xml">
-          <tablecell>
-            <pardef id="6" keeptogether="true" keepwithnext="true"/>
-            <par def="6"/>
-            <table altbgcolor="white" bgcolor="#efefef"
-              colorstyle="left" columnspacing="0.0500in" leftmargin="0"
-              refwidth="8.6174in" rowspacing="0.0500in" widthtype="fitmargins">
-              <tablecolumn width="2in"/>
-              <tablecolumn width="100%"/>
-              <tablerow>
-                <tablecell borderwidth="0px">
-                  <pardef id="7" keeptogether="true" keepwithnext="true"/>
-                  <par def="7">Integration Features:</par>
-                </tablecell>
-                <tablecell borderwidth="0px">
-                  <pardef id="8" keeptogether="true" keepwithnext="true"/>
-                  <par def="8">
-                    <field allowmultivalues="true"
-                      description="Domino server names and groups that deploy this server"
-                      fieldhint="*" kind="editable"
-                      listdisplayseparator="comma"
-                      listinputseparators="comma semicolon newline"
-                      name="IntegrationFeatures" type="keyword">
-                      <keywords ui="dialoglist">
-                        <textlist>
-                          <text>Notes Runtime|notesRuntime</text>
-                          <text>Domino Proxy|dominoProxy</text>
-                          <text>Domino User Registry|dominoUserRegistry</text>
-                        </textlist>
-                      </keywords>
-                    </field>
-                  </par>
-                </tablecell>
-              </tablerow>
-            </table>
-            <par def="6"/>
-            <par def="6"/>
-            <par def="6">
-              <run>
-                <font name="monospace"/>
-                <field kind="editable" name="ServerXML" type="text">
-                  <code event="defaultvalue">
-                    <formula>"&lt;?xml version=\"1.0\" encoding=\"UTF-8\"?&gt;
+</compositedata></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='0px'>
+<par def='3'>Domino Servers</par></tablecell>
+<tablecell borderwidth='0px'>
+<par def='4'><field type='names' allowmultivalues='true' kind='editable' name='DominoServers'
+ description='Domino server names and groups that deploy this server' listinputseparators='comma semicolon newline'
+ listdisplayseparator='comma' fieldhint='*'/></par></tablecell></tablerow></table>
+<pardef id='2' firstlineleftmargin='1in'/>
+<par def='2'/>
+<pardef id='5' leftmargin='1in' spaceafter='1.5'><parstyle name='Headline'
+ incyclekey='true' alldocuments='true' username='Jesse Gallagher-'><font size='12pt'
+ color='purple' style='bold' name='sans-serif'/></parstyle></pardef>
+<par def='5'><run><font size='12pt' style='bold' color='purple'/>Connection Information</run></par>
+<par def='2'/>
+<table widthtype='fixedleft' colorstyle='top' bgcolor='#e1e1e1' altbgcolor='white'
+ refwidth='6in'><tablecolumn width='2in'/><tablecolumn width='1in'/><tablecolumn
+ width='1in'/><tablecolumn width='1in'/><tablecolumn width='1in'/>
+<tablerow>
+<tablecell borderwidth='0px'>
+<pardef id='6' keepwithnext='true' keeptogether='true'/>
+<par def='6'>Bind to Host</par></tablecell>
+<tablecell borderwidth='0px'>
+<pardef id='7' keepwithnext='true' keeptogether='true'/>
+<par def='7'>HTTP Port</par></tablecell>
+<tablecell borderwidth='0px'>
+<pardef id='8' keepwithnext='true' keeptogether='true'/>
+<par def='8'>HTTPS Port</par></tablecell>
+<tablecell borderwidth='0px'>
+<pardef id='9' keepwithnext='true' keeptogether='true'/>
+<par def='9'>X-Forwarded-*</par></tablecell>
+<tablecell borderwidth='0px'>
+<pardef id='10' keepwithnext='true' keeptogether='true'/>
+<par def='10'>$WS*</par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='0px'>
+<par def='6'><field type='text' kind='editable' name='HTTPHost'><code event='inputenabled'><formula
+>@False</formula></code><code event='defaultvalue'><formula>@ThisValue</formula></code></field><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='6' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata></par></tablecell>
+<tablecell borderwidth='0px'>
+<par def='7'><field type='text' kind='editable' name='HTTPPort'><code event='inputenabled'><formula
+>@False</formula></code><code event='defaultvalue'><formula>@ThisValue</formula></code></field><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='6' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata></par></tablecell>
+<tablecell borderwidth='0px'>
+<par def='8'><field type='text' kind='editable' name='HTTPSPort'><code event='inputenabled'><formula
+>@False</formula></code><code event='defaultvalue'><formula>@ThisValue</formula></code></field><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='6' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata></par></tablecell>
+<tablecell borderwidth='0px'>
+<par def='9'><field type='keyword' kind='editable' name='UseXForwardedFor'><keywords
+ ui='dialoglist'><textlist><text>Yes|Y</text><text>No|N</text></textlist></keywords><code
+ event='inputenabled'><formula>@False</formula></code><code event='defaultvalue'><formula
+>@ThisValue</formula></code></field></par></tablecell>
+<tablecell borderwidth='0px'>
+<par def='10'><field type='keyword' kind='editable' name='UseWSHeaders'><keywords
+ ui='dialoglist'><textlist><text>Yes|Y</text><text>No|N</text></textlist></keywords><code
+ event='inputenabled'><formula>@False</formula></code><code event='defaultvalue'><formula
+>@ThisValue</formula></code></field></par></tablecell></tablerow></table>
+<par def='2'/>
+<par def='5'><run><font size='12pt' style='bold' color='purple'/>Runtime Configuration</run></par>
+<table widthtype='fitmargins' colorstyle='left' bgcolor='#efefef' altbgcolor='white'
+ rowspacing='0.0500in' columnspacing='0.0500in' refwidth='11.1042in'><tablecolumn
+ width='2.5000in'/><tablecolumn width='100%'/>
+<tablerow>
+<tablecell borderwidth='0px'>
+<pardef id='11' keepwithnext='true' keeptogether='true'/>
+<par def='11'>Version</par></tablecell>
+<tablecell borderwidth='0px'>
+<pardef id='12' keepwithnext='true' keeptogether='true'/>
+<par def='12'><field type='keyword' kind='editable' name='LibertyVersion'><keywords
+ ui='dialoglist' allownew='true'><textlist><text>21.0.0.2</text></textlist></keywords><code
+ event='defaultvalue'><formula>"21.0.0.2"</formula></code></field></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='0px'>
+<par def='11'>Artifact <run><font size='8pt' color='gray'/>(advanced)</run></par></tablecell>
+<tablecell borderwidth='0px'>
+<par def='12'><field type='text' kind='editable' name='LibertyArtifact'/><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='6' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata></par>
+<pardef id='13' hide='read print preview' keepwithnext='true' keeptogether='true'/>
+<par def='13'><run><font size='8pt' color='gray'/>Default: io.openliberty:openliberty-runtime</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='0px'>
+<par def='11'>Maven Repo <run><font size='8pt' color='gray'/>(advanced)</run></par></tablecell>
+<tablecell borderwidth='0px'>
+<par def='12'><field type='text' kind='editable' name='LibertyMavenRepo'/><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='6' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata></par>
+<par def='13'><run><font size='8pt' color='gray'/>Default: https://repo.maven.apache.org/maven2/</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='0px'>
+<par def='11'>Java Runtime</par></tablecell>
+<tablecell borderwidth='0px'>
+<pardef id='14' linespacing='1.5' keepwithnext='true' keeptogether='true'/>
+<par def='14'><field lookupeachchar='false' lookupaddressonrefresh='false'
+ type='keyword' kind='editable' name='JavaJVM'><keywords recalconchange='true'
+ columns='2' ui='dialoglist'><textlist><text>Domino|RunningJVM</text><text
+>HotSpot</text><text>OpenJ9</text><text>GraalVM CE|GraalVMCE</text></textlist></keywords><code
+ event='defaultvalue'><formula>"HotSpot"</formula></code></field></par>
+<pardef id='15' linespacing='1.5' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen'><formula>JavaJVM="":"RunningJVM"</formula></code></pardef>
+<par def='15'><field type='keyword' kind='editable' name='JavaVersion'><keywords
+ ui='dialoglist' allownew='true'><textlist><text>1.8 (LTS)|1.8</text><text
+>11 (LTS)|11</text><text>17 (LTS)|17</text></textlist></keywords><code event='defaultvalue'><formula
+>"11"</formula></code></field></par>
+<pardef id='16' linespacing='1.5' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen'><formula>!(JavaJVM="HotSpot")</formula></code></pardef>
+<par def='16'><run><font size='8pt' color='gray'/>HotSpot JVMs are provided by Adoptium's Temurin releases<break
+/>More Information: </run><urllink showborder='false' href='https://adoptium.net'><run
+><font size='8pt' color='gray'/>https://adopium.net</run></urllink></par>
+<pardef id='17' linespacing='1.5' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen'><formula>!(JavaJVM="OpenJ9")</formula></code></pardef>
+<par def='17'><run><font size='8pt' color='gray'/>OpenJ9 JVMs are provided by IBM's Semeru releases<break
+/>More Information:</run><urllink showborder='false' href='https://developer.ibm.com/languages/java/semeru-runtimes/'><run
+><font size='8pt' color='gray'/> </run><run><font size='8pt' color='gray'/>https://developer.ibm.com/languages/java/semeru-runtimes/</run></urllink><run
+><font size='8pt' color='gray'/></run></par>
+<pardef id='18' linespacing='1.5' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen'><formula>!(JavaJVM="GraalVMCE")</formula></code></pardef>
+<par def='18'><run><font size='8pt' color='gray'/>Note: GraalVM only provides downloads for Java LTS releases<break
+/>More Information: </run><run><font size='8pt' color='gray'/>https://www.graalvm.org</run></par></tablecell></tablerow></table>
+<par def='2'/>
+<par def='5'><run><font size='12pt' style='bold' color='purple'/>Server Configuration</run></par>
+<table widthtype='fitmargins' colorstyle='solid' bgcolor='#ffffc2' rowspacing='0.0500in'
+ columnspacing='0.0500in' refwidth='11.1042in'><tablecolumn width='100%'/>
+<tablerow>
+<tablecell borderwidth='0px'>
+<pardef id='19' keepwithnext='true' keeptogether='true'/>
+<par def='19'>Configuration documentation is available <urllink showborder='false'
+ href='https://www.openliberty.io/docs/ref/config/serverConfiguration.html'><run
+><font color='system'/>on openliberty.io</run></urllink></par></tablecell></tablerow></table>
+<par def='2'/>
+<table widthtype='fitmargins' rowdisplay='tabs' rowspacing='0.0500in' columnspacing='0.0500in'
+ refwidth='11.1028in'><tablecolumn width='100%'/>
+<tablerow tablabel='server.xml'>
+<tablecell>
+<pardef id='20' keepwithnext='true' keeptogether='true'/>
+<par def='20'/>
+<table widthtype='fitmargins' leftmargin='0.0104in' colorstyle='left' bgcolor='#efefef'
+ altbgcolor='white' rowspacing='0.0500in' columnspacing='0.0500in' refwidth='10.9924in'><tablecolumn
+ width='2in'/><tablecolumn width='100%'/>
+<tablerow>
+<tablecell borderwidth='0px'>
+<pardef id='22' keepwithnext='true' keeptogether='true'/>
+<par def='22'>Integration Features</par></tablecell>
+<tablecell borderwidth='0px'>
+<pardef id='23' keepwithnext='true' keeptogether='true'/>
+<par def='23'><field type='keyword' allowmultivalues='true' kind='editable'
+ name='IntegrationFeatures' description='Domino server names and groups that deploy this server'
+ listinputseparators='comma semicolon newline' listdisplayseparator='comma'
+ fieldhint='*'><keywords ui='dialoglist'><textlist><text>Domino Runtime|notesRuntime</text><text
+>Domino User Registry|dominoUserRegistry</text><text>Domino API|dominoApi</text></textlist></keywords></field></par></tablecell></tablerow></table>
+<par def='20'/>
+<par def='20'/>
+<par def='20'><run><font name='monospace'/></run><run><font name='monospace'/><field
+ type='text' kind='editable' name='ServerXML'><code event='defaultvalue'><formula
+>"&lt;?xml version=\"1.0\" encoding=\"UTF-8\"?&gt;
 &lt;server description=\"new server\"&gt;
 
     &lt;!-- Enable features --&gt;
@@ -170,99 +268,53 @@ Yg4BAIQAAAAAAAAAAAA=
 
     &lt;!-- Automatically expand WAR files and EAR files --&gt;
     &lt;applicationManager autoExpand=\"true\"/&gt;
-&lt;/server&gt;"</formula>
-                  </code>
-                </field>
-              </run>
-              <compositedata afterbegincount="3" aftercontainercount="1"
-                afterparcount="6" containertype="65418" nexttype="222"
-                prevtype="65418" type="98">
+&lt;/server&gt;"</formula></code></field></run><compositedata type='98' prevtype='65418'
+ nexttype='222' afterparcount='6' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
 Yg4BAIQAAAAAAAAAAAA=
-</compositedata>
-            </par>
-          </tablecell>
-        </tablerow>
-        <tablerow tablabel="server.env">
-          <tablecell>
-            <par def="6">
-              <run>
-                <font name="monospace"/>
-                <field kind="editable" name="ServerEnv" type="text"/>
-              </run>
-              <compositedata afterbegincount="3" aftercontainercount="1"
-                afterparcount="6" containertype="65418" nexttype="222"
-                prevtype="65418" type="98">
+</compositedata></par></tablecell></tablerow>
+<tablerow tablabel='server.env'>
+<tablecell>
+<par def='20'><run><font name='monospace'/></run><run><font name='monospace'/><field
+ type='text' kind='editable' name='ServerEnv'/></run><compositedata type='98'
+ prevtype='65418' nexttype='222' afterparcount='6' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
 Yg4BAIQAAAAAAAAAAAA=
-</compositedata>
-            </par>
-          </tablecell>
-        </tablerow>
-        <tablerow tablabel="jvm.options">
-          <tablecell>
-            <par def="6">
-              <run>
-                <font name="monospace"/>
-                <field kind="editable" name="JvmOptions" type="text"/>
-              </run>
-              <compositedata afterbegincount="3" aftercontainercount="1"
-                afterparcount="6" containertype="65418" nexttype="222"
-                prevtype="65418" type="98">
+</compositedata></par></tablecell></tablerow>
+<tablerow tablabel='jvm.options'>
+<tablecell>
+<par def='20'><run><font name='monospace'/></run><run><font name='monospace'/><field
+ type='text' kind='editable' name='JvmOptions'/></run><compositedata type='98'
+ prevtype='65418' nexttype='222' afterparcount='6' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
 Yg4BAIQAAAAAAAAAAAA=
-</compositedata>
-            </par>
-          </tablecell>
-        </tablerow>
-        <tablerow tablabel="bootstrap.properties">
-          <tablecell>
-            <par def="6">
-              <run>
-                <font name="monospace"/>
-                <field kind="editable" name="BootstrapProperties" type="text"/>
-              </run>
-              <compositedata afterbegincount="3" aftercontainercount="1"
-                afterparcount="6" containertype="65418" nexttype="222"
-                prevtype="65418" type="98">
+</compositedata></par></tablecell></tablerow>
+<tablerow tablabel='bootstrap.properties'>
+<tablecell>
+<par def='20'><run><font name='monospace'/></run><run><font name='monospace'/><field
+ type='text' kind='editable' name='BootstrapProperties'/></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='6' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
 Yg4BAIQAAAAAAAAAAAA=
-</compositedata>
-            </par>
-          </tablecell>
-        </tablerow>
-        <tablerow tablabel="Additional Deployment ZIPs">
-          <tablecell>
-            <par def="6"/>
-            <pardef id="9" keeptogether="true" keepwithnext="true"/>
-            <par def="9">
-              <run>
-                <font color="gray"/>Any attached ZIP files are expanded in the base directory of the deployed server.</run>
-            </par>
-            <par def="6"/>
-            <par def="6">
-              <field firstdisplay="attachment" kind="editable"
-                name="DeploymentZIPs" onlyallow="attachment" type="richtextlite"/>
-            </par>
-          </tablecell>
-        </tablerow>
-      </table>
-      <subformref name="Footer"/>
-      <pardef align="right" id="10">
-        <code event="hidewhen">
-          <formula>@IsNewDoc</formula>
-        </code>
-      </pardef>
-      <par def="10"/>
-    </richtext>
-  </body>
-  <item name="$SubForm_RepIDs" sign="true">
-    <text>0000000000000000</text>
-  </item>
-  <item name="DateComposed" summary="false">
-    <rawitemdata type="400">
+</compositedata></par></tablecell></tablerow>
+<tablerow tablabel='Additional Deployment ZIPs'>
+<tablecell>
+<par def='20'/>
+<par def='20'><run><font color='gray'/>Any attached ZIP files are expanded in the base directory of the deployed server.</run></par>
+<par def='20'/>
+<par def='20'><field type='richtextlite' kind='editable' name='DeploymentZIPs'
+ onlyallow='attachment' firstdisplay='attachment'/></par></tablecell></tablerow></table><subformref
+ name='Footer'/>
+<pardef id='24' align='right'><code event='hidewhen'><formula>@IsNewDoc</formula></code></pardef>
+<par def='24'/></richtext></body>
+<item name='$SubForm_RepIDs' sign='true'><text>0000000000000000</text></item>
+<item name='$$ScriptName' summary='false' sign='true'><text>Server</text></item>
+<item name='DateComposed' summary='false'>
+<rawitemdata type='400'>
 AAAAAAAAAAA=
-</rawitemdata>
-  </item>
-  <item name="DateModified" summary="false">
-    <rawitemdata type="400">
+</rawitemdata></item>
+<item name='DateModified' summary='false'>
+<rawitemdata type='400'>
 AAAAAAAAAAA=
-</rawitemdata>
-  </item>
-</form>
+</rawitemdata></item></form>
+

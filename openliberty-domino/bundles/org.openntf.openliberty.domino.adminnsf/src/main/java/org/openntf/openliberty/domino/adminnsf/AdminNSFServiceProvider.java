@@ -1,5 +1,5 @@
 /*
- * Copyright © 2018-2020 Jesse Gallagher
+ * Copyright © 2018-2021 Jesse Gallagher
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package org.openntf.openliberty.domino.adminnsf;
 
+import java.util.EventObject;
 import java.util.concurrent.TimeUnit;
 
 import org.openntf.openliberty.domino.ext.RuntimeService;
@@ -24,7 +25,17 @@ public class AdminNSFServiceProvider implements RuntimeService {
 
 	@Override
 	public void run() {
-		DominoThreadFactory.scheduler.scheduleWithFixedDelay(new AdminNSFService(), 0, 30, TimeUnit.SECONDS);
+		DominoThreadFactory.getScheduler().scheduleWithFixedDelay(AdminNSFService.instance, 0, 30, TimeUnit.SECONDS);
+	}
+	
+	@Override
+	public void notifyMessage(EventObject event) {
+		// NOP
+	}
+	
+	@Override
+	public void close() {
+		AdminNSFService.instance.reset();
 	}
 
 }

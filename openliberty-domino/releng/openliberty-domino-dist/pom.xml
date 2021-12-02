@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.openntf</groupId>
 		<artifactId>openliberty-domino</artifactId>
-		<version>2.0.0</version>
+		<version>3.0.0</version>
 		<relativePath>../..</relativePath>
 	</parent>
 	<artifactId>openliberty-domino-dist</artifactId>
@@ -37,6 +37,13 @@
 			<groupId>${project.groupId}</groupId>
 			<artifactId>org.openntf.openliberty.domino.runjava</artifactId>
 			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>org.openntf.openliberty.domino.httpapi</artifactId>
+			<version>${project.version}</version>
+			<classifier>openapi</classifier>
+			<type>yaml</type>
 		</dependency>
 	</dependencies>
 

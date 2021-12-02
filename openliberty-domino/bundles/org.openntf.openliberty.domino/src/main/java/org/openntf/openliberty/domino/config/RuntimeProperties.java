@@ -1,5 +1,5 @@
 /*
- * Copyright © 2018-2020 Jesse Gallagher
+ * Copyright © 2018-2021 Jesse Gallagher
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,11 @@ package org.openntf.openliberty.domino.config;
 
 import java.util.ResourceBundle;
 
+/**
+ * Provides static runtime properties bundled with the installation.
+ * 
+ * @author Jesse Gallagher
+ */
 public enum RuntimeProperties {
 	instance;
 	
