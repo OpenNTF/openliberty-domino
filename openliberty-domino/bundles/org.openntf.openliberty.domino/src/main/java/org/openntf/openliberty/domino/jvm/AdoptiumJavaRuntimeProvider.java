@@ -34,24 +34,23 @@ import org.openntf.openliberty.domino.util.commons.ibm.StringUtil;
 
 /**
  * Implementation of {@link JavaRuntimeProvider} that downloads and references
- * a build from AdoptOpenJDK.
+ * a build from Adoptium's Temurin distribution.
  * 
  * @author Jesse Gallagher
  * @since 3.0.0
  */
-public class AdoptOpenJDKJavaRuntimeProvider extends AbstractDownloadingJavaRuntimeProvider {
+public class AdoptiumJavaRuntimeProvider extends AbstractDownloadingJavaRuntimeProvider {
 	private static final Logger log = OpenLibertyLog.instance.log;
 	
-	public static final String API_RELEASES = "https://api.github.com/repos/AdoptOpenJDK/openjdk{0}-binaries/releases?per_page=100"; //$NON-NLS-1$
+	public static final String API_RELEASES = "https://api.github.com/repos/adoptium/temurin{0}-binaries/releases?per_page=100"; //$NON-NLS-1$
 	
 	public static final String TYPE_HOTSPOT = "HotSpot"; //$NON-NLS-1$
-	public static final String TYPE_OPENJ9 = "OpenJ9"; //$NON-NLS-1$
 	
-	public static final String PROVIDER_NAME = "AdoptOpenJDK"; //$NON-NLS-1$
+	public static final String PROVIDER_NAME = "Adoptium Temurin"; //$NON-NLS-1$
 	
 	@Override
 	public boolean canProvide(JVMIdentifier identifier) {
-		return TYPE_HOTSPOT.equals(identifier.getType()) || TYPE_OPENJ9.equals(identifier.getType());
+		return TYPE_HOTSPOT.equals(identifier.getType());
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -62,7 +61,6 @@ public class AdoptOpenJDKJavaRuntimeProvider extends AbstractDownloadingJavaRunt
 		if(StringUtil.isEmpty(javaJvm)) {
 			javaJvm = "HotSpot"; //$NON-NLS-1$
 		}
-		boolean isJ9 = "OpenJ9".equals(javaJvm); //$NON-NLS-1$
 		if(log.isLoggable(Level.FINE)) {
 			log.fine(format(Messages.getString("JavaRuntimeProvider.configuredJavaRuntimeWithJVM"), version , javaJvm)); //$NON-NLS-1$
 		}	
@@ -93,14 +91,6 @@ public class AdoptOpenJDKJavaRuntimeProvider extends AbstractDownloadingJavaRunt
 		List<Map<String, Object>> validReleases = releases.stream()
 			.filter(release -> !(Boolean)release.get("prerelease")) //$NON-NLS-1$
 			.filter(release -> !(Boolean)release.get("draft")) //$NON-NLS-1$
-			.filter(release -> {
-				String name = StringUtil.toString(release.get("name")); //$NON-NLS-1$
-				if(isJ9) {
-					return name.contains("_openj9"); //$NON-NLS-1$
-				} else {
-					return !name.contains("_openj9"); //$NON-NLS-1$
-				}
-			})
 			.filter(release -> release.containsKey("assets")) //$NON-NLS-1$
 			.collect(Collectors.toList());
 		if(validReleases.isEmpty()) {
@@ -111,9 +101,6 @@ public class AdoptOpenJDKJavaRuntimeProvider extends AbstractDownloadingJavaRunt
 		//    Linux: https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.6%2B10/OpenJDK11U-jdk_x64_linux_hotspot_11.0.6_10.tar.gz
 		//    Windows x64: https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.6%2B10/OpenJDK11U-jdk_x64_windows_hotspot_11.0.6_10.zip
 		//    Windows x86: https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.6%2B10/OpenJDK11U-jdk_x86-32_windows_hotspot_11.0.6_10.zip
-		// OpenJ9:
-		//    Linux: https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.6%2B10_openj9-0.18.1/OpenJDK11U-jdk_x64_linux_openj9_11.0.6_10_openj9-0.18.1.tar.gz
-		//    Windows x64: https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.6%2B10_openj9-0.18.1/OpenJDK11U-jdk_x64_windows_openj9_11.0.6_10_openj9-0.18.1.zip
 		String qualifier = format("jdk_{0}_{1}", getOsArch(), getOsName()); //$NON-NLS-1$
 		Map<String, Object> download = validReleases.stream()
 			.map(release -> (List<Map<String, Object>>)release.get("assets")) //$NON-NLS-1$
