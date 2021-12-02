@@ -10,8 +10,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.LinkedHashSet;
@@ -201,9 +199,9 @@ public class NotesAPIExtension implements LibertyExtensionDeployer {
 	}
 	
 	private Optional<Path> findOsgiEmbed(String bundleName, String embedName) {
-		String osgiSys = AccessController.doPrivileged((PrivilegedAction<String>)() -> System.getProperty("osgi.syspath")); //$NON-NLS-1$
-		Path osgiSysPath = Paths.get(osgiSys);
-		Path osgiSharedPath = osgiSysPath.getParent().getParent().getParent().resolve("shared").resolve("eclipse").resolve("plugins"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		RuntimeConfigurationProvider config = OpenLibertyUtil.findRequiredExtension(RuntimeConfigurationProvider.class);
+		Path domino = config.getDominoProgramDirectory();
+		Path osgiSharedPath = domino.resolve("osgi").resolve("shared").resolve("eclipse").resolve("plugins"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		if(Files.isDirectory(osgiSharedPath)) {
 			try {
 				return Files.find(osgiSharedPath, 1, (path, attr) -> path.getFileName().toString().startsWith(bundleName + '_'))

@@ -25,6 +25,9 @@ import java.nio.file.Path;
  * @since 3.0.0
  */
 public interface RuntimeConfigurationProvider {
+	/**
+	 * @return the base working directory for the runtime
+	 */
 	Path getBaseDirectory();
 	
 	/**
@@ -50,4 +53,10 @@ public interface RuntimeConfigurationProvider {
 	 * @since 3.0.0
 	 */
 	String getDominoVersion();
+	
+	/**
+	 * @return the current Domino executable directory
+	 * @since 3.0.0
+	 */
+	Path getDominoProgramDirectory();
 }

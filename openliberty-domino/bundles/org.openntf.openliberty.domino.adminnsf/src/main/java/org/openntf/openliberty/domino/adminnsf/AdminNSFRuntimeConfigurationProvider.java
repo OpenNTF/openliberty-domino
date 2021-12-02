@@ -41,6 +41,7 @@ public class AdminNSFRuntimeConfigurationProvider implements RuntimeConfiguratio
 	private boolean dominoHttps;
 	private boolean dominoConnectorHeaders;
 	private String dominoVersion;
+	private Path dominoProgramDirectory;
 
 	@Override
 	public Path getBaseDirectory() {
@@ -77,6 +78,12 @@ public class AdminNSFRuntimeConfigurationProvider implements RuntimeConfiguratio
 		if(this.dominoVersion == null) { loadData(); }
 		return this.dominoVersion;
 	}
+	
+	@Override
+	public Path getDominoProgramDirectory() {
+		if(this.dominoProgramDirectory == null) { loadData(); }
+		return this.dominoProgramDirectory;
+	}
 
 	private synchronized void loadData() {
 		try {
@@ -84,6 +91,7 @@ public class AdminNSFRuntimeConfigurationProvider implements RuntimeConfiguratio
 				Session session = NotesFactory.createSession();
 				try {
 					this.dominoVersion = StringUtil.toString(session.evaluate(" @Version ").get(0)); //$NON-NLS-1$
+					this.dominoProgramDirectory = Paths.get(OpenLibertyUtil.getDominoProgramDirectory());
 					
 					// Read configuration from the Runtime configuration NSF
 					Database adminNsf = AdminNSFUtil.getAdminDatabase(session);
@@ -92,7 +100,7 @@ public class AdminNSFRuntimeConfigurationProvider implements RuntimeConfiguratio
 					Path execDir;
 					if(StringUtil.isEmpty(execDirName)) {
 						if(OpenLibertyUtil.IS_WINDOWS) {
-							execDir = Paths.get(OpenLibertyUtil.getDominoProgramDirectory()).resolve("wlp"); //$NON-NLS-1$
+							execDir = this.dominoProgramDirectory.resolve("wlp"); //$NON-NLS-1$
 						} else {
 							execDir = Paths.get(OpenLibertyUtil.getDominoDataDirectory()).resolve("wlp"); //$NON-NLS-1$
 						}
