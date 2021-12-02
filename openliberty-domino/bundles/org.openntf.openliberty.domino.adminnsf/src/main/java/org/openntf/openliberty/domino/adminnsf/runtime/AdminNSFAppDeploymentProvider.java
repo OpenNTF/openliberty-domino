@@ -98,7 +98,7 @@ public class AdminNSFAppDeploymentProvider implements AppDeploymentProvider {
 					// Determine whether to change an existing value
 					String existing = appDoc.getItemValueString(ITEM_CONTEXTPATH);
 					if(StringUtil.isEmpty(existing)) {
-						path = appName;
+						path = "/" + appName; //$NON-NLS-1$
 						appDoc.replaceItemValue(ITEM_CONTEXTPATH, path);
 					}
 				} else {

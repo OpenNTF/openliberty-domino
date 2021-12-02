@@ -325,7 +325,7 @@ public enum AdminNSFService implements Runnable {
 						String appName = dropinDoc.getItemValueString(ITEM_APPNAME);
 						String contextPath = dropinDoc.getItemValueString(ITEM_CONTEXTPATH);
 						if(StringUtil.isEmpty(contextPath)) {
-							contextPath = appName;
+							contextPath = "/" + appName; //$NON-NLS-1$
 						}
 						
 						// Generate a name based on the modification time, to avoid Windows file-locking trouble
