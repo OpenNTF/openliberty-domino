@@ -151,14 +151,10 @@ public class NotesAPIExtension implements LibertyExtensionDeployer {
 			zos.putNextEntry(new ZipEntry("META-INF/MANIFEST.MF")); //$NON-NLS-1$
 			manifest.write(zos);
 			
-			embeds.forEach(jar -> {
-				try {
-					zos.putNextEntry(new ZipEntry(jar.getFileName().toString()));
-					Files.copy(jar, zos);
-				} catch (IOException e) {
-					throw new UncheckedIOException(e);
-				}
-			});
+			for(Path jar : embeds) {
+				zos.putNextEntry(new ZipEntry(jar.getFileName().toString()));
+				Files.copy(jar, zos);
+			}
 			
 			// Copy in CORBA to support Notes.jar in Java > 8
 			OpenLibertyUtil.download(new URL(URL_CORBA), is -> {
