@@ -132,7 +132,7 @@ public class NotesAPIExtension implements LibertyExtensionDeployer {
 		// Build the embedded JAR contents
 		try(ZipOutputStream zos = new ZipOutputStream(esa, StandardCharsets.UTF_8)) {
 			Manifest manifest;
-			try(InputStream is = getClass().getResourceAsStream("/subsystem-template.mf")) { //$NON-NLS-1$
+			try(InputStream is = getClass().getResourceAsStream("/manifest-template.mf")) { //$NON-NLS-1$
 				manifest = new Manifest(is);
 			}
 			Attributes attrs = manifest.getMainAttributes();
