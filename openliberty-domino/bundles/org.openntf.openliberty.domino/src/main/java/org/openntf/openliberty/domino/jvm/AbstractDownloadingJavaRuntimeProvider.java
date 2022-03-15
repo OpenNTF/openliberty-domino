@@ -70,17 +70,21 @@ public abstract class AbstractDownloadingJavaRuntimeProvider implements JavaRunt
 		// TODO consider replacing with NIO filesystem operations, though they don't inherently support .tar.gz
 		try {
 			OpenLibertyUtil.download(new URL(url), is -> {
-				if("application/zip".equals(contentType)) { //$NON-NLS-1$
+				switch(String.valueOf(contentType)) {
+				case "application/zip": //$NON-NLS-1$
 					try(ZipInputStream zis = new ZipInputStream(is)) {
 						extract(zis, jvmDir);
 					}
-				} else if("application/x-compressed-tar".equals(contentType)) { //$NON-NLS-1$
+					break;
+				case "application/x-compressed-tar": //$NON-NLS-1$
+				case "application/gzip": //$NON-NLS-1$
 					try(GZIPInputStream gzis = new GZIPInputStream(is)) {
 						try(TarArchiveInputStream tis = new TarArchiveInputStream(gzis)) {
 							extract(tis, jvmDir);
 						}
 					}
-				} else {
+					break;
+				default:
 					throw new IllegalStateException(format(Messages.getString("JavaRuntimeProvider.unsupportedContentType"), contentType)); //$NON-NLS-1$
 				}
 				return null;
