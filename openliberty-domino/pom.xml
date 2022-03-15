@@ -195,7 +195,7 @@
 					</excludes>
 					<properties>
 						<owner>Jesse Gallagher</owner>
-						<copyrightYear>2021</copyrightYear>
+						<copyrightYear>2022</copyrightYear>
 					</properties>
 					<mapping>
 						<java>SLASHSTAR_STYLE</java>
