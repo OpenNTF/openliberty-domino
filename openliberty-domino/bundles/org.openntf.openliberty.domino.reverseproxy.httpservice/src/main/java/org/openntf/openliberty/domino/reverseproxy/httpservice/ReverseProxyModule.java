@@ -155,7 +155,7 @@ public class ReverseProxyModule extends ComponentModule {
 				copyResponseEntity(proxyResponse, servletResponse, proxyRequest, servletRequest);
 			}
 
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			handleRequestException(proxyRequest, e);
 		} finally {
 			// make sure the entire entity was consumed, so the connection is released
@@ -174,6 +174,7 @@ public class ReverseProxyModule extends ComponentModule {
 		return HttpClientBuilder.create()
 			.setDefaultRequestConfig(buildRequestConfig())
 			.setConnectionManager(new PoolingHttpClientConnectionManager())
+			.disableRedirectHandling()
 			.build();
 	}
 	
@@ -181,7 +182,7 @@ public class ReverseProxyModule extends ComponentModule {
 		return RequestConfig.custom().setCookieSpec(CookieSpecs.IGNORE_COOKIES).build();
 	}
 	
-	private void handleRequestException(HttpRequest proxyRequest, Exception e) throws ServletException, IOException {
+	private void handleRequestException(HttpRequest proxyRequest, Throwable e) throws ServletException, IOException {
 
 		// Special handling for an empty exception when the client terminates the connection.
 		Throwable root = e;
