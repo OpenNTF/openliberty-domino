@@ -28,11 +28,6 @@
 			<artifactId>com.ibm.commons</artifactId>
 			<scope>provided</scope>
 		</dependency>
-		<dependency>
-			<groupId>com.ibm.sbt</groupId>
-			<artifactId>com.ibm.commons.xml</artifactId>
-			<scope>provided</scope>
-		</dependency>
 		
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
