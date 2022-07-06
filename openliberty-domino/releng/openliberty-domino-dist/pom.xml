@@ -38,13 +38,6 @@
 			<artifactId>org.openntf.openliberty.domino.runjava</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>org.openntf.openliberty.domino.httpapi</artifactId>
-			<version>${project.version}</version>
-			<classifier>openapi</classifier>
-			<type>yaml</type>
-		</dependency>
 	</dependencies>
 
 	<build>
