@@ -1,16 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<view allowcustomizations="false" allownewdocuments="false"
-  altrowcolor="#efefef" bgcolor="white" boldunreadrows="false"
-  comment="Provides programmatic lookup of servers and app documents"
-  evaluateactions="false" extendlastcolumn="true" gridcolor="white"
-  gridstyle="solid" headerbgcolor="white" headerlinecount="1"
-  headers="beveled" hidemarginborder="false" marginbgcolor="white"
-  marginwidth="0px" name="(ServersAndApps)" onopengoto="lastopened"
-  onrefresh="displayindicator" opencollapsed="false"
-  publicaccess="false" rowlinecount="1" rowspacing="1"
-  showhierarchies="false" showinmenu="false" showmargin="true"
-  showresponsehierarchy="true" shrinkrows="false" totalscolor="black"
-  uniquekeys="false" unreadcolor="black" unreadmarks="none" xmlns="http://www.lotus.com/dxl">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<view xmlns="http://www.lotus.com/dxl" allowcustomizations="false" allownewdocuments="false" altrowcolor="#efefef" bgcolor="white" boldunreadrows="false" comment="Provides programmatic lookup of servers and app documents" evaluateactions="false" extendlastcolumn="true" gridcolor="white" gridstyle="solid" headerbgcolor="white" headerlinecount="1" headers="beveled" hidemarginborder="false" marginbgcolor="white" marginwidth="0px" name="(ServersAndApps)" onopengoto="lastopened" onrefresh="displayindicator" opencollapsed="false" publicaccess="false" rowlinecount="1" rowspacing="1" showhierarchies="false" showinmenu="false" showmargin="true" showresponsehierarchy="true" shrinkrows="false" totalscolor="black" uniquekeys="false" unreadcolor="black" unreadmarks="none">
   <code event="selection">
     <formula>SELECT Form="Server":"DropinApp" &amp; !@IsAvailable($Conflict)</formula>
   </code>
@@ -19,16 +8,12 @@
     <font color="system"/>
     <border style="solid" width="0px 0px 1px"/>
   </actionbar>
-  <column hidedetailrows="false" itemname="AppName" resizable="true"
-    responsesonly="true" separatemultiplevalues="false"
-    showaslinks="false" sortnoaccent="false" sortnocase="true" width="1.1250">
+  <column hidedetailrows="false" itemname="AppName" resizable="true" responsesonly="true" separatemultiplevalues="false" showaslinks="false" sortnoaccent="false" sortnocase="true" width="1.1250">
     <columnheader>
       <font size="9pt" style="bold"/>
     </columnheader>
   </column>
-  <column hidedetailrows="false" itemname="Name" resizable="true"
-    separatemultiplevalues="false" showaslinks="false" sort="ascending"
-    sortnoaccent="false" sortnocase="true" width="10">
+  <column hidedetailrows="false" itemname="Name" resizable="true" separatemultiplevalues="false" showaslinks="false" sort="ascending" sortnoaccent="false" sortnocase="true" width="10">
     <columnheader title="Name">
       <font size="9pt" style="bold"/>
     </columnheader>

@@ -1,7 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<form alias="FormulaConsole" hide="web mobile" name="* Formula Console"
-  nocompose="true" nofieldindex="true" noquery="true"
-  publicaccess="false" renderpassthrough="true" xmlns="http://www.lotus.com/dxl">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<form xmlns="http://www.lotus.com/dxl" alias="FormulaConsole" hide="web mobile" name="* Formula Console" nocompose="true" nofieldindex="true" noquery="true" publicaccess="false" renderpassthrough="true">
   <globals>
     <code event="options">
       <lotusscript>Option Public
@@ -36,9 +34,7 @@ End Sub</lotusscript>
             <formula>0</formula>
           </code>
         </field>
-        <compositedata afterbegincount="3" aftercontainercount="1"
-          afterparcount="7" containertype="65418" nexttype="222"
-          prevtype="65418" type="98">
+        <compositedata afterbegincount="3" aftercontainercount="1" afterparcount="7" containertype="65418" nexttype="222" prevtype="65418" type="98">
 Yg4BAIQAAAAAAAAAAAA=
 </compositedata>
       </par>
@@ -53,8 +49,7 @@ Yg4BAIQAAAAAAAAAAAA=
           <font size="14pt" style="bold"/>Formula Console</run>
       </par>
       <par def="2"/>
-      <table columnspacing="0.1000in" refwidth="10.1340in"
-        rowdisplay="tabs" rowspacing="0.1000in" widthtype="fitmargins">
+      <table columnspacing="0.1000in" refwidth="10.1340in" rowdisplay="tabs" rowspacing="0.1000in" widthtype="fitmargins">
         <tablecolumn width="100%"/>
         <tablerow tablabel="Formula">
           <tablecell>
@@ -68,15 +63,12 @@ Yg4BAIQAAAAAAAAAAAA=
                 <font name="monospace"/>
                 <field kind="editable" name="Input" type="text"/>
               </run>
-              <compositedata afterbegincount="3" aftercontainercount="1"
-                afterparcount="6" containertype="65418" nexttype="222"
-                prevtype="65418" type="98">
+              <compositedata afterbegincount="3" aftercontainercount="1" afterparcount="6" containertype="65418" nexttype="222" prevtype="65418" type="98">
 Yg4BAIQAAAAAAAAAAAA=
 </compositedata>
             </par>
             <par def="4">
-              <button bgcolor="system" default="true" maxlines="1"
-                width="2in" widthtype="maximum" wraptext="true">
+              <button bgcolor="system" default="true" maxlines="1" width="2in" widthtype="maximum" wraptext="true">
                 <code event="click">
                   <formula>errors := @CheckFormulaSyntax(Input);
 FIELD ErrorOutput := @If(
@@ -99,19 +91,13 @@ FIELD Output := @Eval(Input);
                   <par def="4">
                     <run>
                       <font name="monospace"/>
-                      <field allowmultivalues="true" kind="editable"
-                        listdisplayseparator="newline"
-                        listinputseparators="newline" name="Output"
-                        showdelimiters="false" type="text">
+                      <field allowmultivalues="true" kind="editable" listdisplayseparator="newline" listinputseparators="newline" name="Output" showdelimiters="false" type="text">
                         <code event="defaultvalue">
                           <formula>""</formula>
                         </code>
                       </field>
                     </run>
-                    <compositedata afterbegincount="4"
-                      aftercontainercount="1" afterparcount="7"
-                      containertype="65418" nexttype="222"
-                      prevtype="65418" type="98">
+                    <compositedata afterbegincount="4" aftercontainercount="1" afterparcount="7" containertype="65418" nexttype="222" prevtype="65418" type="98">
 Yg4BAIQAAAAAAAAAAAA=
 </compositedata>
                   </par>
@@ -130,19 +116,13 @@ Yg4BAIQAAAAAAAAAAAA=
                   <par def="4">
                     <run>
                       <font name="monospace"/>
-                      <field allowmultivalues="true" kind="editable"
-                        listdisplayseparator="newline"
-                        listinputseparators="newline" name="ErrorOutput"
-                        showdelimiters="false" type="text">
+                      <field allowmultivalues="true" kind="editable" listdisplayseparator="newline" listinputseparators="newline" name="ErrorOutput" showdelimiters="false" type="text">
                         <code event="defaultvalue">
                           <formula>""</formula>
                         </code>
                       </field>
                     </run>
-                    <compositedata afterbegincount="4"
-                      aftercontainercount="1" afterparcount="7"
-                      containertype="65418" nexttype="222"
-                      prevtype="65418" type="98">
+                    <compositedata afterbegincount="4" aftercontainercount="1" afterparcount="7" containertype="65418" nexttype="222" prevtype="65418" type="98">
 Yg4BAIQAAAAAAAAAAAA=
 </compositedata>
                   </par>
@@ -162,16 +142,12 @@ Yg4BAIQAAAAAAAAAAAA=
                 <font name="monospace"/>
                 <field kind="editable" name="LSInput" type="text"/>
               </run>
-              <compositedata afterbegincount="3" aftercontainercount="1"
-                afterparcount="6" containertype="65418" nexttype="222"
-                prevtype="65418" type="98">
+              <compositedata afterbegincount="3" aftercontainercount="1" afterparcount="6" containertype="65418" nexttype="222" prevtype="65418" type="98">
 Yg4BAIQAAAAAAAAAAAA=
 </compositedata>
             </par>
             <par def="4">
-              <button bgcolor="system" default="true" maxlines="1"
-                width="2in" widthtype="maximum"
-                  wraptext="true">Evaluate<code event="click">
+              <button bgcolor="system" default="true" maxlines="1" width="2in" widthtype="maximum" wraptext="true">Evaluate<code event="click">
                   <lotusscript>Sub Click(Source As Button)
 	On Error Goto errorHandler
 	
@@ -202,10 +178,7 @@ End Sub</lotusscript>
                   <par def="4">
                     <run>
                       <font name="monospace"/>
-                      <field allowmultivalues="true" kind="editable"
-                        listdisplayseparator="newline"
-                        listinputseparators="newline" name="LSOutput"
-                        showdelimiters="false" type="text">
+                      <field allowmultivalues="true" kind="editable" listdisplayseparator="newline" listinputseparators="newline" name="LSOutput" showdelimiters="false" type="text">
                         <code event="inputenabled">
                           <formula>@False</formula>
                         </code>
@@ -214,10 +187,7 @@ End Sub</lotusscript>
                         </code>
                       </field>
                     </run>
-                    <compositedata afterbegincount="4"
-                      aftercontainercount="1" afterparcount="7"
-                      containertype="65418" nexttype="222"
-                      prevtype="65418" type="98">
+                    <compositedata afterbegincount="4" aftercontainercount="1" afterparcount="7" containertype="65418" nexttype="222" prevtype="65418" type="98">
 Yg4BAIQAAAAAAAAAAAA=
 </compositedata>
                   </par>
@@ -236,10 +206,7 @@ Yg4BAIQAAAAAAAAAAAA=
                   <par def="4">
                     <run>
                       <font name="monospace"/>
-                      <field allowmultivalues="true" kind="editable"
-                        listdisplayseparator="newline"
-                        listinputseparators="newline"
-                        name="LSErrorOutput" showdelimiters="false" type="text">
+                      <field allowmultivalues="true" kind="editable" listdisplayseparator="newline" listinputseparators="newline" name="LSErrorOutput" showdelimiters="false" type="text">
                         <code event="inputenabled">
                           <formula>@False</formula>
                         </code>
@@ -248,10 +215,7 @@ Yg4BAIQAAAAAAAAAAAA=
                         </code>
                       </field>
                     </run>
-                    <compositedata afterbegincount="4"
-                      aftercontainercount="1" afterparcount="7"
-                      containertype="65418" nexttype="222"
-                      prevtype="65418" type="98">
+                    <compositedata afterbegincount="4" aftercontainercount="1" afterparcount="7" containertype="65418" nexttype="222" prevtype="65418" type="98">
 Yg4BAIQAAAAAAAAAAAA=
 </compositedata>
                   </par>
@@ -274,15 +238,12 @@ Yg4BAIQAAAAAAAAAAAA=
       </par>
       <par def="1">
         <field kind="editable" name="TimeInput" type="text"/>
-        <compositedata afterbegincount="3" aftercontainercount="1"
-          afterparcount="6" containertype="65418" nexttype="222"
-          prevtype="65418" type="98">
+        <compositedata afterbegincount="3" aftercontainercount="1" afterparcount="6" containertype="65418" nexttype="222" prevtype="65418" type="98">
 Yg4BAIQAAAAAAAAAAAA=
 </compositedata>
       </par>
       <par def="1">
-        <button bgcolor="system" maxlines="1" width="2in"
-          widthtype="maximum" wraptext="true">Process<code event="click">
+        <button bgcolor="system" maxlines="1" width="2in" widthtype="maximum" wraptext="true">Process<code event="click">
             <lotusscript>Sub Click(Source As Button)
 	Dim ws As New NotesUIWorkspace
 	Dim doc As NotesUIDocument
@@ -371,8 +332,7 @@ End Sub</lotusscript>
       </par>
       <par def="1"/>
       <par def="1"/>
-      <table cellbordercolor="gray" columnspacing="0.0500in"
-        refwidth="8.1208in" rowspacing="0.0500in" widthtype="fixedleft">
+      <table cellbordercolor="gray" columnspacing="0.0500in" refwidth="8.1208in" rowspacing="0.0500in" widthtype="fixedleft">
         <tablecolumn width="1in"/>
         <tablecolumn width="6.9208in"/>
         <tablerow>
@@ -388,17 +348,13 @@ End Sub</lotusscript>
                   <formula>""</formula>
                 </code>
               </field>
-              <compositedata afterbegincount="3" aftercontainercount="1"
-                afterparcount="7" containertype="65418" nexttype="222"
-                prevtype="65418" type="98">
+              <compositedata afterbegincount="3" aftercontainercount="1" afterparcount="7" containertype="65418" nexttype="222" prevtype="65418" type="98">
 Yg4BAIQAAAAAAAAAAAA=
 </compositedata>
             </par>
             <par def="7">
               <field kind="editable" name="FormulaTime" type="text"/>
-              <compositedata afterbegincount="3" aftercontainercount="1"
-                afterparcount="6" containertype="65418" nexttype="222"
-                prevtype="65418" type="98">
+              <compositedata afterbegincount="3" aftercontainercount="1" afterparcount="6" containertype="65418" nexttype="222" prevtype="65418" type="98">
 Yg4BAIQAAAAAAAAAAAA=
 </compositedata>
             </par>
@@ -415,17 +371,13 @@ Yg4BAIQAAAAAAAAAAAA=
                   <formula>""</formula>
                 </code>
               </field>
-              <compositedata afterbegincount="3" aftercontainercount="1"
-                afterparcount="6" containertype="65418" nexttype="222"
-                prevtype="65418" type="98">
+              <compositedata afterbegincount="3" aftercontainercount="1" afterparcount="6" containertype="65418" nexttype="222" prevtype="65418" type="98">
 Yg4BAIQAAAAAAAAAAAA=
 </compositedata>
             </par>
             <par def="7">
               <field kind="editable" name="LSTime" type="text"/>
-              <compositedata afterbegincount="3" aftercontainercount="1"
-                afterparcount="6" containertype="65418" nexttype="222"
-                prevtype="65418" type="98">
+              <compositedata afterbegincount="3" aftercontainercount="1" afterparcount="6" containertype="65418" nexttype="222" prevtype="65418" type="98">
 Yg4BAIQAAAAAAAAAAAA=
 </compositedata>
             </par>
@@ -438,9 +390,7 @@ Yg4BAIQAAAAAAAAAAAA=
           <tablecell>
             <par def="7">
               <field kind="editable" name="TimeOutputComparison" type="text"/>
-              <compositedata afterbegincount="3" aftercontainercount="1"
-                afterparcount="6" containertype="65418" nexttype="222"
-                prevtype="65418" type="98">
+              <compositedata afterbegincount="3" aftercontainercount="1" afterparcount="6" containertype="65418" nexttype="222" prevtype="65418" type="98">
 Yg4BAIQAAAAAAAAAAAA=
 </compositedata>
             </par>

@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<form default="true" hide="web" name="Default Form" nocompose="true"
-  noquery="true" publicaccess="false" renderpassthrough="true" xmlns="http://www.lotus.com/dxl">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<form xmlns="http://www.lotus.com/dxl" default="true" hide="web" name="Default Form" nocompose="true" noquery="true" publicaccess="false" renderpassthrough="true">
   <code event="windowtitle">
     <formula>Form</formula>
   </code>
@@ -81,9 +80,7 @@ End Sub</lotusscript>
             <formula>"0"</formula>
           </code>
         </field>
-        <compositedata afterbegincount="3" aftercontainercount="1"
-          afterparcount="7" containertype="65418" nexttype="222"
-          prevtype="65418" type="98">
+        <compositedata afterbegincount="3" aftercontainercount="1" afterparcount="7" containertype="65418" nexttype="222" prevtype="65418" type="98">
 Yg4BAIQAAAAAAAAAAAA=
 </compositedata>
       </par>
@@ -122,9 +119,7 @@ Yg4BAIQAAAAAAAAAAAA=
             </code>
           </field>
         </run>
-        <compositedata afterbegincount="3" aftercontainercount="1"
-          afterparcount="6" containertype="65418" nexttype="222"
-          prevtype="65418" type="98">
+        <compositedata afterbegincount="3" aftercontainercount="1" afterparcount="6" containertype="65418" nexttype="222" prevtype="65418" type="98">
 Yg4BAIQAAAAAAAEAAAA=
 </compositedata>
       </par>

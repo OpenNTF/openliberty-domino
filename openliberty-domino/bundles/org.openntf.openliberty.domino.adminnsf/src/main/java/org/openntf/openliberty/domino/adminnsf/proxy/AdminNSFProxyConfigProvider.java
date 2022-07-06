@@ -125,26 +125,14 @@ public class AdminNSFProxyConfigProvider implements ReverseProxyConfigProvider {
 							boolean shouldRun = AdminNSFUtil.isNamesListMatch(namesList, dominoServers);
 							if(shouldRun) {
 								// Format: http://localhost:80
-								String baseUri = (String)columnValues.get(1);
+								String baseUri = (String)columnValues.get(0);
+								String contextPath = (String)columnValues.get(1);
 								boolean useXForwardedFor = "Y".equals(columnValues.get(2)); //$NON-NLS-1$
 								boolean useWsHeaders = "Y".equals(columnValues.get(3)); //$NON-NLS-1$
 								
-								// Now read the children to build targets
-								ViewEntry childEntry = nav.getChild(entry);
-								while(childEntry != null) {
-									Vector<?> childValues = childEntry.getColumnValues();
-									// Format: foo
-									String contextPath = (String)childValues.get(0);
-									
-									URI uri = URI.create(baseUri + "/" + contextPath); //$NON-NLS-1$
-									ReverseProxyTarget target = new ReverseProxyTarget(uri, useXForwardedFor, useWsHeaders);
-									result.addTarget(contextPath, target);
-									
-									childEntry.recycle(childValues);
-									ViewEntry tempChild = childEntry;
-									childEntry = nav.getNextSibling(childEntry);
-									tempChild.recycle();
-								}
+								URI uri = URI.create(baseUri + "/" + contextPath); //$NON-NLS-1$
+								ReverseProxyTarget target = new ReverseProxyTarget(uri, useXForwardedFor, useWsHeaders);
+								result.addTarget(contextPath, target);
 							}
 							
 							entry.recycle(columnValues);

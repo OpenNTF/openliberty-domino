@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<subform xmlns="http://www.lotus.com/dxl" name="AppBasics" renderpassthrough="true">
+  <body>
+    <richtext>
+      <pardef id="1"/>
+      <par def="1"/>
+      <table altbgcolor="white" bgcolor="#efefef" colorstyle="left" columnspacing="0.0500in" refwidth="9.1042in" rowspacing="0.0500in" widthtype="fitmargins">
+        <tablecolumn width="2in"/>
+        <tablecolumn width="100%"/>
+        <tablerow>
+          <tablecell borderwidth="0px">
+            <pardef id="3" keeptogether="true" keepwithnext="true"/>
+            <par def="3">Name</par>
+          </tablecell>
+          <tablecell borderwidth="0px">
+            <pardef id="4" keeptogether="true" keepwithnext="true"/>
+            <par def="4">
+              <field kind="editable" name="Name" type="text">
+                <code event="defaultvalue">
+                  <formula>"defaultServer"</formula>
+                </code>
+              </field>
+              <compositedata afterbegincount="3" aftercontainercount="1" afterparcount="7" containertype="65418" nexttype="222" prevtype="65418" type="98">
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata>
+            </par>
+          </tablecell>
+        </tablerow>
+        <tablerow>
+          <tablecell borderwidth="0px">
+            <par def="3">Domino Servers</par>
+          </tablecell>
+          <tablecell borderwidth="0px">
+            <par def="4">
+              <field allowmultivalues="true" description="Domino server names and groups that deploy this server" fieldhint="*" kind="editable" listdisplayseparator="comma" listinputseparators="comma semicolon newline" name="DominoServers" type="names"/>
+            </par>
+          </tablecell>
+        </tablerow>
+      </table>
+      <pardef firstlineleftmargin="1in" id="2"/>
+      <par def="2">
+        <run>
+          <font color="purple" size="12pt" style="bold"/>
+        </run>
+      </par>
+      <pardef id="5" leftmargin="1in" spaceafter="1.5">
+        <parstyle alldocuments="true" incyclekey="true" name="Headline" username="Jesse Gallagher-">
+          <font color="purple" name="sans-serif" size="12pt" style="bold"/>
+        </parstyle>
+      </pardef>
+      <par def="5">
+        <run>
+          <font color="purple" size="12pt" style="bold"/>Connection Information</run>
+      </par>
+      <table altbgcolor="white" bgcolor="#efefef" colorstyle="left" columnspacing="0.0500in" refwidth="9.1042in" rowspacing="0.0500in" widthtype="fitmargins">
+        <tablecolumn width="2in"/>
+        <tablecolumn width="100%"/>
+        <tablerow>
+          <tablecell borderwidth="0px">
+            <pardef id="6" keeptogether="true" keepwithnext="true"/>
+            <par def="6">Context Path</par>
+          </tablecell>
+          <tablecell borderwidth="0px">
+            <pardef id="7" keeptogether="true" keepwithnext="true"/>
+            <par def="7">
+              <field kind="editable" name="ContextRoot" type="text">
+                <code event="inputtranslation">
+                  <formula>thisval := @Trim(@ThisValue);
+val := @If(thisval=""; AppName; thisval);
+@If(@Begins(val; "/"); val; "/" + val)</formula>
+                </code>
+              </field>
+              <compositedata afterbegincount="3" aftercontainercount="1" afterparcount="7" containertype="65418" nexttype="222" prevtype="65418" type="98">
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata>
+            </par>
+          </tablecell>
+        </tablerow>
+        <tablerow>
+          <tablecell borderwidth="0px">
+            <par def="6">Include in Reverse Proxy</par>
+          </tablecell>
+          <tablecell borderwidth="0px">
+            <par def="7">
+              <field borderstyle="none" kind="editable" lookupaddressonrefresh="false" lookupeachchar="false" name="IncludeInReverseProxy" type="keyword">
+                <keywords columns="2" helperbutton="false" ui="radiobutton">
+                  <textlist>
+                    <text>Yes|Y</text>
+                    <text>No|N</text>
+                  </textlist>
+                </keywords>
+                <code event="inputenabled">
+                  <formula>ContextRoot != "/"</formula>
+                </code>
+                <code event="defaultvalue">
+                  <formula>"No"</formula>
+                </code>
+              </field>
+            </par>
+          </tablecell>
+        </tablerow>
+      </table>
+      <par def="2"/>
+      <table altbgcolor="white" bgcolor="#e1e1e1" colorstyle="top" refwidth="6in" widthtype="fixedleft">
+        <tablecolumn width="2in"/>
+        <tablecolumn width="1in"/>
+        <tablecolumn width="1in"/>
+        <tablecolumn width="1in"/>
+        <tablecolumn width="1in"/>
+        <tablerow>
+          <tablecell borderwidth="0px">
+            <pardef id="8" keeptogether="true" keepwithnext="true"/>
+            <par def="8">Bind to Host</par>
+          </tablecell>
+          <tablecell borderwidth="0px">
+            <pardef id="9" keeptogether="true" keepwithnext="true"/>
+            <par def="9">HTTP Port</par>
+          </tablecell>
+          <tablecell borderwidth="0px">
+            <pardef id="10" keeptogether="true" keepwithnext="true"/>
+            <par def="10">HTTPS Port</par>
+          </tablecell>
+          <tablecell borderwidth="0px">
+            <pardef id="11" keeptogether="true" keepwithnext="true"/>
+            <par def="11">X-Forwarded-*</par>
+          </tablecell>
+          <tablecell borderwidth="0px">
+            <pardef id="12" keeptogether="true" keepwithnext="true"/>
+            <par def="12">$WS*</par>
+          </tablecell>
+        </tablerow>
+        <tablerow>
+          <tablecell borderwidth="0px">
+            <par def="8">
+              <field kind="editable" name="HTTPHost" type="text">
+                <code event="inputenabled">
+                  <formula>@False</formula>
+                </code>
+                <code event="defaultvalue">
+                  <formula>@ThisValue</formula>
+                </code>
+              </field>
+              <compositedata afterbegincount="3" aftercontainercount="1" afterparcount="6" containertype="65418" nexttype="222" prevtype="65418" type="98">
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata>
+            </par>
+          </tablecell>
+          <tablecell borderwidth="0px">
+            <par def="9">
+              <field kind="editable" name="HTTPPort" type="text">
+                <code event="inputenabled">
+                  <formula>@False</formula>
+                </code>
+                <code event="defaultvalue">
+                  <formula>@ThisValue</formula>
+                </code>
+              </field>
+              <compositedata afterbegincount="3" aftercontainercount="1" afterparcount="6" containertype="65418" nexttype="222" prevtype="65418" type="98">
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata>
+            </par>
+          </tablecell>
+          <tablecell borderwidth="0px">
+            <par def="10">
+              <field kind="editable" name="HTTPSPort" type="text">
+                <code event="inputenabled">
+                  <formula>@False</formula>
+                </code>
+                <code event="defaultvalue">
+                  <formula>@ThisValue</formula>
+                </code>
+              </field>
+              <compositedata afterbegincount="3" aftercontainercount="1" afterparcount="6" containertype="65418" nexttype="222" prevtype="65418" type="98">
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata>
+            </par>
+          </tablecell>
+          <tablecell borderwidth="0px">
+            <par def="11">
+              <field kind="editable" name="UseXForwardedFor" type="keyword">
+                <keywords ui="dialoglist">
+                  <textlist>
+                    <text>Yes|Y</text>
+                    <text>No|N</text>
+                  </textlist>
+                </keywords>
+                <code event="inputenabled">
+                  <formula>@False</formula>
+                </code>
+                <code event="defaultvalue">
+                  <formula>@ThisValue</formula>
+                </code>
+              </field>
+            </par>
+          </tablecell>
+          <tablecell borderwidth="0px">
+            <par def="12">
+              <field kind="editable" name="UseWSHeaders" type="keyword">
+                <keywords ui="dialoglist">
+                  <textlist>
+                    <text>Yes|Y</text>
+                    <text>No|N</text>
+                  </textlist>
+                </keywords>
+                <code event="inputenabled">
+                  <formula>@False</formula>
+                </code>
+                <code event="defaultvalue">
+                  <formula>@ThisValue</formula>
+                </code>
+              </field>
+            </par>
+          </tablecell>
+        </tablerow>
+      </table>
+      <par def="2"/>
+    </richtext>
+  </body>
+</subform>

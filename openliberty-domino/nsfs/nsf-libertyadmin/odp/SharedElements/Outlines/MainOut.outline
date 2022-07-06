@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<outline name="MainOut" publicaccess="false" xmlns="http://www.lotus.com/dxl">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<outline xmlns="http://www.lotus.com/dxl" name="MainOut" publicaccess="false">
   <outlineentry hide="web" label="Formula Console" type="namedelementlink">
     <namedelementlink name="FormulaConsole" type="form"/>
     <code event="hidewhen">

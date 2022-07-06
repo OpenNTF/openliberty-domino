@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<page bgcolor="#b9c5d2" hide="mobile" name="Navigation Header"
-  publicaccess="false" renderpassthrough="true" xmlns="http://www.lotus.com/dxl">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<page xmlns="http://www.lotus.com/dxl" bgcolor="#b9c5d2" hide="mobile" name="Navigation Header" publicaccess="false" renderpassthrough="true">
   <actionbar bgcolor="#d4d0c8" bordercolor="black">
     <actionbuttonstyle bgcolor="#d4d0c8"/>
     <font color="system"/>

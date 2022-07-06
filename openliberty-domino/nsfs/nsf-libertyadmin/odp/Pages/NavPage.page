@@ -1,31 +1,22 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<page bgcolor="#d6dde5" hide="mobile" name="NavPage"
-  publicaccess="false" renderpassthrough="true" xmlns="http://www.lotus.com/dxl">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<page xmlns="http://www.lotus.com/dxl" bgcolor="#d6dde5" hide="mobile" name="NavPage" publicaccess="false" renderpassthrough="true">
   <body>
     <richtext>
       <pardef id="1" leftmargin="0.7500in" rightmargin="100%"/>
       <par def="1"/>
       <par def="1">
-        <embeddedoutline expand="none" height="0.4583in"
-          heighttype="fitcontent" name="TempOutline" outline="MainOut"
-          scrollbars="false" showtwistie="true" targetframe="NotesView" widthtype="fitwindow">
+        <embeddedoutline expand="none" height="0.4583in" heighttype="fitcontent" name="TempOutline" outline="MainOut" scrollbars="false" showtwistie="true" targetframe="NotesView" widthtype="fitwindow">
           <title>
             <font style="bold"/>
-            <layout entryvoffset="0.0500in" height="0.2000in"
-              heighttype="fixed" labelalign="middleleft"
-              labelhoffset="0.2000in" labelvoffset="0"/>
+            <layout entryvoffset="0.0500in" height="0.2000in" heighttype="fixed" labelalign="middleleft" labelhoffset="0.2000in" labelvoffset="0"/>
           </title>
           <toplevel selectedcolor="white">
             <eoutlinebackground repeat="hrepeat" selectedcolor="#576c83"/>
-            <layout entryvoffset="0.0403in" height="0.2000in"
-              heighttype="fixed" imagealign="middleleft"
-              labelalign="middleleft" labelhoffset="0.2250in" labelvoffset="0"/>
+            <layout entryvoffset="0.0403in" height="0.2000in" heighttype="fixed" imagealign="middleleft" labelalign="middleleft" labelhoffset="0.2250in" labelvoffset="0"/>
           </toplevel>
           <sublevel selectedcolor="white">
             <eoutlinebackground repeat="hrepeat" selectedcolor="#576c83"/>
-            <layout entryvoffset="0.0403in" height="0.2000in"
-              heighttype="fixed" imagealign="middleleft"
-              labelalign="middleleft" labelhoffset="0.2250in" labelvoffset="0"/>
+            <layout entryvoffset="0.0403in" height="0.2000in" heighttype="fixed" imagealign="middleleft" labelalign="middleleft" labelhoffset="0.2250in" labelvoffset="0"/>
           </sublevel>
           <border/>
         </embeddedoutline>

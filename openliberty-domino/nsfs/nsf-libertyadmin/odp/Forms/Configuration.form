@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<form name="Configuration" publicaccess="false" renderpassthrough="true" xmlns="http://www.lotus.com/dxl">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<form xmlns="http://www.lotus.com/dxl" name="Configuration" publicaccess="false" renderpassthrough="true">
   <code event="windowtitle">
     <formula>"Server"</formula>
   </code>
@@ -74,9 +74,7 @@
           <font color="purple" size="12pt" style="bold"/>General</run>
       </par>
       <par def="1"/>
-      <table altbgcolor="white" bgcolor="#efefef" colorstyle="left"
-        columnspacing="0.0500in" refwidth="8.7292in"
-        rowspacing="0.0500in" widthtype="fitmargins">
+      <table altbgcolor="white" bgcolor="#efefef" colorstyle="left" columnspacing="0.0500in" refwidth="8.7292in" rowspacing="0.0500in" widthtype="fitmargins">
         <tablecolumn width="2.5000in"/>
         <tablecolumn width="100%"/>
         <tablerow>
@@ -87,9 +85,7 @@
           <tablecell borderwidth="0px">
             <pardef id="5" keeptogether="true" keepwithnext="true"/>
             <par def="5">
-              <field choicesdialog="addressbook" kind="editable"
-                lookupaddressonrefresh="false" lookupeachchar="false"
-                name="Server" type="names"/>
+              <field choicesdialog="addressbook" kind="editable" lookupaddressonrefresh="false" lookupeachchar="false" name="Server" type="names"/>
             </par>
             <pardef hide="read print preview" id="6" keeptogether="true" keepwithnext="true"/>
             <par def="6">
@@ -105,9 +101,7 @@
           <tablecell borderwidth="0px">
             <par def="5">
               <field kind="editable" name="BaseDirectory" type="text"/>
-              <compositedata afterbegincount="3" aftercontainercount="1"
-                afterparcount="6" containertype="65418" nexttype="222"
-                prevtype="65418" type="98">
+              <compositedata afterbegincount="3" aftercontainercount="1" afterparcount="6" containertype="65418" nexttype="222" prevtype="65418" type="98">
 Yg4BAIQAAAAAAAAAAAA=
 </compositedata>
             </par>
@@ -125,9 +119,7 @@ Yg4BAIQAAAAAAAAAAAA=
           <font color="purple" size="12pt" style="bold"/>Reverse Proxy</run>
       </par>
       <par def="1"/>
-      <table altbgcolor="white" bgcolor="#efefef" colorstyle="left"
-        columnspacing="0.0500in" refwidth="8.7292in"
-        rowspacing="0.0500in" widthtype="fitmargins">
+      <table altbgcolor="white" bgcolor="#efefef" colorstyle="left" columnspacing="0.0500in" refwidth="8.7292in" rowspacing="0.0500in" widthtype="fitmargins">
         <tablecolumn width="2.5000in"/>
         <tablecolumn width="100%"/>
         <tablerow>
@@ -139,11 +131,8 @@ Yg4BAIQAAAAAAAAAAAA=
               <run>
                 <font color="gray" size="8pt"/>
               </run>
-              <field borderstyle="none" kind="editable"
-                lookupaddressonrefresh="false" lookupeachchar="false"
-                name="ReverseProxyEnable" type="keyword">
-                <keywords columns="2" helperbutton="false"
-                  recalconchange="true" ui="radiobutton">
+              <field borderstyle="none" kind="editable" lookupaddressonrefresh="false" lookupeachchar="false" name="ReverseProxyEnable" type="keyword">
+                <keywords columns="2" helperbutton="false" recalconchange="true" ui="radiobutton">
                   <textlist>
                     <text>Yes|Y</text>
                     <text>No|N</text>
@@ -175,10 +164,7 @@ Yg4BAIQAAAAAAAAAAAA=
               </code>
             </pardef>
             <par def="8">
-              <field allowmultivalues="true" kind="editable"
-                listdisplayseparator="comma" listinputseparators="comma"
-                lookupaddressonrefresh="false" lookupeachchar="false"
-                name="ReverseProxyTypes" type="keyword">
+              <field allowmultivalues="true" kind="editable" listdisplayseparator="comma" listinputseparators="comma" lookupaddressonrefresh="false" lookupeachchar="false" name="ReverseProxyTypes" type="keyword">
                 <keywords columns="2" recalconchange="true" ui="dialoglist">
                   <textlist>
                     <text>Standalone</text>
@@ -208,16 +194,12 @@ Yg4BAIQAAAAAAAAAAAA=
               </code>
             </pardef>
             <par def="10">
-              <field fieldhint="*" kind="editable"
-                name="ReverseProxyHostName" type="text"/>
-              <compositedata afterbegincount="4" aftercontainercount="2"
-                afterparcount="9" containertype="65418" nexttype="222"
-                prevtype="65513" type="98">
+              <field fieldhint="*" kind="editable" name="ReverseProxyHostName" type="text"/>
+              <compositedata afterbegincount="4" aftercontainercount="2" afterparcount="9" containertype="65418" nexttype="222" prevtype="65513" type="98">
 Yg4BAIQAAAAAAAAAAAA=
 </compositedata>
             </par>
-            <pardef hide="read print preview" id="11"
-              keeptogether="true" keepwithnext="true">
+            <pardef hide="read print preview" id="11" keeptogether="true" keepwithnext="true">
               <code event="hidewhen">
                 <formula>!(ReverseProxyEnable="Y" &amp; ReverseProxyTypes="Standalone")</formula>
               </code>
@@ -244,8 +226,7 @@ Yg4BAIQAAAAAAAAAAAA=
               </code>
             </pardef>
             <par def="13">
-              <field kind="editable" lookupaddressonrefresh="false"
-                lookupeachchar="false" name="ReverseProxyHTTP" type="keyword">
+              <field kind="editable" lookupaddressonrefresh="false" lookupeachchar="false" name="ReverseProxyHTTP" type="keyword">
                 <keywords columns="3" recalconchange="true" ui="dialoglist">
                   <textlist>
                     <text>Yes|Y</text>
@@ -277,8 +258,7 @@ Yg4BAIQAAAAAAAAAAAA=
             </pardef>
             <par def="15">
               <field kind="editable" name="ReverseProxyHTTPPort" type="number">
-                <numberformat bytes="false" digits="2" format="general"
-                  parens="false" percent="false" punctuated="false"/>
+                <numberformat bytes="false" digits="2" format="general" parens="false" percent="false" punctuated="false"/>
                 <code event="defaultvalue">
                   <formula>8080</formula>
                 </code>
@@ -295,8 +275,7 @@ Yg4BAIQAAAAAAAAAAAA=
           </tablecell>
           <tablecell borderwidth="0px">
             <par def="13">
-              <field kind="editable" lookupaddressonrefresh="false"
-                lookupeachchar="false" name="ReverseProxyHTTPS" type="keyword">
+              <field kind="editable" lookupaddressonrefresh="false" lookupeachchar="false" name="ReverseProxyHTTPS" type="keyword">
                 <keywords columns="2" recalconchange="true" ui="dialoglist">
                   <textlist>
                     <text>Yes|Y</text>
@@ -327,8 +306,7 @@ Yg4BAIQAAAAAAAAAAAA=
             </pardef>
             <par def="17">
               <field kind="editable" name="ReverseProxyHTTPSPort" type="number">
-                <numberformat bytes="false" digits="2" format="general"
-                  parens="false" percent="false" punctuated="false"/>
+                <numberformat bytes="false" digits="2" format="general" parens="false" percent="false" punctuated="false"/>
                 <code event="defaultvalue">
                   <formula>8443</formula>
                 </code>
@@ -359,9 +337,7 @@ Yg4BAIQAAAAAAAAAAAA=
                 <font name="monospace"/>
                 <field kind="editable" name="ReverseProxyHTTPSKey" type="text"/>
               </run>
-              <compositedata afterbegincount="3" aftercontainercount="1"
-                afterparcount="8" containertype="65418" nexttype="222"
-                prevtype="65418" type="98">
+              <compositedata afterbegincount="3" aftercontainercount="1" afterparcount="8" containertype="65418" nexttype="222" prevtype="65418" type="98">
 Yg4BAIQAAAAAAAAAAAA=
 </compositedata>
             </par>
@@ -377,9 +353,7 @@ Yg4BAIQAAAAAAAAAAAA=
                 <font name="monospace"/>
                 <field kind="editable" name="ReverseProxyHTTPSChain" type="text"/>
               </run>
-              <compositedata afterbegincount="3" aftercontainercount="1"
-                afterparcount="7" containertype="65418" nexttype="222"
-                prevtype="65418" type="98">
+              <compositedata afterbegincount="3" aftercontainercount="1" afterparcount="7" containertype="65418" nexttype="222" prevtype="65418" type="98">
 Yg4BAIQAAAAAAAAAAAA=
 </compositedata>
             </par>

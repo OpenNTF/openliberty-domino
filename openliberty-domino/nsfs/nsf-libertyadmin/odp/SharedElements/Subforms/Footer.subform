@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<subform name="Footer" renderpassthrough="true" xmlns="http://www.lotus.com/dxl">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<subform xmlns="http://www.lotus.com/dxl" name="Footer" renderpassthrough="true">
   <globals>
     <code event="options">
       <lotusscript>Option Public
@@ -22,9 +22,7 @@ FIELD DateModified := @Today;
           <font color="gray" size="8pt"/>Composed by </run>
         <run>
           <font color="gray" size="8pt"/>
-          <field kind="computedwhencomposed"
-            lookupaddressonrefresh="false" lookupeachchar="false"
-            name="CreatedBy" showdelimiters="false" type="names">
+          <field kind="computedwhencomposed" lookupaddressonrefresh="false" lookupeachchar="false" name="CreatedBy" showdelimiters="false" type="names">
             <code event="defaultvalue">
               <formula>@UserName</formula>
             </code>
@@ -35,13 +33,7 @@ FIELD DateModified := @Today;
         <run>
           <font color="gray" size="8pt"/>
           <field kind="computed" name="DateComposed" type="datetime">
-            <datetimeformat date="yearmonthday"
-              dateformat="weekdaymonthdayyear" dateseparator1=" "
-              dateseparator2="/" dateseparator3="/"
-              dayformat="twodigitday" fourdigityearfor21stcentury="true"
-              monthformat="twodigitmonth" preference="usersetting"
-              show="date" timeseparator=":" weekdayformat="shortname"
-              yearformat="fourdigityear" zone="never"/>
+            <datetimeformat date="yearmonthday" dateformat="weekdaymonthdayyear" dateseparator1=" " dateseparator2="/" dateseparator3="/" dayformat="twodigitday" fourdigityearfor21stcentury="true" monthformat="twodigitmonth" preference="usersetting" show="date" timeseparator=":" weekdayformat="shortname" yearformat="fourdigityear" zone="never"/>
             <code event="defaultvalue">
               <formula>@Date(@Created)</formula>
             </code>
@@ -70,13 +62,7 @@ FIELD DateModified := @Today;
         <run>
           <font color="gray" size="8pt"/>
           <field kind="editable" name="DateModified" type="datetime">
-            <datetimeformat date="yearmonthday"
-              dateformat="weekdaymonthdayyear" dateseparator1=" "
-              dateseparator2="/" dateseparator3="/"
-              dayformat="twodigitday" fourdigityearfor21stcentury="true"
-              monthformat="twodigitmonth" preference="usersetting"
-              show="date" timeseparator=":" weekdayformat="shortname"
-              yearformat="fourdigityear" zone="never"/>
+            <datetimeformat date="yearmonthday" dateformat="weekdaymonthdayyear" dateseparator1=" " dateseparator2="/" dateseparator3="/" dayformat="twodigitday" fourdigityearfor21stcentury="true" monthformat="twodigitmonth" preference="usersetting" show="date" timeseparator=":" weekdayformat="shortname" yearformat="fourdigityear" zone="never"/>
             <code event="defaultvalue">
               <formula>@Today</formula>
             </code>
@@ -93,9 +79,7 @@ FIELD DateModified := @Today;
           <font color="gray" size="8pt"/>Last modified by </run>
         <run>
           <font color="gray" size="8pt"/>
-          <field kind="computedfordisplay"
-            lookupaddressonrefresh="false" lookupeachchar="false"
-            name="ModifiedByDisplay" showdelimiters="false" type="names">
+          <field kind="computedfordisplay" lookupaddressonrefresh="false" lookupeachchar="false" name="ModifiedByDisplay" showdelimiters="false" type="names">
             <code event="defaultvalue">
               <formula>ModifiedBy</formula>
             </code>
@@ -106,13 +90,7 @@ FIELD DateModified := @Today;
         <run>
           <font color="gray" size="8pt"/>
           <field kind="computedfordisplay" name="DateModifiedDisplay" type="datetime">
-            <datetimeformat date="yearmonthday"
-              dateformat="weekdaymonthdayyear" dateseparator1=" "
-              dateseparator2="/" dateseparator3="/"
-              dayformat="twodigitday" fourdigityearfor21stcentury="true"
-              monthformat="twodigitmonth" preference="usersetting"
-              show="date" timeseparator=":" weekdayformat="shortname"
-              yearformat="fourdigityear" zone="never"/>
+            <datetimeformat date="yearmonthday" dateformat="weekdaymonthdayyear" dateseparator1=" " dateseparator2="/" dateseparator3="/" dayformat="twodigitday" fourdigityearfor21stcentury="true" monthformat="twodigitmonth" preference="usersetting" show="date" timeseparator=":" weekdayformat="shortname" yearformat="fourdigityear" zone="never"/>
             <code event="defaultvalue">
               <formula>@Date(DateModified)</formula>
             </code>

@@ -1,16 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<view allowcustomizations="false" allownewdocuments="false"
-  altrowcolor="#efefef" bgcolor="white" boldunreadrows="false"
-  default="true" evaluateactions="false" extendlastcolumn="true"
-  gridcolor="white" gridstyle="solid" headerbgcolor="white"
-  headerlinecount="1" headers="beveled" hidemarginborder="false"
-  marginbgcolor="white" marginwidth="0px" name="All"
-  onopengoto="lastopened" onrefresh="displayindicator"
-  opencollapsed="false" publicaccess="false" rowlinecount="1"
-  rowspacing="1" showhierarchies="false" showinmenu="false"
-  showmargin="true" showresponsehierarchy="true" shrinkrows="false"
-  totalscolor="black" uniquekeys="false" unreadcolor="black"
-  unreadmarks="none" xmlns="http://www.lotus.com/dxl">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<view xmlns="http://www.lotus.com/dxl" allowcustomizations="false" allownewdocuments="false" altrowcolor="#efefef" bgcolor="white" boldunreadrows="false" default="true" evaluateactions="false" extendlastcolumn="true" gridcolor="white" gridstyle="solid" headerbgcolor="white" headerlinecount="1" headers="beveled" hidemarginborder="false" marginbgcolor="white" marginwidth="0px" name="All" onopengoto="lastopened" onrefresh="displayindicator" opencollapsed="false" publicaccess="false" rowlinecount="1" rowspacing="1" showhierarchies="false" showinmenu="false" showmargin="true" showresponsehierarchy="true" shrinkrows="false" totalscolor="black" uniquekeys="false" unreadcolor="black" unreadmarks="none">
   <code event="selection">
     <formula>SELECT @All</formula>
   </code>
@@ -19,9 +8,7 @@
     <font color="system"/>
     <border style="solid" width="0px 0px 1px"/>
   </actionbar>
-  <column hidedetailrows="false" itemname="$0" resizable="true"
-    separatemultiplevalues="false" showaslinks="false"
-    sortnoaccent="true" sortnocase="true" width="10">
+  <column hidedetailrows="false" itemname="$0" resizable="true" separatemultiplevalues="false" showaslinks="false" sortnoaccent="true" sortnocase="true" width="10">
     <columnheader title="#">
       <font size="9pt" style="bold"/>
     </columnheader>
@@ -29,29 +16,21 @@
       <formula>@DocNumber</formula>
     </code>
   </column>
-  <column hidedetailrows="false" itemname="Form" resizable="true"
-    separatemultiplevalues="false" showaslinks="false"
-    sortnoaccent="false" sortnocase="true" width="10">
+  <column hidedetailrows="false" itemname="Form" resizable="true" separatemultiplevalues="false" showaslinks="false" sortnoaccent="false" sortnocase="true" width="10">
     <columnheader title="Form">
       <font size="9pt" style="bold"/>
     </columnheader>
   </column>
-  <column hidedetailrows="false" itemname="$2" resizable="true"
-    separatemultiplevalues="false" showaslinks="false"
-    sortnoaccent="false" sortnocase="true" width="10">
+  <column hidedetailrows="false" itemname="$2" resizable="true" separatemultiplevalues="false" showaslinks="false" sortnoaccent="false" sortnocase="true" width="10">
     <columnheader title="Size">
       <font size="9pt" style="bold"/>
     </columnheader>
-    <numberformat bytes="true" currencysym="$" currencysymtype="custom"
-      decimalsym="." format="fixed" parens="false" percent="false"
-      punctuated="false" thousandssep="," usecustomsym="false"/>
+    <numberformat bytes="true" currencysym="$" currencysymtype="custom" decimalsym="." format="fixed" parens="false" percent="false" punctuated="false" thousandssep="," usecustomsym="false"/>
     <code event="value">
       <formula>@DocLength</formula>
     </code>
   </column>
-  <column hidedetailrows="false" itemname="$3" resizable="true"
-    separatemultiplevalues="false" showaslinks="false"
-    sortnoaccent="false" sortnocase="true" width="15.2500">
+  <column hidedetailrows="false" itemname="$3" resizable="true" separatemultiplevalues="false" showaslinks="false" sortnoaccent="false" sortnocase="true" width="15.2500">
     <columnheader title="Created">
       <font size="9pt" style="bold"/>
     </columnheader>
@@ -59,9 +38,7 @@
       <formula>@Created</formula>
     </code>
   </column>
-  <column hidedetailrows="false" itemname="$4" resizable="true"
-    separatemultiplevalues="false" showaslinks="false"
-    sortnoaccent="false" sortnocase="true" width="15">
+  <column hidedetailrows="false" itemname="$4" resizable="true" separatemultiplevalues="false" showaslinks="false" sortnoaccent="false" sortnocase="true" width="15">
     <columnheader title="Modified">
       <font size="9pt" style="bold"/>
     </columnheader>

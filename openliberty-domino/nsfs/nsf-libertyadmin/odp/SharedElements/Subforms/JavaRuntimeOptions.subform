@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<subform xmlns="http://www.lotus.com/dxl" name="JavaRuntimeOptions" renderpassthrough="true">
+  <body>
+    <richtext>
+      <pardef id="1"/>
+      <par def="1"/>
+      <table altbgcolor="white" bgcolor="#efefef" colorstyle="left" columnspacing="0.0500in" refwidth="9.1042in" rowspacing="0.0500in" widthtype="fitmargins">
+        <tablecolumn width="2.5000in"/>
+        <tablecolumn width="100%"/>
+        <tablerow>
+          <tablecell borderwidth="0px">
+            <pardef id="3" keeptogether="true" keepwithnext="true"/>
+            <par def="3">Java Runtime</par>
+          </tablecell>
+          <tablecell borderwidth="0px">
+            <pardef id="4" keeptogether="true" keepwithnext="true" linespacing="1.5"/>
+            <par def="4">
+              <field kind="editable" lookupaddressonrefresh="false" lookupeachchar="false" name="JavaJVM" type="keyword">
+                <keywords columns="2" recalconchange="true" ui="dialoglist">
+                  <textlist>
+                    <text>Domino|RunningJVM</text>
+                    <text>HotSpot</text>
+                    <text>OpenJ9</text>
+                    <text>GraalVM CE|GraalVMCE</text>
+                  </textlist>
+                </keywords>
+                <code event="defaultvalue">
+                  <formula>"HotSpot"</formula>
+                </code>
+              </field>
+            </par>
+            <pardef id="5" keeptogether="true" keepwithnext="true" linespacing="1.5">
+              <code event="hidewhen">
+                <formula>JavaJVM="":"RunningJVM"</formula>
+              </code>
+            </pardef>
+            <par def="5">
+              <field kind="editable" name="JavaVersion" type="keyword">
+                <keywords allownew="true" ui="dialoglist">
+                  <textlist>
+                    <text>1.8 (LTS)|1.8</text>
+                    <text>11 (LTS)|11</text>
+                    <text>17 (LTS)|17</text>
+                  </textlist>
+                </keywords>
+                <code event="defaultvalue">
+                  <formula>"11"</formula>
+                </code>
+              </field>
+            </par>
+            <pardef id="6" keeptogether="true" keepwithnext="true" linespacing="1.5">
+              <code event="hidewhen">
+                <formula>!(JavaJVM="HotSpot")</formula>
+              </code>
+            </pardef>
+            <par def="6">
+              <run>
+                <font color="gray" size="8pt"/>HotSpot JVMs are provided by Adoptium's Temurin releases<break/>More Information: </run>
+              <urllink href="https://adoptium.net" showborder="false">
+                <run>
+                  <font color="gray" size="8pt"/>https://adopium.net</run>
+              </urllink>
+            </par>
+            <pardef id="7" keeptogether="true" keepwithnext="true" linespacing="1.5">
+              <code event="hidewhen">
+                <formula>!(JavaJVM="OpenJ9")</formula>
+              </code>
+            </pardef>
+            <par def="7">
+              <run>
+                <font color="gray" size="8pt"/>OpenJ9 JVMs are provided by IBM's Semeru releases<break/>More Information:</run>
+              <urllink href="https://developer.ibm.com/languages/java/semeru-runtimes/" showborder="false">
+                <run>
+                  <font color="gray" size="8pt"/> https://developer.ibm.com/languages/java/semeru-runtimes/</run>
+              </urllink>
+              <run>
+                <font color="gray" size="8pt"/>
+              </run>
+            </par>
+            <pardef id="8" keeptogether="true" keepwithnext="true" linespacing="1.5">
+              <code event="hidewhen">
+                <formula>!(JavaJVM="GraalVMCE")</formula>
+              </code>
+            </pardef>
+            <par def="8">
+              <run>
+                <font color="gray" size="8pt"/>Note: GraalVM only provides downloads for Java LTS releases<break/>More Information: https://www.graalvm.org</run>
+            </par>
+          </tablecell>
+        </tablerow>
+      </table>
+      <pardef firstlineleftmargin="1in" id="2"/>
+      <par def="2"/>
+    </richtext>
+  </body>
+</subform>

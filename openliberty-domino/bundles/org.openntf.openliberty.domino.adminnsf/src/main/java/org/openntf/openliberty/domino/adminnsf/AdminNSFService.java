@@ -258,7 +258,6 @@ public enum AdminNSFService implements Runnable {
 		Document serverDoc = entry.getDocument();
 		try {
 			
-			
 			@SuppressWarnings("unchecked")
 			Collection<String> serverNames = serverDoc.getItemValue(ITEM_DOMINOSERVERS);
 			boolean shouldRun = AdminNSFUtil.isNamesListMatch(namesList, serverNames);
@@ -310,77 +309,66 @@ public enum AdminNSFService implements Runnable {
 					OpenLibertyRuntime.instance.registerServer(serverName, config);
 					OpenLibertyRuntime.instance.createServer(serverName);
 					OpenLibertyRuntime.instance.startServer(serverName);
+					
+					// Deploy the attached WAR
+					String contextPath = serverDoc.getItemValueString(ITEM_CONTEXTPATH);
+					if(StringUtil.isEmpty(contextPath)) {
+						contextPath = "/app"; //$NON-NLS-1$
+					}
+					if(!contextPath.startsWith("/")) { //$NON-NLS-1$
+						contextPath = "/" + contextPath; //$NON-NLS-1$
+					}
+					
+					// Generate a name based on the modification time, to avoid Windows file-locking trouble
+					// Shave off the last digit, to avoid trouble with Domino TIMEDATE limitations
+					long docMod = serverDoc.getLastModified().toJavaDate().getTime();
+					docMod = docMod / 10 * 10;
+					Path appsRoot = OpenLibertyUtil.getTempDirectory().resolve("apps"); //$NON-NLS-1$
+					Path appDir = appsRoot.resolve(serverDoc.getNoteID() + '-' + docMod);
+					Files.createDirectories(appDir);
+					Path warPath = appDir.resolve("app.war"); //$NON-NLS-1$
+					
+
+					// See if we need to deploy the file
+					if(!Files.exists(warPath)) {
+						if(log.isLoggable(Level.INFO)) {
+							log.info(format(Messages.getString("AdminNSFService.deployingDefinedApp"), getClass().getSimpleName(), serverName, contextPath)); //$NON-NLS-1$
+						}
+						
+						if(serverDoc.hasItem(ITEM_WAR)) {
+							Item warItem = serverDoc.getFirstItem(ITEM_WAR);
+							if(warItem.getType() == Item.RICHTEXT) {
+								RichTextItem rtItem = (RichTextItem)warItem;
+								@SuppressWarnings("unchecked")
+								Vector<EmbeddedObject> objects = rtItem.getEmbeddedObjects();
+								try {
+									for(EmbeddedObject eo : objects) {
+										// Deploy all attached files
+										if(eo.getType() == EmbeddedObject.EMBED_ATTACHMENT) {
+											eo.extractFile(warPath.toString());
+											break;
+										}
+									}
+								} finally {
+									rtItem.recycle(objects);
+								}
+							}
+							
+							// Add a webApplication entry
+							if(serverXml == null) {
+								serverXml = generateServerXml(serverDoc);
+							}
+							XMLNode webApplication = serverXml.selectSingleNode("/server").addChildElement("webApplication"); //$NON-NLS-1$ //$NON-NLS-2$
+							webApplication.setAttribute("contextRoot", contextPath); //$NON-NLS-1$
+							webApplication.setAttribute("id", "app-" + serverDoc.getNoteID()); //$NON-NLS-1$ //$NON-NLS-2$
+							webApplication.setAttribute("location", warPath.toString()); //$NON-NLS-1$
+							webApplication.setAttribute("name", serverName); //$NON-NLS-1$
+						}
+					}
 				} else {
 					if(log.isLoggable(Level.FINER)) {
 						log.finer(format(Messages.getString("AdminNSFService.skippingUnchangedServer"), getClass().getSimpleName(), serverName)); //$NON-NLS-1$
 					}
-				}
-				
-				// Look for dropin apps to deploy
-				ViewNavigator nav = (ViewNavigator)entry.getParent();
-				ViewEntry dropinEntry = nav.getChild(entry);
-				while(dropinEntry != null) {
-					Document dropinDoc = dropinEntry.getDocument();
-					try {
-						String appName = dropinDoc.getItemValueString(ITEM_APPNAME);
-						String contextPath = dropinDoc.getItemValueString(ITEM_CONTEXTPATH);
-						if(StringUtil.isEmpty(contextPath)) {
-							contextPath = "/" + appName; //$NON-NLS-1$
-						}
-						
-						// Generate a name based on the modification time, to avoid Windows file-locking trouble
-						// Shave off the last digit, to avoid trouble with Domino TIMEDATE limitations
-						long docMod = dropinDoc.getLastModified().toJavaDate().getTime();
-						docMod = docMod / 10 * 10;
-						Path appsRoot = OpenLibertyUtil.getTempDirectory().resolve("apps"); //$NON-NLS-1$
-						Path appDir = appsRoot.resolve(dropinDoc.getNoteID() + '-' + docMod);
-						Files.createDirectories(appDir);
-						Path warPath = appDir.resolve("app.war"); //$NON-NLS-1$
-						
-						// See if we need to deploy the file
-						if(!Files.exists(warPath)) {
-							if(log.isLoggable(Level.INFO)) {
-								log.info(format(Messages.getString("AdminNSFService.deployingDefinedApp"), getClass().getSimpleName(), appName, contextPath)); //$NON-NLS-1$
-							}
-							
-							if(dropinDoc.hasItem(ITEM_WAR)) {
-								Item warItem = dropinDoc.getFirstItem(ITEM_WAR);
-								if(warItem.getType() == Item.RICHTEXT) {
-									RichTextItem rtItem = (RichTextItem)warItem;
-									@SuppressWarnings("unchecked")
-									Vector<EmbeddedObject> objects = rtItem.getEmbeddedObjects();
-									try {
-										for(EmbeddedObject eo : objects) {
-											// Deploy all attached files
-											if(eo.getType() == EmbeddedObject.EMBED_ATTACHMENT) {
-												eo.extractFile(warPath.toString());
-												break;
-											}
-										}
-									} finally {
-										rtItem.recycle(objects);
-									}
-								}
-							}
-						}
-						
-						// Add a webApplication entry
-						if(serverXml == null) {
-							serverXml = generateServerXml(serverDoc);
-						}
-						XMLNode webApplication = serverXml.selectSingleNode("/server").addChildElement("webApplication"); //$NON-NLS-1$ //$NON-NLS-2$
-						webApplication.setAttribute("contextRoot", contextPath); //$NON-NLS-1$
-						webApplication.setAttribute("id", "app-" + dropinDoc.getNoteID()); //$NON-NLS-1$ //$NON-NLS-2$
-						webApplication.setAttribute("location", warPath.toString()); //$NON-NLS-1$
-						webApplication.setAttribute("name", appName); //$NON-NLS-1$
-						
-					} finally {
-						dropinDoc.recycle();
-					}
-					
-					ViewEntry tempDropin = dropinEntry;
-					dropinEntry = nav.getNextSibling(dropinEntry);
-					tempDropin.recycle();
 				}
 				
 				if(serverXml != null) {

@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<frameset bordercolor="black" borderwidth="1px" name="Navigation Frame"
-  publicaccess="false" rows="49px 37" spacing="0px" xmlns="http://www.lotus.com/dxl">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<frameset xmlns="http://www.lotus.com/dxl" bordercolor="black" borderwidth="1px" name="Navigation Frame" publicaccess="false" rows="49px 37" spacing="0px">
   <frame border3d="false" noresize="true" scrolling="never">
     <namedelementlink name="Navigation Header" type="page"/>
   </frame>
