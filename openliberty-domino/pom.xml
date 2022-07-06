@@ -54,7 +54,6 @@
 		<module>bundles/org.openntf.openliberty.domino.reverseproxy.httpservice</module>
 		<module>bundles/org.openntf.openliberty.domino.reverseproxy</module>
 		<module>bundles/org.openntf.openliberty.domino.runjava</module>
-		<module>bundles/org.openntf.openliberty.domino.httpapi</module>
 		
 		<!--
 			Liberty Extension Deployment 

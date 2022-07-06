@@ -19,8 +19,6 @@ The runtime has several extension points available, some of which are intended t
 * `org.openntf.openliberty.config.RuntimeConfigurationProvider` is used to load global configuration for the runtime. The implementation for this is found in `org.openntf.openliberty.domino.adminnsf`, which reads the configuration from libertyadmin.nsf.
 * `org.openntf.openliberty.domino.runtime.RuntimeDeploymentTask` is used to find the location of the active Open Liberty installation. The implementation for this is found in the core module, which reads Liberty coordinates from the `RuntimeConfigurationProvider`, downloads it from Maven Central, and provides it to the runtime.
 * `org.openntf.openliberty.domino.reverseproxy.ext.ReverseProxyConfigProvider` is used by the Reverse Proxy service to find the configuration for the proxy. This is also provided in `org.openntf.openliberty.domino.adminnsf`, which reads the Domino server configuration from names.nsf and reverse-proxy config from libertyadmin.nsf.
-* `org.openntf.openliberty.domino.config.RuntimeAccessProvider` is used by services to check whether a given user has permission to perform a task. This is provided in `org.openntf.openliberty.domino.adminnsf`, which reads roles from the ACL of the libertyadmin.nsf database.
-* `org.openntf.openliberty.domino.runtime.AppDeploymentProvider` is used to deploy new and updated apps to the central configuration. This is also provided in `org.openntf.openliberty.domino.adminnsf`, which updates the server and app documents in libertyadmin.nsf.
 
 #### Extension Services
 
