@@ -18,8 +18,7 @@ package org.openntf.openliberty.domino.adminnsf;
 import static java.text.MessageFormat.format;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.List;
 import java.util.Vector;
@@ -30,30 +29,20 @@ import java.util.stream.Collectors;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.openntf.openliberty.domino.adminnsf.util.AdminNSFUtil;
-import org.openntf.openliberty.domino.jvm.JVMIdentifier;
-import org.openntf.openliberty.domino.jvm.RunningJVMJavaRuntimeProvider;
 import org.openntf.openliberty.domino.log.OpenLibertyLog;
 import org.openntf.openliberty.domino.reverseproxy.ReverseProxyConfig;
 import org.openntf.openliberty.domino.reverseproxy.ReverseProxyConfigProvider;
 import org.openntf.openliberty.domino.reverseproxy.event.ReverseProxyConfigChangedEvent;
 import org.openntf.openliberty.domino.runtime.OpenLibertyRuntime;
-import org.openntf.openliberty.domino.server.wlp.LibertyExtensionDeployer;
-import org.openntf.openliberty.domino.server.wlp.LibertyServerConfiguration;
 import org.openntf.openliberty.domino.util.OpenLibertyUtil;
 import org.openntf.openliberty.domino.util.commons.ibm.StringUtil;
-import org.openntf.openliberty.domino.util.xml.XMLDocument;
-import org.openntf.openliberty.domino.util.xml.XMLNode;
-import org.openntf.openliberty.domino.util.xml.XMLNodeList;
 import org.xml.sax.SAXException;
 
 import lotus.domino.Database;
 import lotus.domino.DateTime;
 import lotus.domino.Document;
-import lotus.domino.EmbeddedObject;
-import lotus.domino.Item;
 import lotus.domino.NotesException;
 import lotus.domino.NotesFactory;
-import lotus.domino.RichTextItem;
 import lotus.domino.Session;
 import lotus.domino.View;
 import lotus.domino.ViewEntry;
@@ -75,32 +64,10 @@ public enum AdminNSFService implements Runnable {
 	public static final String VIEW_SERVERSMODIFIED = "ServersModified"; //$NON-NLS-1$
 	
 	public static final String ITEM_SERVERNAME = "Name"; //$NON-NLS-1$
-	public static final String ITEM_SERVERENV = "ServerEnv"; //$NON-NLS-1$
-	public static final String ITEM_SERVERXML = "ServerXML"; //$NON-NLS-1$
-	public static final String ITEM_DEPLOYMENTZIPS = "DeploymentZIPs"; //$NON-NLS-1$
-	public static final String ITEM_APPNAME = "AppName"; //$NON-NLS-1$
-	public static final String ITEM_WAR = "WarFile"; //$NON-NLS-1$
 	/** @since 2.1.0 */
 	public static final String ITEM_CONTEXTPATH = "ContextRoot"; //$NON-NLS-1$
 	/** @since 2.0.0 */
-	public static final String ITEM_JVMOPTIONS = "JvmOptions"; //$NON-NLS-1$
-	/** @since 2.0.0 */
-	public static final String ITEM_BOOTSTRAPPROPS = "BootstrapProperties"; //$NON-NLS-1$
-	/** @since 2.0.0 */
 	public static final String ITEM_DOMINOSERVERS = "DominoServers"; //$NON-NLS-1$
-	/** @since 2.0.0 */
-	public static final String ITEM_INTEGRATIONFEATURES = "IntegrationFeatures"; //$NON-NLS-1$
-	
-	/** @since 3.0.0 */
-	public static final String ITEM_JAVAVERSION = "JavaVersion"; //$NON-NLS-1$
-	/** @since 3.0.0 */
-	public static final String ITEM_JAVATYPE = "JavaJVM"; //$NON-NLS-1$
-	/** @since 3.0.0 */
-	public static final String ITEM_LIBERTYVERSION = "LibertyVersion"; //$NON-NLS-1$
-	/** @since 3.0.0 */
-	public static final String ITEM_LIBERTYARTIFACT = "LibertyArtifact"; //$NON-NLS-1$
-	/** @since 3.0.0 */
-	public static final String ITEM_LIBERTYMAVENREPO = "LibertyMavenRepo"; //$NON-NLS-1$
 	
 	private long lastRun = -1;
 	/**
@@ -115,6 +82,10 @@ public enum AdminNSFService implements Runnable {
 	 * Contains the count of server and app config documents from the last run
 	 */
 	private int lastRunServerConfigCount;
+	/**
+	 * @since 4.0.0
+	 */
+	private List<ServerDocumentHandler> serverDocumentHandlers;
 
 	@Override
 	public void run() {
@@ -139,7 +110,8 @@ public enum AdminNSFService implements Runnable {
 				boolean configChanged = configurationModTime != this.lastRunConfigMod;
 				this.lastRunConfigMod = configurationModTime;
 				
-				// Check the last-mod time for server/app docs and their count
+				// TODO also see if this can check for deleted docs
+				// Check the last-mod time for server docs and their count
 				long serverConfigModTime;
 				int serverConfigCount;
 				{
@@ -225,6 +197,18 @@ public enum AdminNSFService implements Runnable {
 		this.lastRunConfigMod = 0;
 		this.lastRunServerConfigCount = 0;
 		this.lastRunServerConfigMod = 0;
+		this.serverDocumentHandlers = null;
+	}
+	
+	// *******************************************************************************
+	// * Internal implementation methods
+	// *******************************************************************************
+	
+	private List<ServerDocumentHandler> getHandlers() {
+		if(this.serverDocumentHandlers == null) {
+			this.serverDocumentHandlers = OpenLibertyUtil.findExtensions(ServerDocumentHandler.class).collect(Collectors.toList());
+		}
+		return this.serverDocumentHandlers;
 	}
 	
 	private long getConfigurationModTime(Database adminNsf) throws NotesException {
@@ -267,115 +251,21 @@ public enum AdminNSFService implements Runnable {
 			
 			String serverName = serverDoc.getItemValueString(ITEM_SERVERNAME);
 			if(StringUtil.isNotEmpty(serverName)) {
-				XMLDocument serverXml = null;
-				
 				if(needsUpdate(serverDoc)) {
-					if(log.isLoggable(Level.INFO)) {
-						log.info(format(Messages.getString("AdminNSFService.deployingDefinedServer"), getClass().getSimpleName(), serverName)); //$NON-NLS-1$
-					}
-
-					LibertyServerConfiguration config = new LibertyServerConfiguration();
-					
-					String javaVersion = serverDoc.getItemValueString(ITEM_JAVAVERSION);
-					String javaType = serverDoc.getItemValueString(ITEM_JAVATYPE);
-					if(StringUtil.isEmpty(javaType)) {
-						javaType = RunningJVMJavaRuntimeProvider.TYPE_RUNNINGJVM;
-					}
-					config.setJavaVersion(new JVMIdentifier(javaVersion, javaType));
-					
-					config.setServerXml(generateServerXml(serverDoc));
-					config.setServerEnv(serverDoc.getItemValueString(ITEM_SERVERENV));
-					config.setJvmOptions(serverDoc.getItemValueString(ITEM_JVMOPTIONS));
-					config.setBootstrapProperties(serverDoc.getItemValueString(ITEM_BOOTSTRAPPROPS));
-					if(serverDoc.hasItem(ITEM_DEPLOYMENTZIPS)) {
-						RichTextItem deploymentItem = (RichTextItem)serverDoc.getFirstItem(ITEM_DEPLOYMENTZIPS);
-						@SuppressWarnings("unchecked")
-						List<EmbeddedObject> objects = deploymentItem.getEmbeddedObjects();
-						for(EmbeddedObject eo : objects) {
-							if(eo.getType() == EmbeddedObject.EMBED_ATTACHMENT) {
-								Path zip = Files.createTempFile(OpenLibertyUtil.getTempDirectory(), "nsfdeployment", ".zip"); //$NON-NLS-1$ //$NON-NLS-2$
-								Files.deleteIfExists(zip);
-								eo.extractFile(zip.toString());
-								config.addAdditionalZip(zip);
+					for(ServerDocumentHandler handler : getHandlers()) {
+						if(handler.canHandle(serverDoc)) {
+							handler.handle(serverDoc);
+							return;
+						} else {
+							if(log.isLoggable(Level.WARNING)) {
+								log.warning(MessageFormat.format("No handler found for server document UNID {0}", serverDoc.getUniversalID()));
 							}
-						}
-					}
-					
-					config.setLibertyVersion(serverDoc.getItemValueString(ITEM_LIBERTYVERSION));
-					config.setLibertyArtifact(serverDoc.getItemValueString(ITEM_LIBERTYARTIFACT));
-					config.setLibertyMavenRepo(serverDoc.getItemValueString(ITEM_LIBERTYMAVENREPO));
-					
-					
-					OpenLibertyRuntime.instance.registerServer(serverName, config);
-					OpenLibertyRuntime.instance.createServer(serverName);
-					OpenLibertyRuntime.instance.startServer(serverName);
-					
-					// Deploy the attached WAR
-					String contextPath = serverDoc.getItemValueString(ITEM_CONTEXTPATH);
-					if(StringUtil.isEmpty(contextPath)) {
-						contextPath = "/app"; //$NON-NLS-1$
-					}
-					if(!contextPath.startsWith("/")) { //$NON-NLS-1$
-						contextPath = "/" + contextPath; //$NON-NLS-1$
-					}
-					
-					// Generate a name based on the modification time, to avoid Windows file-locking trouble
-					// Shave off the last digit, to avoid trouble with Domino TIMEDATE limitations
-					long docMod = serverDoc.getLastModified().toJavaDate().getTime();
-					docMod = docMod / 10 * 10;
-					Path appsRoot = OpenLibertyUtil.getTempDirectory().resolve("apps"); //$NON-NLS-1$
-					Path appDir = appsRoot.resolve(serverDoc.getNoteID() + '-' + docMod);
-					Files.createDirectories(appDir);
-					Path warPath = appDir.resolve("app.war"); //$NON-NLS-1$
-					
-
-					// See if we need to deploy the file
-					if(!Files.exists(warPath)) {
-						if(log.isLoggable(Level.INFO)) {
-							log.info(format(Messages.getString("AdminNSFService.deployingDefinedApp"), getClass().getSimpleName(), serverName, contextPath)); //$NON-NLS-1$
-						}
-						
-						if(serverDoc.hasItem(ITEM_WAR)) {
-							Item warItem = serverDoc.getFirstItem(ITEM_WAR);
-							if(warItem.getType() == Item.RICHTEXT) {
-								RichTextItem rtItem = (RichTextItem)warItem;
-								@SuppressWarnings("unchecked")
-								Vector<EmbeddedObject> objects = rtItem.getEmbeddedObjects();
-								try {
-									for(EmbeddedObject eo : objects) {
-										// Deploy all attached files
-										if(eo.getType() == EmbeddedObject.EMBED_ATTACHMENT) {
-											eo.extractFile(warPath.toString());
-											break;
-										}
-									}
-								} finally {
-									rtItem.recycle(objects);
-								}
-							}
-							
-							// Add a webApplication entry
-							if(serverXml == null) {
-								serverXml = generateServerXml(serverDoc);
-							}
-							XMLNode webApplication = serverXml.selectSingleNode("/server").addChildElement("webApplication"); //$NON-NLS-1$ //$NON-NLS-2$
-							webApplication.setAttribute("contextRoot", contextPath); //$NON-NLS-1$
-							webApplication.setAttribute("id", "app-" + serverDoc.getNoteID()); //$NON-NLS-1$ //$NON-NLS-2$
-							webApplication.setAttribute("location", warPath.toString()); //$NON-NLS-1$
-							webApplication.setAttribute("name", serverName); //$NON-NLS-1$
 						}
 					}
 				} else {
 					if(log.isLoggable(Level.FINER)) {
 						log.finer(format(Messages.getString("AdminNSFService.skippingUnchangedServer"), getClass().getSimpleName(), serverName)); //$NON-NLS-1$
 					}
-				}
-				
-				if(serverXml != null) {
-					// TODO create a full configuration
-					LibertyServerConfiguration newConfig = new LibertyServerConfiguration();
-					newConfig.setServerXml(serverXml);
-					OpenLibertyRuntime.instance.updateConfiguration(serverName, newConfig);
 				}
 			}
 		} finally {
@@ -387,40 +277,7 @@ public enum AdminNSFService implements Runnable {
 	// * Internal implementation methods
 	// *******************************************************************************
 	
-	private XMLDocument generateServerXml(Document serverDoc) throws NotesException, SAXException, IOException, ParserConfigurationException {
-		String serverXmlString = serverDoc.getItemValueString(ITEM_SERVERXML);
-		XMLDocument serverXml = new XMLDocument(serverXmlString);
-		
-		@SuppressWarnings("unchecked")
-		List<String> integrationFeatures = serverDoc.getItemValue(ITEM_INTEGRATIONFEATURES);
-		integrationFeatures.remove(null);
-		integrationFeatures.remove(""); //$NON-NLS-1$
-		if(!integrationFeatures.isEmpty()) {
-			List<LibertyExtensionDeployer> extensions = OpenLibertyUtil.findExtensions(LibertyExtensionDeployer.class).collect(Collectors.toList());
-			XMLNode featuresElement = serverXml.selectSingleNode("/server/featureManager"); //$NON-NLS-1$
-			if(featuresElement == null) {
-				featuresElement = serverXml.getDocumentElement().addChildElement("featureManager"); //$NON-NLS-1$
-			}
-			
-			for(String featureName : integrationFeatures) {
-				// Map the feature to the right version from the current runtime
-				String version = extensions.stream()
-					.filter(ext -> featureName.equals(ext.getShortName()))
-					.map(LibertyExtensionDeployer::getFeatureVersion)
-					.findFirst()
-					.orElse(""); //$NON-NLS-1$
-				if(!version.isEmpty()) {
-					String feature = format("usr:{0}-{1}", featureName, version); //$NON-NLS-1$
-					XMLNodeList result = featuresElement.selectNodes(format("./feature[starts-with(text(), ''usr:{0}-'')]", featureName)); //$NON-NLS-1$
-					if(result.isEmpty()) {
-						featuresElement.addChildElement("feature").setTextContent(feature); //$NON-NLS-1$
-					}
-				}
-			}
-		}
-		
-		return serverXml;
-	}
+	
 	
 	private boolean needsUpdate(Database adminNsf) throws NotesException {
 		if(lastRun > -1) {
