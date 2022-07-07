@@ -160,16 +160,14 @@ public class ReverseProxyModule extends ComponentModule {
 			// Process the response:
 
 			// Pass the response code. This method with the "reason phrase" is deprecated
-			// but it's the
-			// only way to pass the reason along too.
+			// but it's the only way to pass the reason along too.
 			int statusCode = proxyResponse.getStatusLine().getStatusCode();
 			// noinspection deprecation
 			servletResponse.setStatus(statusCode, proxyResponse.getStatusLine().getReasonPhrase());
 
 			// Copying response headers to make sure SESSIONID or other Cookie which comes
-			// from the remote
-			// server will be saved in client when the proxied url was redirected to another
-			// one.
+			// from the remote server will be saved in client when the proxied url was redirected
+			// to another one.
 			// See issue [#51](https://github.com/mitre/HTTP-Proxy-Servlet/issues/51)
 			copyResponseHeaders(target.getUri(), proxyResponse, servletRequest, servletResponse);
 
