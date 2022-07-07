@@ -15,6 +15,7 @@
  */
 package org.openntf.openliberty.domino.reverseproxy.httpservice;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -37,11 +38,11 @@ import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.AbstractExecutionAwareRequest;
 import org.apache.http.entity.InputStreamEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
@@ -92,7 +93,7 @@ public class ReverseProxyModule extends ComponentModule {
 	}
 	
 	private final ReverseProxyTarget target;
-	private CloseableHttpClient proxyClient;
+	private HttpClient proxyClient;
 
 	public ReverseProxyModule(LCDEnvironment env, ReverseProxyHttpService service, String moduleName, ReverseProxyTarget target) {
 		super(env, service, moduleName, false);
@@ -111,10 +112,10 @@ public class ReverseProxyModule extends ComponentModule {
 
 	@Override
 	protected void doDestroyModule() {
-		CloseableHttpClient client = this.proxyClient;
-		if(client != null) {
+		HttpClient client = this.proxyClient;
+		if(client instanceof Closeable) {
 			try {
-				client.close();
+				((Closeable)client).close();
 			} catch (IOException e) {
 				// Ignore
 			}
@@ -196,7 +197,7 @@ public class ReverseProxyModule extends ComponentModule {
 	// * Proxy implementation
 	// *******************************************************************************
 	
-	private CloseableHttpClient createHttpClient() {
+	private HttpClient createHttpClient() {
 		RequestConfig config = RequestConfig.custom().setCookieSpec(CookieSpecs.IGNORE_COOKIES).build();
 		
 		return HttpClientBuilder.create()
