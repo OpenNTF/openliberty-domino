@@ -22,9 +22,10 @@ import java.net.HttpCookie;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Set;
-import java.util.stream.Stream;
+import java.util.TreeSet;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
@@ -33,7 +34,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
-import org.apache.http.HttpHeaders;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
@@ -44,10 +44,8 @@ import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
-import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicHttpRequest;
-import org.apache.http.message.HeaderGroup;
 import org.apache.http.util.EntityUtils;
 import org.openntf.openliberty.domino.reverseproxy.ReverseProxyTarget;
 
@@ -64,6 +62,35 @@ import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpSessionAdapter;
  * @since 3.1.0
  */
 public class ReverseProxyModule extends ComponentModule {
+	
+	private static final String HEADER_SET_COOKIE = "Set-Cookie"; //$NON-NLS-1$
+	private static final String HEADER_SET_COOKIE2 = "Set-Cookie2"; //$NON-NLS-1$
+	private static final String HEADER_LOCATION = "Location"; //$NON-NLS-1$
+	private static final String HEADER_CONTENT_LENGTH = "Content-Length"; //$NON-NLS-1$
+	private static final String HEADER_TRANSFER_ENCODING = "Transfer-Encoding"; //$NON-NLS-1$
+	private static final String HEADER_X_FORWARDED_FOR = "X-Forwarded-For"; //$NON-NLS-1$
+	private static final String HEADER_X_FORWARDED_PROTO = "X-Forwarded-Proto"; //$NON-NLS-1$
+
+    /** These are the "hop-by-hop" headers that should not be copied.
+     * http://www.w3.org/Protocols/rfc2616/rfc2616-sec13.html
+     */
+	private static final Set<String> hopByHopHeaders;
+	static {
+		hopByHopHeaders = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+		hopByHopHeaders.addAll(Arrays.asList(
+			"Connection", //$NON-NLS-1$
+			"Keep-Alive", //$NON-NLS-1$
+			"Proxy-Authenticate", //$NON-NLS-1$
+			"Proxy-Authorization", //$NON-NLS-1$
+			"TE", //$NON-NLS-1$
+			"Trailers", //$NON-NLS-1$
+			"Transfer-Encoding", //$NON-NLS-1$
+			"Upgrade", //$NON-NLS-1$
+			HEADER_X_FORWARDED_FOR,
+			HEADER_X_FORWARDED_PROTO
+		));
+	}
+	
 	private final ReverseProxyTarget target;
 	private CloseableHttpClient proxyClient;
 
@@ -113,8 +140,8 @@ public class ReverseProxyModule extends ComponentModule {
 
 			// spec: RFC 2616, sec 4.3: either of these two headers signal that there is a
 			// message body.
-			if (servletRequest.getHeader(HttpHeaders.CONTENT_LENGTH) != null
-					|| servletRequest.getHeader(HttpHeaders.TRANSFER_ENCODING) != null) {
+			if (servletRequest.getHeader(HEADER_CONTENT_LENGTH) != null
+					|| servletRequest.getHeader(HEADER_TRANSFER_ENCODING) != null) {
 				proxyRequest = newProxyRequestWithEntity(method, proxyRequestUri, servletRequest);
 			} else {
 				proxyRequest = new BasicHttpRequest(method, proxyRequestUri);
@@ -149,7 +176,7 @@ public class ReverseProxyModule extends ComponentModule {
 				// 304 needs special handling. See:
 				// http://www.ics.uci.edu/pub/ietf/http/rfc1945.html#Code304
 				// Don't send body entity/content!
-				servletResponse.setIntHeader(HttpHeaders.CONTENT_LENGTH, 0);
+				servletResponse.setIntHeader(HEADER_CONTENT_LENGTH, 0);
 			} else {
 				// Send the content to the client
 				copyResponseEntity(proxyResponse, servletResponse, proxyRequest, servletRequest);
@@ -159,10 +186,9 @@ public class ReverseProxyModule extends ComponentModule {
 			handleRequestException(proxyRequest, e);
 		} finally {
 			// make sure the entire entity was consumed, so the connection is released
-			if (proxyResponse != null)
+			if (proxyResponse != null) {
 				EntityUtils.consumeQuietly(proxyResponse.getEntity());
-			// Note: Don't need to close servlet outputStream:
-			// http://stackoverflow.com/questions/1159168/should-one-call-close-on-httpservletresponse-getoutputstream-getwriter
+			}
 		}
 	}
 	
@@ -171,15 +197,13 @@ public class ReverseProxyModule extends ComponentModule {
 	// *******************************************************************************
 	
 	private CloseableHttpClient createHttpClient() {
+		RequestConfig config = RequestConfig.custom().setCookieSpec(CookieSpecs.IGNORE_COOKIES).build();
+		
 		return HttpClientBuilder.create()
-			.setDefaultRequestConfig(buildRequestConfig())
+			.setDefaultRequestConfig(config)
 			.setConnectionManager(new PoolingHttpClientConnectionManager())
 			.disableRedirectHandling()
 			.build();
-	}
-	
-	private RequestConfig buildRequestConfig() {
-		return RequestConfig.custom().setCookieSpec(CookieSpecs.IGNORE_COOKIES).build();
 	}
 	
 	private void handleRequestException(HttpRequest proxyRequest, Throwable e) throws ServletException, IOException {
@@ -226,34 +250,12 @@ public class ReverseProxyModule extends ComponentModule {
 
     // Get the header value as a long in order to more correctly proxy very large requests
     private long getContentLength(HttpServletRequestAdapter request) {
-        String contentLengthHeader = request.getHeader("Content-Length"); //$NON-NLS-1$
+        String contentLengthHeader = request.getHeader(HEADER_CONTENT_LENGTH);
         if (contentLengthHeader != null) {
             return Long.parseLong(contentLengthHeader);
         }
         return -1L;
     }
-
-    /** These are the "hop-by-hop" headers that should not be copied.
-     * http://www.w3.org/Protocols/rfc2616/rfc2616-sec13.html
-     * I use an HttpClient HeaderGroup class instead of Set&lt;String&gt; because this
-     * approach does case insensitive lookup faster.
-     */
-	private static final HeaderGroup hopByHopHeaders;
-	static {
-		hopByHopHeaders = new HeaderGroup();
-		Stream.of(
-			"Connection", //$NON-NLS-1$
-			"Keep-Alive", //$NON-NLS-1$
-			"Proxy-Authenticate", //$NON-NLS-1$
-			"Proxy-Authorization", //$NON-NLS-1$
-			"TE", //$NON-NLS-1$
-			"Trailers", //$NON-NLS-1$
-			"Transfer-Encoding", //$NON-NLS-1$
-			"Upgrade" //$NON-NLS-1$
-			)
-			.map(h -> new BasicHeader(h, null))
-			.forEach(hopByHopHeaders::addHeader);
-	}
 
     /**
      * Copy request headers from the servlet client to the proxy request.
@@ -265,51 +267,41 @@ public class ReverseProxyModule extends ComponentModule {
 		Enumeration<String> enumerationOfHeaderNames = servletRequest.getHeaderNames();
         while (enumerationOfHeaderNames.hasMoreElements()) {
             String headerName = enumerationOfHeaderNames.nextElement();
-            copyRequestHeader(servletRequest, proxyRequest, headerName);
+            
+            // Instead the content-length is effectively set via InputStreamEntity
+    		if (headerName.equalsIgnoreCase(HEADER_CONTENT_LENGTH)) {
+    			continue;
+    		}
+    		if (hopByHopHeaders.contains(headerName)) {
+    			continue;
+    		}
+    		// Avoid copying any connector headers coming in to Domino
+    		if (headerName.toLowerCase().startsWith("$ws")) { //$NON-NLS-1$
+    			continue;
+    		}
+
+    		@SuppressWarnings("unchecked")
+    		Enumeration<String> headers = servletRequest.getHeaders(headerName);
+    		while (headers.hasMoreElements()) {// sometimes more than one value
+    			String headerValue = headers.nextElement();
+    			proxyRequest.addHeader(headerName, headerValue);
+    		}
         }
     }
-
-	/**
-	 * Copy a request header from the servlet client to the proxy request. This is
-	 * easily overridden to filter out certain headers if desired.
-	 */
-	private void copyRequestHeader(HttpServletRequestAdapter servletRequest, HttpRequest proxyRequest,
-			String headerName) {
-		// Instead the content-length is effectively set via InputStreamEntity
-		if (headerName.equalsIgnoreCase(HttpHeaders.CONTENT_LENGTH)) {
-			return;
-		}
-		if (hopByHopHeaders.containsHeader(headerName)) {
-			return;
-		}
-		// Avoid copying any connector headers coming in to Domino
-		if (headerName.startsWith("$WS")) { //$NON-NLS-1$
-			return;
-		}
-
-		@SuppressWarnings("unchecked")
-		Enumeration<String> headers = servletRequest.getHeaders(headerName);
-		while (headers.hasMoreElements()) {// sometimes more than one value
-			String headerValue = headers.nextElement();
-			proxyRequest.addHeader(headerName, headerValue);
-		}
-	}
 
 	private void setForwardingHeaders(ReverseProxyTarget target, HttpServletRequestAdapter servletRequest, HttpRequest proxyRequest) {
 		proxyRequest.setHeader("Host", servletRequest.getServerName()); //$NON-NLS-1$
 		
 		if(target.isUseXForwardedFor()) {
-			String forHeaderName = "X-Forwarded-For"; //$NON-NLS-1$
 			String forHeader = servletRequest.getRemoteAddr();
-			String existingForHeader = servletRequest.getHeader(forHeaderName);
+			String existingForHeader = servletRequest.getHeader(HEADER_X_FORWARDED_FOR);
 			if (existingForHeader != null) {
 				forHeader = existingForHeader + ", " + forHeader; //$NON-NLS-1$
 			}
-			proxyRequest.setHeader(forHeaderName, forHeader);
+			proxyRequest.setHeader(HEADER_X_FORWARDED_FOR, forHeader);
 	
-			String protoHeaderName = "X-Forwarded-Proto"; //$NON-NLS-1$
 			String protoHeader = servletRequest.getScheme();
-			proxyRequest.setHeader(protoHeaderName, protoHeader);
+			proxyRequest.setHeader(HEADER_X_FORWARDED_PROTO, protoHeader);
 		}
 
 		if(target.isUseWsHeaders()) {
@@ -330,27 +322,19 @@ public class ReverseProxyModule extends ComponentModule {
     private void copyResponseHeaders(URI target, HttpResponse proxyResponse, HttpServletRequestAdapter servletRequest,
                                      HttpServletResponseAdapter servletResponse) {
         for (Header header : proxyResponse.getAllHeaders()) {
-            copyResponseHeader(target, servletRequest, servletResponse, header);
-        }
-    }
-
-    /** Copy a proxied response header back to the servlet client.
-     * This is easily overwritten to filter out certain headers if desired.
-     */
-    private void copyResponseHeader(URI target, HttpServletRequestAdapter servletRequest,
-                                    HttpServletResponseAdapter servletResponse, Header header) {
-        String headerName = header.getName();
-        if (hopByHopHeaders.containsHeader(headerName))
-            return;
-        String headerValue = header.getValue();
-        if (headerName.equalsIgnoreCase(org.apache.http.cookie.SM.SET_COOKIE) ||
-                headerName.equalsIgnoreCase(org.apache.http.cookie.SM.SET_COOKIE2)) {
-            copyProxyCookie(servletRequest, servletResponse, headerValue);
-        } else if (headerName.equalsIgnoreCase(HttpHeaders.LOCATION)) {
-            // LOCATION Header may have to be rewritten.
-            servletResponse.addHeader(headerName, rewriteUrlFromResponse(target, servletRequest, headerValue));
-        } else {
-            servletResponse.addHeader(headerName, headerValue);
+        	String headerName = header.getName();
+            if (hopByHopHeaders.contains(headerName))
+                continue;
+            String headerValue = header.getValue();
+            if (headerName.equalsIgnoreCase(HEADER_SET_COOKIE) ||
+                    headerName.equalsIgnoreCase(HEADER_SET_COOKIE2)) {
+                copyProxyCookie(servletRequest, servletResponse, headerValue);
+            } else if (headerName.equalsIgnoreCase(HEADER_LOCATION)) {
+                // LOCATION Header may have to be rewritten.
+                servletResponse.addHeader(headerName, rewriteUrlFromResponse(target, servletRequest, headerValue));
+            } else {
+                servletResponse.addHeader(headerName, headerValue);
+            }
         }
     }
 
