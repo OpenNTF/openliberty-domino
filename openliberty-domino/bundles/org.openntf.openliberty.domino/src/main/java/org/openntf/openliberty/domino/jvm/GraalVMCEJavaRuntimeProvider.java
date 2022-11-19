@@ -103,9 +103,7 @@ public class GraalVMCEJavaRuntimeProvider extends AbstractDownloadingJavaRuntime
 		}
 		
 		// GraalVM content types are all "application/binary", so we have to use the extension
-		String assetName = StringUtil.toString(download.get("name")); //$NON-NLS-1$
-		String contentType = assetName.endsWith(".zip") ? "application/zip" : "application/x-compressed-tar"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		download((String)download.get("browser_download_url"), contentType, jvmDir); //$NON-NLS-1$
+		download((String)download.get("browser_download_url"), jvmDir); //$NON-NLS-1$
 
 		markExecutables(jvmDir);
 		

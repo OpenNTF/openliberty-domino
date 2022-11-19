@@ -95,7 +95,7 @@ public class LibertyRuntimeDeployment implements RuntimeDeploymentTask<LibertySe
 				if(log.isLoggable(Level.INFO)) {
 					log.info(format(Messages.getString("StandardRuntimeDeployment.storingRuntimeAt"), wlpPackage)); //$NON-NLS-1$
 				}
-				OpenLibertyUtil.download(url, is -> {
+				OpenLibertyUtil.download(url, (contentType, is) -> {
 					Files.copy(is, wlpPackage, StandardCopyOption.REPLACE_EXISTING);
 					return null;
 				});

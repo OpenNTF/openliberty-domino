@@ -115,8 +115,7 @@ public class SemeruJavaRuntimeProvider extends AbstractDownloadingJavaRuntimePro
 			log.info(format(Messages.getString("JavaRuntimeProvider.downloadingJDKFrom"), PROVIDER_NAME, download.get("browser_download_url")));  //$NON-NLS-1$//$NON-NLS-2$
 		}
 		
-		String contentType = (String)download.get("content_type"); //$NON-NLS-1$
-		download((String)download.get("browser_download_url"), contentType, jvmDir); //$NON-NLS-1$
+		download((String)download.get("browser_download_url"), jvmDir); //$NON-NLS-1$
 		
 		markExecutables(jvmDir);
 		

@@ -25,11 +25,19 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.SecureRandom;
 import java.util.Optional;
 import java.util.ServiceLoader;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 import org.openntf.openliberty.domino.runtime.Messages;
 import org.openntf.openliberty.domino.util.commons.ibm.StringUtil;
@@ -48,6 +56,19 @@ public enum OpenLibertyUtil {
 		IS_LINUX = os.toLowerCase().contains("linux"); //$NON-NLS-1$
 	}
 	private static Path tempDirectory;
+	private static final TrustManager[] TRUST_ALL = new TrustManager[] {
+		new X509TrustManager() {
+	        public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+	            return null;
+	        }
+	        public void checkClientTrusted(
+	            java.security.cert.X509Certificate[] certs, String authType) {
+	        }
+	        public void checkServerTrusted(
+	            java.security.cert.X509Certificate[] certs, String authType) {
+	        }
+	    }
+	};
 	
 	/**
 	 * Returns an appropriate temp directory for the system. On Windows, this is
@@ -74,9 +95,43 @@ public enum OpenLibertyUtil {
 		return tempDirectory;
 	}
 	
+	/**
+	 * Evaluates the provided task with a context where TLS 1.2 is enabled and SSL
+	 * is configured to trust all certificates.
+	 * 
+	 * @param <T> the type returned by {@code r}
+	 * @param r the task to run
+	 * @return the return value of {@code r}
+	 * @since 4.0.0
+	 */
+	public static <T> T withHttpsContext(Callable<T> r) {
+		// Domino defaults to using old protocols - bump this up for our needs here so the connection succeeds
+		// Also set a trusting SSL factory to allow for newer certs than Domino knows about
+		String protocols = StringUtil.toString(System.getProperty("https.protocols")); //$NON-NLS-1$
+		SSLSocketFactory sslFactory = HttpsURLConnection.getDefaultSSLSocketFactory();
+		try {
+			System.setProperty("https.protocols", "TLSv1.2"); //$NON-NLS-1$ //$NON-NLS-2$
+			
+			SSLContext sc = SSLContext.getInstance("SSL"); //$NON-NLS-1$
+			sc.init(null, TRUST_ALL, new SecureRandom());
+			HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+			
+			return r.call();
+		} catch(RuntimeException e) {
+			throw e;
+		} catch(IOException e) {
+			throw new UncheckedIOException(e);
+		} catch(Exception e) {
+			throw new RuntimeException(e);
+		} finally {
+			System.setProperty("https.protocols", protocols); //$NON-NLS-1$
+			HttpsURLConnection.setDefaultSSLSocketFactory(sslFactory);
+		}
+	}
+	
 	@FunctionalInterface
 	public static interface IOFunction<T> {
-		T apply(InputStream is) throws IOException;
+		T apply(String contentType, InputStream is) throws IOException;
 	}
 	
 	/**
@@ -89,25 +144,39 @@ public enum OpenLibertyUtil {
 	 * @since 2.0.0
 	 */
 	public static <T> T download(URL url, IOFunction<T> consumer) throws IOException {
-		// Domino defaults to using old protocols - bump this up for our needs here so the connection succeeds
-		String protocols = StringUtil.toString(System.getProperty("https.protocols")); //$NON-NLS-1$
-		try {
-			System.setProperty("https.protocols", "TLSv1.2"); //$NON-NLS-1$ //$NON-NLS-2$
+		return withHttpsContext(() -> {
 			HttpURLConnection conn = (HttpURLConnection)url.openConnection();
 			int responseCode = conn.getResponseCode();
 			try {
+				if(responseCode >= 300 && responseCode < 400) {
+					// Passively handle the redirect
+					String location = conn.getHeaderField("Location"); //$NON-NLS-1$
+					return download(new URL(location), consumer);
+				}
+				
 				if(responseCode != HttpURLConnection.HTTP_OK) {
 					throw new IOException(format(Messages.getString("OpenLibertyUtil.unexpectedResponseCodeFromUrl"), responseCode, url)); //$NON-NLS-1$
 				}
 				try(InputStream is = conn.getInputStream()) {
-					return consumer.apply(is);
+					String contentType = conn.getHeaderField("Content-Type"); //$NON-NLS-1$
+					if(StringUtil.isEmpty(contentType) || "application/octet-stream".equals(contentType)) { //$NON-NLS-1$
+						// Check for a Content-Disposition header
+						String disp = conn.getHeaderField("Content-Disposition"); //$NON-NLS-1$
+						if(StringUtil.isNotEmpty(disp) && disp.toLowerCase().startsWith("attachment; filename=")) { //$NON-NLS-1$
+							String fileName = disp.substring("attachment; filename=".length()).toLowerCase(); //$NON-NLS-1$
+							if(fileName.endsWith(".zip")) { //$NON-NLS-1$
+								contentType = "application/zip"; //$NON-NLS-1$
+							} else if(fileName.endsWith(".tar.gz") || fileName.endsWith(".tgz")) { //$NON-NLS-1$ //$NON-NLS-2$
+								contentType = "application/gzip"; //$NON-NLS-1$
+							}
+						}
+					}
+					return consumer.apply(contentType, is);
 				}
 			} finally {
 				conn.disconnect();
 			}
-		} finally {
-			System.setProperty("https.protocols", protocols); //$NON-NLS-1$
-		}
+		});
 	}
 	
 	/**

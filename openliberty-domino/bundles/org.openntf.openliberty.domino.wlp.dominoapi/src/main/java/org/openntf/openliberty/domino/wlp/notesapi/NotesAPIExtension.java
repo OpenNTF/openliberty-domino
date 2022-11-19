@@ -172,7 +172,7 @@ public class NotesAPIExtension implements LibertyExtensionDeployer {
 			}
 			
 			// Copy in CORBA to support Notes.jar in Java > 8
-			OpenLibertyUtil.download(new URL(URL_CORBA), is -> {
+			OpenLibertyUtil.download(new URL(URL_CORBA), (contentType, is) -> {
 				zos.putNextEntry(new ZipEntry("corba.jar")); //$NON-NLS-1$
 				IOUtils.copy(is, zos);
 				return null;

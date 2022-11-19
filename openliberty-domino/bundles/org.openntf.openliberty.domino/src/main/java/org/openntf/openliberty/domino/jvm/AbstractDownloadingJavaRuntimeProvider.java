@@ -54,7 +54,7 @@ public abstract class AbstractDownloadingJavaRuntimeProvider implements JavaRunt
 			log.fine(format(Messages.getString("JavaRuntimeProvider.downloadingReleaseListFrom"), providerName, releasesUrl)); //$NON-NLS-1$
 		}
 		try {
-			return OpenLibertyUtil.download(new URL(releasesUrl), is -> {
+			return OpenLibertyUtil.download(new URL(releasesUrl), (contentType, is) -> {
 				try(Reader r = new InputStreamReader(is)) {
 					return (List<Map<String, Object>>)new JSONParser().parse(r);
 				} catch (ParseException e) {
@@ -66,10 +66,10 @@ public abstract class AbstractDownloadingJavaRuntimeProvider implements JavaRunt
 		}
 	}
 
-	protected static void download(String url, String contentType, Path jvmDir) {
+	protected static void download(String url, Path jvmDir) {
 		// TODO consider replacing with NIO filesystem operations, though they don't inherently support .tar.gz
 		try {
-			OpenLibertyUtil.download(new URL(url), is -> {
+			OpenLibertyUtil.download(new URL(url), (contentType, is) -> {
 				switch(String.valueOf(contentType)) {
 				case "application/zip": //$NON-NLS-1$
 					try(ZipInputStream zis = new ZipInputStream(is)) {
