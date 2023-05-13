@@ -16,8 +16,8 @@
 package org.openntf.openliberty.domino.adminnsf;
 
 import java.util.EventObject;
-import java.util.concurrent.TimeUnit;
 
+import org.openntf.openliberty.domino.event.RefreshDeploymentConfigEvent;
 import org.openntf.openliberty.domino.ext.RuntimeService;
 import org.openntf.openliberty.domino.util.DominoThreadFactory;
 
@@ -25,12 +25,14 @@ public class AdminNSFServiceProvider implements RuntimeService {
 
 	@Override
 	public void run() {
-		DominoThreadFactory.getScheduler().scheduleWithFixedDelay(AdminNSFService.instance, 0, 30, TimeUnit.SECONDS);
+		DominoThreadFactory.getScheduler().submit(AdminNSFService.instance);
 	}
 	
 	@Override
 	public void notifyMessage(EventObject event) {
-		// NOP
+		if(event instanceof RefreshDeploymentConfigEvent) {
+			DominoThreadFactory.getScheduler().submit(AdminNSFService.instance);
+		}
 	}
 	
 	@Override

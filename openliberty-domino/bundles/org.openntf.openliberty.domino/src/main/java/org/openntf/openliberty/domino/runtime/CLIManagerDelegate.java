@@ -103,6 +103,9 @@ public class CLIManagerDelegate implements AutoCloseable {
 			case HELP:
 				emitHelp();
 				return ""; //$NON-NLS-1$
+			case REFRESH:
+				OpenLibertyRuntime.instance.refreshDeploymentConfiguration();
+				return Messages.getString("CLIManagerDelegate.refresh"); //$NON-NLS-1$
 			default:
 				return MessageFormat.format(Messages.getString("CLIManagerDelegate.commandNotYetImplemented"), command); //$NON-NLS-1$
 			}
@@ -125,7 +128,7 @@ public class CLIManagerDelegate implements AutoCloseable {
 	// *******************************************************************************
 
 	private enum Command {
-		STATUS, STOP, START, RESTART, HELP;
+		STATUS, STOP, START, RESTART, HELP, REFRESH;
 	}
 	
 	private Command parseCommand(String command) {

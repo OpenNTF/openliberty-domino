@@ -38,6 +38,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import org.openntf.openliberty.domino.event.EventRecipient;
+import org.openntf.openliberty.domino.event.RefreshDeploymentConfigEvent;
 import org.openntf.openliberty.domino.event.ServerDeployEvent;
 import org.openntf.openliberty.domino.event.ServerStartEvent;
 import org.openntf.openliberty.domino.event.ServerStopEvent;
@@ -123,6 +124,10 @@ public enum OpenLibertyRuntime implements Runnable {
 						for(String serverName : startedServers) {
 							this.serverInstances.get(serverName).showStatus();
 						}
+						break;
+					}
+					case REFRESH: {
+						broadcastMessage(new RefreshDeploymentConfigEvent(this));
 						break;
 					}
 					}
@@ -241,13 +246,22 @@ public enum OpenLibertyRuntime implements Runnable {
 			.collect(Collectors.toList());
 	}
 	
+	/**
+	 * Issues a command to refresh the app deployment configuration.
+	 * 
+	 * @since 4.0.0
+	 */
+	public void refreshDeploymentConfiguration() {
+		taskQueue.add(new RuntimeTask(RuntimeTask.Type.REFRESH));
+	}
+	
 	// *******************************************************************************
 	// * Internal utility methods
 	// *******************************************************************************
 	
 	private static class RuntimeTask {
 		enum Type {
-			START, STOP, CREATE_SERVER, STATUS, UPDATE_DEPLOYMENT
+			START, STOP, CREATE_SERVER, STATUS, UPDATE_DEPLOYMENT, REFRESH
 		}
 		private final Type type;
 		private final Object[] args;
