@@ -111,7 +111,7 @@ public enum OpenLibertyRuntime implements Runnable {
 						broadcastMessage(new ServerDeployEvent(serverInstance));
 						break;
 					}
-					case UPDATE_CONFIGURATION: {
+					case UPDATE_DEPLOYMENT: {
 						String serverName = (String)command.args[0];
 						ServerConfiguration newConfig = (ServerConfiguration)command.args[1];
 						ServerInstance<?> serverInstance = this.serverInstances.get(serverName);
@@ -182,7 +182,7 @@ public enum OpenLibertyRuntime implements Runnable {
 	 */
 	public void registerServer(String serverName, ServerConfiguration config) {
 		if(this.serverInstances.containsKey(serverName)) {
-			taskQueue.add(new RuntimeTask(RuntimeTask.Type.UPDATE_CONFIGURATION, serverName, config));
+			taskQueue.add(new RuntimeTask(RuntimeTask.Type.UPDATE_DEPLOYMENT, serverName, config));
 		} else {
 			this.serverInstances.put(serverName, config.createInstance(serverName));
 		}
@@ -203,7 +203,7 @@ public enum OpenLibertyRuntime implements Runnable {
 	}
 	
 	public void updateConfiguration(String serverName, ServerConfiguration config) {
-		taskQueue.add(new RuntimeTask(RuntimeTask.Type.UPDATE_CONFIGURATION, serverName, config));
+		taskQueue.add(new RuntimeTask(RuntimeTask.Type.UPDATE_DEPLOYMENT, serverName, config));
 	}
 	
 	/**
@@ -247,7 +247,7 @@ public enum OpenLibertyRuntime implements Runnable {
 	
 	private static class RuntimeTask {
 		enum Type {
-			START, STOP, CREATE_SERVER, STATUS, UPDATE_CONFIGURATION
+			START, STOP, CREATE_SERVER, STATUS, UPDATE_DEPLOYMENT
 		}
 		private final Type type;
 		private final Object[] args;
