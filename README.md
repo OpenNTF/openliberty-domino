@@ -41,6 +41,7 @@ The runtime supports several Domino console commands, all of which are prefixed 
 * `start`: Starts all configured Liberty servers
 * `restart`: Equivalent to `stop` followed by `start`
 * `help`: Get a listing of currently-supported options
+* `refresh`: Refreshes the configuration from the NSF without restarting unchanged servers
 
 ## Reverse Proxy
 

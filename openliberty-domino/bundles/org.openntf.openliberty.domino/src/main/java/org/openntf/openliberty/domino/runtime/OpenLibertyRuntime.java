@@ -38,6 +38,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import org.openntf.openliberty.domino.event.EventRecipient;
+import org.openntf.openliberty.domino.event.RefreshDeploymentConfigEvent;
 import org.openntf.openliberty.domino.event.ServerDeployEvent;
 import org.openntf.openliberty.domino.event.ServerStartEvent;
 import org.openntf.openliberty.domino.event.ServerStopEvent;
@@ -111,7 +112,7 @@ public enum OpenLibertyRuntime implements Runnable {
 						broadcastMessage(new ServerDeployEvent(serverInstance));
 						break;
 					}
-					case UPDATE_CONFIGURATION: {
+					case UPDATE_DEPLOYMENT: {
 						String serverName = (String)command.args[0];
 						ServerConfiguration newConfig = (ServerConfiguration)command.args[1];
 						ServerInstance<?> serverInstance = this.serverInstances.get(serverName);
@@ -123,6 +124,10 @@ public enum OpenLibertyRuntime implements Runnable {
 						for(String serverName : startedServers) {
 							this.serverInstances.get(serverName).showStatus();
 						}
+						break;
+					}
+					case REFRESH: {
+						broadcastMessage(new RefreshDeploymentConfigEvent(this));
 						break;
 					}
 					}
@@ -182,7 +187,7 @@ public enum OpenLibertyRuntime implements Runnable {
 	 */
 	public void registerServer(String serverName, ServerConfiguration config) {
 		if(this.serverInstances.containsKey(serverName)) {
-			taskQueue.add(new RuntimeTask(RuntimeTask.Type.UPDATE_CONFIGURATION, serverName, config));
+			taskQueue.add(new RuntimeTask(RuntimeTask.Type.UPDATE_DEPLOYMENT, serverName, config));
 		} else {
 			this.serverInstances.put(serverName, config.createInstance(serverName));
 		}
@@ -203,7 +208,7 @@ public enum OpenLibertyRuntime implements Runnable {
 	}
 	
 	public void updateConfiguration(String serverName, ServerConfiguration config) {
-		taskQueue.add(new RuntimeTask(RuntimeTask.Type.UPDATE_CONFIGURATION, serverName, config));
+		taskQueue.add(new RuntimeTask(RuntimeTask.Type.UPDATE_DEPLOYMENT, serverName, config));
 	}
 	
 	/**
@@ -241,13 +246,22 @@ public enum OpenLibertyRuntime implements Runnable {
 			.collect(Collectors.toList());
 	}
 	
+	/**
+	 * Issues a command to refresh the app deployment configuration.
+	 * 
+	 * @since 4.0.0
+	 */
+	public void refreshDeploymentConfiguration() {
+		taskQueue.add(new RuntimeTask(RuntimeTask.Type.REFRESH));
+	}
+	
 	// *******************************************************************************
 	// * Internal utility methods
 	// *******************************************************************************
 	
 	private static class RuntimeTask {
 		enum Type {
-			START, STOP, CREATE_SERVER, STATUS, UPDATE_CONFIGURATION
+			START, STOP, CREATE_SERVER, STATUS, UPDATE_DEPLOYMENT, REFRESH
 		}
 		private final Type type;
 		private final Object[] args;
