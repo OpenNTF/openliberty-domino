@@ -1,10 +1,48 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<form xmlns="http://www.lotus.com/dxl" name="Server" publicaccess="false" renderpassthrough="true">
-  <code event="windowtitle">
+<?xml version="1.0" encoding="UTF-8"?>
+<note class="form" xmlns="http://www.lotus.com/dxl">
+  <item name="$HTMLCode" sign="true">
+    <rawitemdata type="1">
+X/8QAAIADwAHAAAAAAAAAA==
+</rawitemdata>
+  </item>
+  <item name="$TITLE">
+    <text>Server</text>
+  </item>
+  <item name="$Info" sign="true">
+    <rawitemdata type="1">
+hhgBAIAAAAAAgAAAAQABAP///wAQAAAA
+</rawitemdata>
+  </item>
+  <item name="$SubForms">
+    <textlist>
+      <text>AppBasics</text>
+      <text>JavaRuntimeOptions</text>
+      <text>Footer</text>
+    </textlist>
+  </item>
+  <item name="$SubForm_RepIDs" sign="true">
+    <textlist>
+      <text>0000000000000000</text>
+      <text>0000000000000000</text>
+      <text>0000000000000000</text>
+    </textlist>
+  </item>
+  <item name="$WindowTitle" sign="true">
     <formula>"Liberty Application"</formula>
-  </code>
-  <code event="querysave">
-    <lotusscript>Sub Querysave(Source As Notesuidocument, Continue As Variant)
+  </item>
+  <item name="$Flags">
+    <text/>
+  </item>
+  <item name="$$FormScript" sign="true" summary="false">
+    <text>'++LotusScript Development Environment:2:5:(Options):0:66
+
+'++LotusScript Development Environment:2:5:(Forward):0:1
+Declare Sub Querysave(Source As Notesuidocument, Continue As Variant)
+
+'++LotusScript Development Environment:2:5:(Declarations):0:2
+
+'++LotusScript Development Environment:2:2:Querysave:1:12
+Sub Querysave(Source As Notesuidocument, Continue As Variant)
 	Dim session As New NotesSession
 	
 	Dim xml As String, parser As NotesDOMParser
@@ -37,320 +75,263 @@
 		Source.Document.UseWSHeaders = "N"
 	End If
 End Sub
-</lotusscript>
-  </code>
-  <actionbar bgcolor="#d4d0c8" bordercolor="black">
-    <actionbuttonstyle bgcolor="#d4d0c8"/>
-    <font color="system"/>
-    <border color="system" style="solid" width="0px 0px 1px"/>
-    <action align="right" hide="edit previewedit" icon="4" title="Delete">
-      <code event="click">
-        <formula>@Command([EditClear])</formula>
-      </code>
-    </action>
-    <action hide="edit previewedit" icon="5" title="Edit">
-      <code event="click">
-        <formula>@Command([EditDocument])</formula>
-      </code>
-      <code event="hidewhen">
-        <formula>@ToNumber(@UserAccess(@DbName; [AccessLevel])) &lt; 4 &amp; !(@Name([Abbreviate]; @UserName)=@Author)</formula>
-      </code>
-    </action>
-    <action hide="preview read" title="Save">
-      <code event="click">
-        <formula>@If(
-	@ClientType="Web" | @IsValid; @Do(
-		@Command([FileSave]);
-		@Command([EditDocument])
-	);
-	""
-)</formula>
-      </code>
-    </action>
-    <action hide="preview read" title="Save and Close">
-      <code event="click">
-        <formula>@If(
-	@ClientType="Web" | @IsValid; @Do(
-		@Command([FileSave]);
-		@Command([FileCloseWindow])
-	);
-	""
-)</formula>
-      </code>
-    </action>
-  </actionbar>
-  <body>
-    <richtext>
-      <pardef id="1"/>
-      <par def="1"/>
-      <par def="1">
-        <run>
-          <font size="18pt" style="bold"/>Liberty Application</run>
-      </par>
-      <subformref name="AppBasics"/>
-      <pardef firstlineleftmargin="1in" id="2"/>
-      <par def="2"/>
-      <pardef id="3" leftmargin="1in" spaceafter="1.5">
-        <parstyle alldocuments="true" incyclekey="true" name="Headline" username="Jesse Gallagher-">
-          <font color="purple" name="sans-serif" size="12pt" style="bold"/>
-        </parstyle>
-      </pardef>
-      <par def="3">
-        <run>
-          <font color="purple" size="12pt" style="bold"/>Runtime Configuration</run>
-      </par>
-      <subformref name="JavaRuntimeOptions"/>
-      <par def="2">
-        <run>
-          <font color="purple"/>
-        </run>
-      </par>
-      <table altbgcolor="white" bgcolor="#efefef" colorstyle="left" columnspacing="0.0500in" refwidth="8.9375in" rowspacing="0.0500in" widthtype="fitmargins">
-        <tablecolumn width="2.5000in"/>
-        <tablecolumn width="100%"/>
-        <tablerow>
-          <tablecell borderwidth="0px">
-            <pardef id="4" keeptogether="true" keepwithnext="true"/>
-            <par def="4">WAR File</par>
-          </tablecell>
-          <tablecell borderwidth="0px">
-            <pardef id="5" keeptogether="true" keepwithnext="true"/>
-            <par def="5">
-              <field firstdisplay="attachment" kind="editable" name="WarFile" onlyallow="attachment" type="richtextlite"/>
-            </par>
-          </tablecell>
-        </tablerow>
-        <tablerow>
-          <tablecell borderwidth="0px">
-            <pardef id="6" keeptogether="true" keepwithnext="true"/>
-            <par def="6">Liberty Version</par>
-          </tablecell>
-          <tablecell borderwidth="0px">
-            <pardef id="7" keeptogether="true" keepwithnext="true"/>
-            <par def="7">
-              <field kind="editable" name="LibertyVersion" type="keyword">
-                <keywords allownew="true" ui="dialoglist">
-                  <textlist>
-                    <text>22.0.0.6</text>
-                  </textlist>
-                </keywords>
-                <code event="defaultvalue">
-                  <formula>"21.0.0.2"</formula>
-                </code>
-              </field>
-            </par>
-          </tablecell>
-        </tablerow>
-        <tablerow>
-          <tablecell borderwidth="0px">
-            <par def="6">Artifact <run>
-                <font color="gray" size="8pt"/>(advanced)</run>
-            </par>
-          </tablecell>
-          <tablecell borderwidth="0px">
-            <par def="7">
-              <field kind="editable" name="LibertyArtifact" type="text"/>
-              <compositedata afterbegincount="3" aftercontainercount="1" afterparcount="6" containertype="65418" nexttype="222" prevtype="65418" type="98">
-Yg4BAIQAAAAAAAAAAAA=
-</compositedata>
-            </par>
-            <pardef hide="read print preview" id="8" keeptogether="true" keepwithnext="true"/>
-            <par def="8">
-              <run>
-                <font color="gray" size="8pt"/>Default: io.openliberty:openliberty-runtime</run>
-            </par>
-          </tablecell>
-        </tablerow>
-        <tablerow>
-          <tablecell borderwidth="0px">
-            <par def="6">Maven Repo <run>
-                <font color="gray" size="8pt"/>(advanced)</run>
-            </par>
-          </tablecell>
-          <tablecell borderwidth="0px">
-            <par def="7">
-              <field kind="editable" name="LibertyMavenRepo" type="text"/>
-              <compositedata afterbegincount="3" aftercontainercount="1" afterparcount="6" containertype="65418" nexttype="222" prevtype="65418" type="98">
-Yg4BAIQAAAAAAAAAAAA=
-</compositedata>
-            </par>
-            <par def="8">
-              <run>
-                <font color="gray" size="8pt"/>Default: https://repo.maven.apache.org/maven2/</run>
-            </par>
-          </tablecell>
-        </tablerow>
-      </table>
-      <par def="2"/>
-      <par def="3">
-        <run>
-          <font color="purple" size="12pt" style="bold"/>Server Configuration</run>
-      </par>
-      <table bgcolor="#ffffc2" colorstyle="solid" columnspacing="0.0500in" refwidth="8.9375in" rowspacing="0.0500in" widthtype="fitmargins">
-        <tablecolumn width="100%"/>
-        <tablerow>
-          <tablecell borderwidth="0px">
-            <pardef id="9" keeptogether="true" keepwithnext="true"/>
-            <par def="9">Configuration documentation is available <urllink href="https://www.openliberty.io/docs/ref/config/serverConfiguration.html" showborder="false">
-                <run>
-                  <font color="system"/>on openliberty.io</run>
-              </urllink>
-            </par>
-          </tablecell>
-        </tablerow>
-      </table>
-      <par def="2"/>
-      <table columnspacing="0.0500in" refwidth="8.9361in" rowdisplay="tabs" rowspacing="0.0500in" widthtype="fitmargins">
-        <tablecolumn width="100%"/>
-        <tablerow tablabel="server.xml">
-          <tablecell>
-            <pardef id="10" keeptogether="true" keepwithnext="true"/>
-            <par def="10"/>
-            <table altbgcolor="white" bgcolor="#efefef" colorstyle="left" columnspacing="0.0500in" leftmargin="0.0104in" refwidth="8.8257in" rowspacing="0.0500in" widthtype="fitmargins">
-              <tablecolumn width="2in"/>
-              <tablecolumn width="100%"/>
-              <tablerow>
-                <tablecell borderwidth="0px">
-                  <pardef id="12" keeptogether="true" keepwithnext="true"/>
-                  <par def="12">Integration Features</par>
-                </tablecell>
-                <tablecell borderwidth="0px">
-                  <pardef id="13" keeptogether="true" keepwithnext="true"/>
-                  <par def="13">
-                    <field allowmultivalues="true" description="Domino server names and groups that deploy this server" fieldhelp="*" kind="editable" listdisplayseparator="comma" listinputseparators="comma semicolon newline" name="IntegrationFeatures" type="keyword">
-                      <keywords ui="dialoglist">
-                        <textlist>
-                          <text>Domino Runtime|notesRuntime</text>
-                          <text>Domino User Registry|dominoUserRegistry</text>
-                          <text>Domino API|dominoApi</text>
-                        </textlist>
-                      </keywords>
-                    </field>
-                  </par>
-                </tablecell>
-              </tablerow>
-            </table>
-            <par def="10"/>
-            <par def="10"/>
-            <par def="10">
-              <run>
-                <font name="monospace"/>
-              </run>
-              <run>
-                <font name="monospace"/>
-                <field kind="editable" name="ServerXML" type="text">
-                  <code event="defaultvalue">
-                    <formula>"&lt;?xml version=\"1.0\" encoding=\"UTF-8\"?&gt;
-&lt;server description=\"new server\"&gt;
-
-    &lt;!-- Enable features --&gt;
-    &lt;featureManager&gt;
-        &lt;feature&gt;jsp-2.3&lt;/feature&gt;
-    &lt;/featureManager&gt;
-
-    &lt;!-- To access this server from a remote client add a host attribute to the following element, e.g. host=\"*\" --&gt;
-    &lt;httpEndpoint id=\"defaultHttpEndpoint\"
-                  httpPort=\"9080\"
-                  httpsPort=\"9443\" /&gt;
-
-    &lt;!-- Automatically expand WAR files and EAR files --&gt;
-    &lt;applicationManager autoExpand=\"true\"/&gt;
-&lt;/server&gt;"</formula>
-                  </code>
-                </field>
-              </run>
-              <compositedata afterbegincount="3" aftercontainercount="1" afterparcount="6" containertype="65418" nexttype="222" prevtype="65418" type="98">
-Yg4BAIQAAAAAAAAAAAA=
-</compositedata>
-            </par>
-          </tablecell>
-        </tablerow>
-        <tablerow tablabel="server.env">
-          <tablecell>
-            <par def="10">
-              <run>
-                <font name="monospace"/>
-              </run>
-              <run>
-                <font name="monospace"/>
-                <field kind="editable" name="ServerEnv" type="text"/>
-              </run>
-              <compositedata afterbegincount="3" aftercontainercount="1" afterparcount="6" containertype="65418" nexttype="222" prevtype="65418" type="98">
-Yg4BAIQAAAAAAAAAAAA=
-</compositedata>
-            </par>
-          </tablecell>
-        </tablerow>
-        <tablerow tablabel="jvm.options">
-          <tablecell>
-            <par def="10">
-              <run>
-                <font name="monospace"/>
-              </run>
-              <run>
-                <font name="monospace"/>
-                <field kind="editable" name="JvmOptions" type="text"/>
-              </run>
-              <compositedata afterbegincount="3" aftercontainercount="1" afterparcount="6" containertype="65418" nexttype="222" prevtype="65418" type="98">
-Yg4BAIQAAAAAAAAAAAA=
-</compositedata>
-            </par>
-          </tablecell>
-        </tablerow>
-        <tablerow tablabel="bootstrap.properties">
-          <tablecell>
-            <par def="10">
-              <run>
-                <font name="monospace"/>
-              </run>
-              <run>
-                <font name="monospace"/>
-                <field kind="editable" name="BootstrapProperties" type="text"/>
-              </run>
-              <compositedata afterbegincount="3" aftercontainercount="1" afterparcount="6" containertype="65418" nexttype="222" prevtype="65418" type="98">
-Yg4BAIQAAAAAAAAAAAA=
-</compositedata>
-            </par>
-          </tablecell>
-        </tablerow>
-        <tablerow tablabel="Additional Deployment ZIPs">
-          <tablecell>
-            <par def="10"/>
-            <par def="10">
-              <run>
-                <font color="gray"/>Any attached ZIP files are expanded in the base directory of the deployed server.</run>
-            </par>
-            <par def="10"/>
-            <par def="10">
-              <field firstdisplay="attachment" kind="editable" name="DeploymentZIPs" onlyallow="attachment" type="richtextlite"/>
-            </par>
-          </tablecell>
-        </tablerow>
-      </table>
-      <subformref name="Footer"/>
-      <pardef align="right" id="14">
-        <code event="hidewhen">
-          <formula>@IsNewDoc</formula>
-        </code>
-      </pardef>
-      <par def="14"/>
-    </richtext>
-  </body>
-  <item name="$SubForm_RepIDs" sign="true">
-    <textlist>
-      <text>0000000000000000</text>
-      <text>0000000000000000</text>
-      <text>0000000000000000</text>
-    </textlist>
+'++LotusScript Development Environment:2:2:BindEvents:1:129
+Private Sub BindEvents ( Byval ObjectName_ As String )
+	Static Source As NOTESUIDOCUMENT
+	Set Source = Bind(Objectname_)
+	On Event QUERYSAVE From Source Call QUERYSAVE
+End Sub<break/>
+    </text>
+  </item>
+  <item name="Name" placeholder="true">
+    <rawitemdata type="0"/>
+  </item>
+  <item name="DominoServers" placeholder="true">
+    <rawitemdata type="0"/>
+  </item>
+  <item name="ContextRoot" placeholder="true">
+    <rawitemdata type="0"/>
+  </item>
+  <item name="IncludeInReverseProxy" placeholder="true">
+    <rawitemdata type="0"/>
+  </item>
+  <item name="HTTPHost" placeholder="true">
+    <rawitemdata type="0"/>
+  </item>
+  <item name="HTTPPort" placeholder="true">
+    <rawitemdata type="0"/>
+  </item>
+  <item name="HTTPSPort" placeholder="true">
+    <rawitemdata type="0"/>
+  </item>
+  <item name="UseXForwardedFor" placeholder="true">
+    <rawitemdata type="0"/>
+  </item>
+  <item name="UseWSHeaders" placeholder="true">
+    <rawitemdata type="0"/>
+  </item>
+  <item name="JavaJVM" placeholder="true">
+    <rawitemdata type="0"/>
+  </item>
+  <item name="JavaVersion" placeholder="true">
+    <rawitemdata type="0"/>
+  </item>
+  <item name="WarFile" placeholder="true">
+    <rawitemdata type="0"/>
+  </item>
+  <item name="LibertyVersion" placeholder="true">
+    <rawitemdata type="0"/>
+  </item>
+  <item name="LibertyArtifact" placeholder="true">
+    <rawitemdata type="0"/>
+  </item>
+  <item name="LibertyMavenRepo" placeholder="true">
+    <rawitemdata type="0"/>
+  </item>
+  <item name="IntegrationFeatures" placeholder="true">
+    <rawitemdata type="0"/>
+  </item>
+  <item name="ServerXML" placeholder="true">
+    <rawitemdata type="0"/>
+  </item>
+  <item name="ServerEnv" placeholder="true">
+    <rawitemdata type="0"/>
+  </item>
+  <item name="JvmOptions" placeholder="true">
+    <rawitemdata type="0"/>
+  </item>
+  <item name="BootstrapProperties" placeholder="true">
+    <rawitemdata type="0"/>
+  </item>
+  <item name="DeploymentZIPs" placeholder="true">
+    <rawitemdata type="0"/>
+  </item>
+  <item name="CreatedBy" placeholder="true">
+    <rawitemdata type="0"/>
   </item>
   <item name="DateComposed" summary="false">
     <rawitemdata type="400">
 AAAAAAAAAAA=
 </rawitemdata>
   </item>
+  <item name="ModifiedBy" placeholder="true">
+    <rawitemdata type="0"/>
+  </item>
   <item name="DateModified" summary="false">
     <rawitemdata type="400">
 AAAAAAAAAAA=
 </rawitemdata>
   </item>
-</form>
+  <item name="$Fields">
+    <textlist>
+      <text>DateModified</text>
+      <text>ModifiedBy</text>
+      <text>DateComposed</text>
+      <text>CreatedBy</text>
+      <text>DeploymentZIPs</text>
+      <text>BootstrapProperties</text>
+      <text>JvmOptions</text>
+      <text>ServerEnv</text>
+      <text>ServerXML</text>
+      <text>IntegrationFeatures</text>
+      <text>LibertyMavenRepo</text>
+      <text>LibertyArtifact</text>
+      <text>LibertyVersion</text>
+      <text>WarFile</text>
+      <text>JavaVersion</text>
+      <text>JavaJVM</text>
+      <text>UseWSHeaders</text>
+      <text>UseXForwardedFor</text>
+      <text>HTTPSPort</text>
+      <text>HTTPPort</text>
+      <text>HTTPHost</text>
+      <text>IncludeInReverseProxy</text>
+      <text>ContextRoot</text>
+      <text>DominoServers</text>
+      <text>Name</text>
+    </textlist>
+  </item>
+  <item name="$Body" sign="true">
+    <rawitemdata type="1">
+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
+DgAAAAAAAAABAAAKAAAAAAEAAAAAAN4GAQD7/6MOoAVIAEgASABIAINvpBIAAOgFnjeAcAACAAAB
+AQAAgQKC/1oACQAAAAAAAAAAAOgFnjfoBQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAIYBAAAAAJSHAAAAAAAAAAAAAAAAAQAAAAQAAACDBAkAhf8xAAEAAApDb25maWd1
+cmF0aW9uIGRvY3VtZW50YXRpb24gaXMgYXZhaWxhYmxlIADdBgAArf9+/wwAIAAIAAAAAAD2/14A
+AAAAAAEAAABEAAAAAAAAAAAAAAAAAGh0dHBzOi8vd3d3Lm9wZW5saWJlcnR5LmlvL2RvY3MvcmVm
+L2NvbmZpZy9zZXJ2ZXJDb25maWd1cmF0aW9uLmh0bWwArf9QAAsACBAAAEQAaHR0cHM6Ly93d3cu
+b3BlbmxpYmVydHkuaW8vZG9jcy9yZWYvY29uZmlnL3NlcnZlckNvbmZpZ3VyYXRpb24uaHRtbADd
+BgAAhf+F/xkAAQAECm9uIG9wZW5saWJlcnR5LmlvANIICQAAAP8A3gYAAIX/rgLeBgAArgCF/wgA
+AQAACqUGAAAAAIECgwQCAIX/CAABAAAKgQKDBAIA3QYBAPv/+/8sAAEAAAAFAQAAAAAAAAAABAAA
+AAAAAAAAAAAAAAABAAAAAAAAAAAAAABc/z4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAADgAAAAAAAAABAAAKAAAAAAEAAAAAAN4GAQD7/6MOoAVIAEgASABIAEMApBIAAOgFnDeA
+cFUCEREBAQAAgQKC/1oACgAAAAAAAAAAAPcFnDf3BQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAIYBAAAAAJSHAAAAAAAAAAAAAAAAAQAAAAQAAACDBAoAhf8IAAEAAAqB
+AoL/WgALAAAAAAAAAAAA9wWcN/cFAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAgAEAAAAAlIQPAAAADwAAAAAAAAABAAAABAAAAIMECwDdBgEA+//7/ywAAQAAAAECAQAA
+AAAAAAAAAAAAAADv7+8A////AAEAAAAAAAAAAAAAAFz/PgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAOAAAAAAAAAAEAAAoAAAAAAQAAAAAA3gYBAPv/zw73BUgASABIAEgAAgLQ
+EgAAPwZ/EQAAAAIAAAEBAACBAoL/WgAMAAAAAAAAAAAAPwZ/ET8GAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAhgEAAAAAlIcAAAAAAAAAAAAAAAABAAAABAAAAIMEDACF
+/xwAAQAACkludGVncmF0aW9uIEZlYXR1cmVz0BIAAQ8SVDeAcAACAAABAQAAgQKC/1oADQAAAAAA
+AAAAAA8SVDcPEgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIYBAAAA
+AJSHAAAAAAAAAAAAAAAAAQAAAAQAAACDBA0Ahf8IAAEAAArdBgAAiv/+/1AAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAIr/zACKAgEFDiAAAAAAAAAAAAEAAAoAAAAAAAAAABMANgBeAEludGVncmF0aW9uRmVh
+dHVyZXNEb21pbm8gc2VydmVyIG5hbWVzIGFuZCBncm91cHMgdGhhdCBkZXBsb3kgdGhpcyBzZXJ2
+ZXIDABsAJwAUAERvbWlubyBSdW50aW1lfG5vdGVzUnVudGltZURvbWlubyBVc2VyIFJlZ2lzdHJ5
+fGRvbWlub1VzZXJSZWdpc3RyeURvbWlubyBBUEl8ZG9taW5vQXBpAOn/EAABAAAAAAAAAAAAKgDe
+BgAAiv+F/wgAAQAACtEGAAAAAIECgwQKAIX/CAABAAAKgQKDBAoAhf8IAAEAAAqBAoMECgCF/wgA
+BAAACt0GAACK//7/UAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAiv9IAooAAAUAMAAAAAAAAAAABAAAChoC
+AAAAAAAACQAAAAAAGgIAABgCAQAOAjw/eG1sIHZlcnNpb249IjEuMCIgZW5jb2Rpbmc9IlVURi04
+Ij8+ADxzZXJ2ZXIgZGVzY3JpcHRpb249Im5ldyBzZXJ2ZXIiPgAAICAgIDwhLS0gRW5hYmxlIGZl
+YXR1cmVzIC0tPgAgICAgPGZlYXR1cmVNYW5hZ2VyPgAgICAgICAgIDxmZWF0dXJlPmpzcC0yLjM8
+L2ZlYXR1cmU+ACAgICA8L2ZlYXR1cmVNYW5hZ2VyPgAAICAgIDwhLS0gVG8gYWNjZXNzIHRoaXMg
+c2VydmVyIGZyb20gYSByZW1vdGUgY2xpZW50IGFkZCBhIGhvc3QgYXR0cmlidXRlIHRvIHRoZSBm
+b2xsb3dpbmcgZWxlbWVudCwgZS5nLiBob3N0PSIqIiAtLT4AICAgIDxodHRwRW5kcG9pbnQgaWQ9
+ImRlZmF1bHRIdHRwRW5kcG9pbnQiACAgICAgICAgICAgICAgICAgIGh0dHBQb3J0PSI5MDgwIgAg
+ICAgICAgICAgICAgICAgICBodHRwc1BvcnQ9Ijk0NDMiIC8+AAAgICAgPCEtLSBBdXRvbWF0aWNh
+bGx5IGV4cGFuZCBXQVIgZmlsZXMgYW5kIEVBUiBmaWxlcyAtLT4AICAgIDxhcHBsaWNhdGlvbk1h
+bmFnZXIgYXV0b0V4cGFuZD0idHJ1ZSIvPgA8L3NlcnZlcj4DAFNlcnZlclhNTABiDgEAhAAAAAAA
+AAAAAN4GAACK/4X/CAABAAAK4/+MAHNlcnZlci54bWwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgCkEgEA6AWcN4BwVQIR
+EQEBAACBAoMECgCF/wgABAAACt0GAACK//7/UAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAiv8uAIoAAAUA
+MAAAAAAAAAAABAAACgAAAAAAAAAACQAAAAAAU2VydmVyRW52AGIOAQCEAAAAAAAAAAAA3gYAAIr/
+hf8IAAEAAArj/4wAc2VydmVyLmVudgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAKQSAgDoBZw3gHBVAhERAQEAAIECgwQK
+AIX/CAAEAAAK3QYAAIr//v9QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACK/y4AigAABQAwAAAAAAAAAAAE
+AAAKAAAAAAAAAAAKAAAAAABKdm1PcHRpb25zYg4BAIQAAAAAAAAAAADeBgAAiv+F/wgAAQAACuP/
+jABqdm0ub3B0aW9ucwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIApBIDAOgFnDeAcFUCEREBAQAAgQKDBAoAhf8IAAQAAArd
+BgAAiv/+/1AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIr/OACKAAAFADAAAAAAAAAAAAQAAAoAAAAAAAAA
+ABMAAAAAAEJvb3RzdHJhcFByb3BlcnRpZXMAYg4BAIQAAAAAAAAAAADeBgAAiv+F/wgAAQAACuP/
+jABib290c3RyYXAucHJvcGVydGllcwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIApBIEAOgFnDeAcFUCEREBAQAAgQKDBAoAhf8IAAEAAAqB
+AoMECgDdBgAAhf+F/1kAAQAOCkFueSBhdHRhY2hlZCBaSVAgZmlsZXMgYXJlIGV4cGFuZGVkIGlu
+IHRoZSBiYXNlIGRpcmVjdG9yeSBvZiB0aGUgZGVwbG95ZWQgc2VydmVyLgDSCAEAgICAAN4GAACF
+/4ECgwQKAIX/CAABAAAKgQKDBAoAhf8IAAEAAArdBgAAiv/+/1AAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+ALD/FAAAAAAAAAAIAAAAAAAAAAAAiv8yAIIAAQAAAAAAAAAAAAAAAQAACgAAAAAAAAAADgAAAAAA
+RGVwbG95bWVudFpJUHNiDgEAgQAAAAAAAAEAAN4GAACK/4X/CAABAAAK4/+MAEFkZGl0aW9uYWwg
+RGVwbG95bWVudCBaSVBzAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAgClBgAAAACBAoMEAQCF/wgAAQAACt0GAACt/3H/KAAAAAAAAwAYAAYAAAAAAAAA
+AAAAAAAAAAAAAAAAAABGb290ZXKt/xMADgAIAAAABwBGb290ZXIAAK4C3gYAAK4Ahf8IAAEAAAqB
+AoL/WgAOAAEAAAAAAAAAoAUAAKAFAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAkAAAAAlIcAAAAAAAAAAAAAAAABAAAABAAAALv/GAAOAAAAJuDRJxjgCgAAAAgAiQAD
+AIMEDgCF/wgAAQAACg==
+</rawitemdata>
+  </item>
+  <item name="$V5ACTIONS" sign="true">
+    <rawitemdata type="1">
+vRwjAAAAAQABAAAAAQAAAAAAAAAAAAAACAAAAHn/bAABANTQyAABAAAAAAAJAAAAAAABANTQyAAA
+AB8AAAAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAPz/OgAAAAAAAQAAAAAAAQAAAAAAAAAAAAwAAAAAAAAAAAAA
+AAAAAAAAAAkAwMDAAAAAAAAAAAAAAAC+/zwAAAABAAQAjwAAAQYAAAAAAAAARGVsZXRlIAAAABIA
+AgDaBwAAAAAAAO0BAwAHAAwABQAJMFMwRQC+/5YAAAABAAUADwAAAAQAXAAAAAAARWRpdCAAAAAS
+AAIA6AcAAAAAAADtAQMABwAMAAUACTBTMEUAXAAKAAQAAAA+AIsAAgApAQAAAAAAAPsCKgH7AVQB
+AAAAAAAAAAAQQA4CAgAFAAAAAAAAAPQAtAJ5AAoCBAAeARwCAwAHABgAEQAJNlM5UzEwUzExUzEy
+UzE4UwC+/4wAAAABAAAAkwEAAAQAAAAAAAAAU2F2ZXIACgAEAAAARgD7AAUBAQADAFdlYgAKAuQA
+HQKvACwAIAACAMYLAAAAAAAA7QECAOgHAAAAAAAA7QGzAq4ADAABAAAArgAEALUDAwAHACYAHwAJ
+MlJUNVM2UzhTMTBSVFQxNVJUVDE5UlQyMVJUMjJSAL7/lgAAAAEAAACTAQAADgAAAAAAAABTYXZl
+IGFuZCBDbG9zZXIACgAEAAAARgD7AAUBAQADAFdlYgAKAuQAHQKvACwAIAACAMYLAAAAAAAA7QEC
+APwRAAAAAAAA7QGzAq4ADAABAAAArgAEALUDAwAHACYAHwAJMlJUNVM2UzhTMTBSVFQxNVJUVDE5
+UlQyMVJUMjJSAA==
+</rawitemdata>
+  </item>
+</note>

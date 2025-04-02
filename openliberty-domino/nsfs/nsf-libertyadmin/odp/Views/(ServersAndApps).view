@@ -1,21 +1,53 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<view xmlns="http://www.lotus.com/dxl" allowcustomizations="false" allownewdocuments="false" altrowcolor="#efefef" bgcolor="white" boldunreadrows="false" comment="Provides programmatic lookup of servers and app documents" evaluateactions="false" extendlastcolumn="true" gridcolor="white" gridstyle="solid" headerbgcolor="white" headerlinecount="1" headers="beveled" hidemarginborder="false" marginbgcolor="white" marginwidth="0px" name="(ServersAndApps)" onopengoto="lastopened" onrefresh="displayindicator" opencollapsed="false" publicaccess="false" rowlinecount="1" rowspacing="1" showhierarchies="false" showinmenu="false" showmargin="true" showresponsehierarchy="true" shrinkrows="false" totalscolor="black" uniquekeys="false" unreadcolor="black" unreadmarks="none">
-  <code event="selection">
-    <formula>SELECT Form="Server":"DropinApp" &amp; !@IsAvailable($Conflict)</formula>
-  </code>
-  <actionbar bgcolor="#d4d0c8" bordercolor="black">
-    <actionbuttonstyle bgcolor="#d4d0c8"/>
-    <font color="system"/>
-    <border style="solid" width="0px 0px 1px"/>
-  </actionbar>
-  <column hidedetailrows="false" itemname="AppName" resizable="true" responsesonly="true" separatemultiplevalues="false" showaslinks="false" sortnoaccent="false" sortnocase="true" width="1.1250">
-    <columnheader>
-      <font size="9pt" style="bold"/>
-    </columnheader>
-  </column>
-  <column hidedetailrows="false" itemname="Name" resizable="true" separatemultiplevalues="false" showaslinks="false" sort="ascending" sortnoaccent="false" sortnocase="true" width="10">
-    <columnheader title="Name">
-      <font size="9pt" style="bold"/>
-    </columnheader>
-  </column>
-</view>
+<?xml version="1.0" encoding="UTF-8"?>
+<note class="view" xmlns="http://www.lotus.com/dxl">
+  <item name="$FormatNote" sign="true" summary="true">
+    <rawitemdata type="4">
+AQB34XWgl8DobRQ7ZAAShSWF
+</rawitemdata>
+  </item>
+  <item name="$FormulaClass" sign="true">
+    <text>1</text>
+  </item>
+  <item name="$TITLE" sign="true">
+    <text>(ServersAndApps)</text>
+  </item>
+  <item name="$Index" sign="true">
+    <text/>
+  </item>
+  <item name="$Formula" sign="true" summary="true">
+    <formula compiled="true">
+egAFACgAJAAEAAcABAAJAAQAQXBwTmFtZU5hbWUkQ29uZmxpY3QkUkVGBAAEAAAAPgAFAAQARm9y
+bQEABgBTZXJ2ZXIBAAkARHJvcGluQXBwAB8CCgIFAAkAJENvbmZsaWN0AGgBHgEcAgMABwAOAAgA
+CUwxUzZTN1M=
+</formula>
+  </item>
+  <item name="$Collation" summary="true">
+    <rawitemdata type="2">
+EQABAABEgGYAAAAEAE5hbWU=
+</rawitemdata>
+  </item>
+  <item name="$ViewFormat" sign="true" summary="true">
+    <rawitemdata type="5">
+AQACAAQAiEAAAFZDEAAHAAAAAAAAAAkAAQAACgAAAAAAAAAAAAICAAAAVkMBAAQABAAAAAAAUAAB
+AAAKAAAAAAAAAAAAAgIAAABBcHBOYW1lTmFtZU5hbWUmAAEAAAABAQAJAQAACgEBDgoAAD8ArSsB
+AAEAAQAAAAAAAAAAAFdDAQEACQAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAP//AAAAAAAAAAAAAAAA
+AABXQwEBAAkAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAD//wAAAAAAAAAAAAAAAAAAQgARAAAAAQD/
+//8AAQDv7+8AAQD///8AAAAAAAAAAAABAP///wABAP///wAAAAEAAAAAAAEAAAAAAAEAAAAAAAAA
+CAAAAAAAAQA=
+</rawitemdata>
+  </item>
+  <item name="$Comment" sign="true">
+    <text>Provides programmatic lookup of servers and app documents</text>
+  </item>
+  <item name="$V5ACTIONS" sign="true">
+    <rawitemdata type="1">
+vRwjAAAAAQABAAAAAQAAAAAAAAAAAAAACAACAHn/bAABANTQyAABAAAAAAAJAAAAAAABANTQyAAA
+AB8AAAAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAPz/OgAAAAAAAQAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAEAAAAAAAAAAAAAAAAAAAA=
+</rawitemdata>
+  </item>
+  <item name="$Flags">
+    <text>Y</text>
+  </item>
+</note>

@@ -1,30 +1,54 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<view xmlns="http://www.lotus.com/dxl" allowcustomizations="false" allownewdocuments="false" altrowcolor="#efefef" bgcolor="white" boldunreadrows="false" comment="Provides programmatic lookup of Domino-server configurations" evaluateactions="false" extendlastcolumn="true" gridcolor="white" gridstyle="solid" headerbgcolor="white" headerlinecount="1" headers="beveled" hide="web" hidemarginborder="false" marginbgcolor="white" marginwidth="0px" name="(ConfigurationLookup)" onopengoto="lastopened" onrefresh="displayindicator" opencollapsed="false" publicaccess="false" rowlinecount="1" rowspacing="1" showhierarchies="false" showinmenu="false" showmargin="true" showresponsehierarchy="true" shrinkrows="false" totalscolor="black" uniquekeys="false" unreadcolor="black" unreadmarks="none">
-  <code event="selection">
-    <formula>SELECT Form="Configuration" &amp; !@IsAvailable($Conflict)</formula>
-  </code>
-  <actionbar bgcolor="#d4d0c8" bordercolor="black">
-    <actionbuttonstyle bgcolor="#d4d0c8"/>
-    <font color="system"/>
-    <border style="solid" width="0px 0px 1px"/>
-    <action icon="30" title="Create\Configuration">
-      <code event="click">
-        <formula>@Command([Compose]; "Configuration")</formula>
-      </code>
-    </action>
-  </actionbar>
-  <column hidedetailrows="false" itemname="Server" resizable="true" separatemultiplevalues="false" showaslinks="false" sort="ascending" sortnoaccent="false" sortnocase="true" width="20">
-    <columnheader title="Server">
-      <font size="9pt" style="bold underline"/>
-    </columnheader>
-    <columnnamesformat columncontainsname="true" showonline="false"/>
-  </column>
-  <column hidedetailrows="false" itemname="$4" resizable="true" separatemultiplevalues="false" showaslinks="false" sortnoaccent="false" sortnocase="true" width="15">
-    <columnheader title="Modified">
-      <font size="9pt" style="bold"/>
-    </columnheader>
-    <code event="value">
-      <formula>@Modified</formula>
-    </code>
-  </column>
-</view>
+<?xml version="1.0" encoding="UTF-8"?>
+<note class="view" xmlns="http://www.lotus.com/dxl">
+  <item name="$FormatNote" sign="true" summary="true">
+    <rawitemdata type="4">
+AQB+KIAn7bruOpvxfwCFfCWF
+</rawitemdata>
+  </item>
+  <item name="$FormulaClass" sign="true">
+    <text>1</text>
+  </item>
+  <item name="$Index" sign="true">
+    <text/>
+  </item>
+  <item name="$Formula" sign="true" summary="true">
+    <formula compiled="true">
+fAACAAwAAgAkNKQAAwAFACYAIQAEAAYAAgAJAAQAU2VydmVyJDQkQ29uZmxpY3QkUkVGAAQABAAA
+ADYABQAEAEZvcm0BAA0AQ29uZmlndXJhdGlvbgAKAgUACQAkQ29uZmxpY3QAaAEeARwCAwAHAA4A
+CAAJTDFTNFM1Uw==
+</formula>
+  </item>
+  <item name="$Collation" summary="true">
+    <rawitemdata type="2">
+EwABAABEgGYAAAAGAFNlcnZlcg==
+</rawitemdata>
+  </item>
+  <item name="$ViewFormat" sign="true" summary="true">
+    <rawitemdata type="5">
+AQACAAMAiEAAAFZDAQAGAAYAAAAAAKAAAQAACgAAAAAAAAAAAAICAAAAVkMAAAIACAAOAAAAeAAB
+AAAKAAAAAAAAAAAAAgIAAABTZXJ2ZXJTZXJ2ZXIkNE1vZGlmaWVkDgACAAwAAgAkNKQAAwAmAAEA
+AAABAQAJAQAACgEBDgoAAD8ArSsBAAEAAQAAAAAAAAAAAFdDAQUACQAAAAAAAAAAAAAAAAAAAAAA
+AAQIAAAAAP//AAAAAAAAAAAAAAAAAABXQwEBAAkAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAD//wAA
+AAAAAAAAAAAAAAAAQgARAAAAAQD///8AAQDv7+8AAQD///8AAAAAAAAAAAABAP///wABAP///wAA
+AAEAAAAAAAEAAAAAAAEAAAAAAAAACAAAAAAAAQBgQxwAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+</rawitemdata>
+  </item>
+  <item name="$Flags">
+    <text>Yw</text>
+  </item>
+  <item name="$V5ACTIONS" sign="true">
+    <rawitemdata type="1">
+vRwjAAAAAQABAAAAAQAAAAAAAAAAAAAACAACAHn/bAABANTQyAABAAAAAAAJAAAAAAABANTQyAAA
+AB8AAAAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAPz/OgAAAAAAAQAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAEAAAAAAAAAAAAAAAAAAAC+/1oAAAABAB4AnwEAABQAAAAAAAAAQ3JlYXRlXENvbmZp
+Z3VyYXRpb24wAAAAJAACAOgDAAAAAAAAAQANAENvbmZpZ3VyYXRpb24A7QIDAAcACgADAAk0UwA=
+</rawitemdata>
+  </item>
+  <item name="$TITLE" sign="true">
+    <text>(ConfigurationLookup)</text>
+  </item>
+  <item name="$Comment" sign="true">
+    <text>Provides programmatic lookup of Domino-server configurations</text>
+  </item>
+</note>

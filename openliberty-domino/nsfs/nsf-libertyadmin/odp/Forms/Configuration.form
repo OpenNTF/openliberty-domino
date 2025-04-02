@@ -1,396 +1,244 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<form xmlns="http://www.lotus.com/dxl" name="Configuration" publicaccess="false" renderpassthrough="true">
-  <code event="windowtitle">
-    <formula>"Server"</formula>
-  </code>
-  <actionbar bgcolor="#d4d0c8" bordercolor="black">
-    <actionbuttonstyle bgcolor="#d4d0c8"/>
-    <font color="system"/>
-    <border style="solid" width="0px 0px 1px"/>
-    <action align="right" hide="edit previewedit" icon="4" title="Delete">
-      <code event="click">
-        <formula>@Command([EditClear])</formula>
-      </code>
-    </action>
-    <action hide="edit previewedit" icon="5" title="Edit">
-      <code event="click">
-        <formula>@Command([EditDocument])</formula>
-      </code>
-      <code event="hidewhen">
-        <formula>@ToNumber(@UserAccess(@DbName; [AccessLevel])) &lt; 4 &amp; !(@Name([Abbreviate]; @UserName)=@Author)</formula>
-      </code>
-    </action>
-    <action hide="preview read" title="Save">
-      <code event="click">
-        <formula>@If(
-	@ClientType="Web" | @IsValid; @Do(
-		@Command([FileSave]);
-		@Command([EditDocument])
-	);
-	""
-)</formula>
-      </code>
-    </action>
-    <action hide="preview read" title="Save and Close">
-      <code event="click">
-        <formula>@If(
-	@ClientType="Web" | @IsValid; @Do(
-		@Command([FileSave]);
-		@Command([FileCloseWindow])
-	);
-	""
-)</formula>
-      </code>
-    </action>
-  </actionbar>
-  <body>
-    <richtext>
-      <pardef id="1"/>
-      <par def="1"/>
-      <par def="1">
-        <run>
-          <font size="18pt" style="bold"/>
-        </run>
-        <run>
-          <font size="18pt" style="bold"/>
-          <computedtext>
-            <code event="value">
-              <formula>@If(Server=""; "Default Server Configuration"; "Configuration for " + @Name([Abbreviate]; Server))</formula>
-            </code>
-          </computedtext>
-        </run>
-        <run>
-          <font size="18pt" style="bold"/>
-        </run>
-      </par>
-      <par def="1"/>
-      <pardef id="2" leftmargin="1in" spaceafter="1.5">
-        <parstyle alldocuments="true" incyclekey="true" name="Headline" username="Jesse Gallagher-">
-          <font color="purple" name="sans-serif" size="12pt" style="bold"/>
-        </parstyle>
-      </pardef>
-      <par def="2">
-        <run>
-          <font color="purple" size="12pt" style="bold"/>General</run>
-      </par>
-      <par def="1"/>
-      <table altbgcolor="white" bgcolor="#efefef" colorstyle="left" columnspacing="0.0500in" refwidth="8.7292in" rowspacing="0.0500in" widthtype="fitmargins">
-        <tablecolumn width="2.5000in"/>
-        <tablecolumn width="100%"/>
-        <tablerow>
-          <tablecell borderwidth="0px">
-            <pardef id="4" keeptogether="true" keepwithnext="true"/>
-            <par def="4">Server</par>
-          </tablecell>
-          <tablecell borderwidth="0px">
-            <pardef id="5" keeptogether="true" keepwithnext="true"/>
-            <par def="5">
-              <field choicesdialog="addressbook" kind="editable" lookupaddressonrefresh="false" lookupeachchar="false" name="Server" type="names"/>
-            </par>
-            <pardef hide="read print preview" id="6" keeptogether="true" keepwithnext="true"/>
-            <par def="6">
-              <run>
-                <font color="gray" size="8pt"/>Leave blank to apply as the default</run>
-            </par>
-          </tablecell>
-        </tablerow>
-        <tablerow>
-          <tablecell borderwidth="0px">
-            <par def="4">Base Directory</par>
-          </tablecell>
-          <tablecell borderwidth="0px">
-            <par def="5">
-              <field kind="editable" name="BaseDirectory" type="text"/>
-              <compositedata afterbegincount="3" aftercontainercount="1" afterparcount="6" containertype="65418" nexttype="222" prevtype="65418" type="98">
-Yg4BAIQAAAAAAAAAAAA=
-</compositedata>
-            </par>
-            <par def="6">
-              <run>
-                <font color="gray" size="8pt"/>Default: (program directory)/wlp</run>
-            </par>
-          </tablecell>
-        </tablerow>
-      </table>
-      <pardef firstlineleftmargin="1in" id="3"/>
-      <par def="3"/>
-      <par def="2">
-        <run>
-          <font color="purple" size="12pt" style="bold"/>Reverse Proxy</run>
-      </par>
-      <par def="1"/>
-      <table altbgcolor="white" bgcolor="#efefef" colorstyle="left" columnspacing="0.0500in" refwidth="8.7292in" rowspacing="0.0500in" widthtype="fitmargins">
-        <tablecolumn width="2.5000in"/>
-        <tablecolumn width="100%"/>
-        <tablerow>
-          <tablecell borderwidth="0px">
-            <par def="4">Enable Reverse Proxy</par>
-          </tablecell>
-          <tablecell borderwidth="0px">
-            <par def="5">
-              <run>
-                <font color="gray" size="8pt"/>
-              </run>
-              <field borderstyle="none" kind="editable" lookupaddressonrefresh="false" lookupeachchar="false" name="ReverseProxyEnable" type="keyword">
-                <keywords columns="2" helperbutton="false" recalconchange="true" ui="radiobutton">
-                  <textlist>
-                    <text>Yes|Y</text>
-                    <text>No|N</text>
-                  </textlist>
-                </keywords>
-                <code event="defaultvalue">
-                  <formula>"No"</formula>
-                </code>
-              </field>
-              <run>
-                <font color="gray" size="8pt"/>
-              </run>
-            </par>
-          </tablecell>
-        </tablerow>
-        <tablerow>
-          <tablecell borderwidth="0px">
-            <pardef id="7" keeptogether="true" keepwithnext="true">
-              <code event="hidewhen">
-                <formula>!(ReverseProxyEnable="Y")</formula>
-              </code>
-            </pardef>
-            <par def="7">Type</par>
-          </tablecell>
-          <tablecell borderwidth="0px">
-            <pardef id="8" keeptogether="true" keepwithnext="true">
-              <code event="hidewhen">
-                <formula>!(ReverseProxyEnable="Y")</formula>
-              </code>
-            </pardef>
-            <par def="8">
-              <field allowmultivalues="true" kind="editable" listdisplayseparator="comma" listinputseparators="comma" lookupaddressonrefresh="false" lookupeachchar="false" name="ReverseProxyTypes" type="keyword">
-                <keywords columns="2" recalconchange="true" ui="dialoglist">
-                  <textlist>
-                    <text>Standalone</text>
-                    <text>Domino HTTP|NHTTP</text>
-                  </textlist>
-                </keywords>
-                <code event="defaultvalue">
-                  <formula>"NHTTP"</formula>
-                </code>
-              </field>
-            </par>
-          </tablecell>
-        </tablerow>
-        <tablerow>
-          <tablecell borderwidth="0px">
-            <pardef id="9" keeptogether="true" keepwithnext="true">
-              <code event="hidewhen">
-                <formula>!(ReverseProxyEnable="Y" &amp; ReverseProxyTypes="Standalone")</formula>
-              </code>
-            </pardef>
-            <par def="9">Bind to Host</par>
-          </tablecell>
-          <tablecell borderwidth="0px">
-            <pardef id="10" keeptogether="true" keepwithnext="true">
-              <code event="hidewhen">
-                <formula>!(ReverseProxyEnable="Y" &amp; ReverseProxyTypes="Standalone")</formula>
-              </code>
-            </pardef>
-            <par def="10">
-              <field fieldhint="*" kind="editable" name="ReverseProxyHostName" type="text"/>
-              <compositedata afterbegincount="4" aftercontainercount="2" afterparcount="9" containertype="65418" nexttype="222" prevtype="65513" type="98">
-Yg4BAIQAAAAAAAAAAAA=
-</compositedata>
-            </par>
-            <pardef hide="read print preview" id="11" keeptogether="true" keepwithnext="true">
-              <code event="hidewhen">
-                <formula>!(ReverseProxyEnable="Y" &amp; ReverseProxyTypes="Standalone")</formula>
-              </code>
-            </pardef>
-            <par def="11">
-              <run>
-                <font color="gray" size="8pt"/>Default: *</run>
-            </par>
-          </tablecell>
-        </tablerow>
-        <tablerow>
-          <tablecell borderwidth="0px">
-            <pardef id="12" keeptogether="true" keepwithnext="true">
-              <code event="hidewhen">
-                <formula>!(ReverseProxyEnable="Y" &amp; ReverseProxyTypes="Standalone")</formula>
-              </code>
-            </pardef>
-            <par def="12">HTTP</par>
-          </tablecell>
-          <tablecell borderwidth="0px">
-            <pardef id="13" keeptogether="true" keepwithnext="true">
-              <code event="hidewhen">
-                <formula>!(ReverseProxyEnable="Y" &amp; ReverseProxyTypes="Standalone")</formula>
-              </code>
-            </pardef>
-            <par def="13">
-              <field kind="editable" lookupaddressonrefresh="false" lookupeachchar="false" name="ReverseProxyHTTP" type="keyword">
-                <keywords columns="3" recalconchange="true" ui="dialoglist">
-                  <textlist>
-                    <text>Yes|Y</text>
-                    <text>No|N</text>
-                    <text>Redirect to HTTPS|Redirect</text>
-                  </textlist>
-                </keywords>
-                <code event="defaultvalue">
-                  <formula>"Y"</formula>
-                </code>
-              </field>
-            </par>
-          </tablecell>
-        </tablerow>
-        <tablerow>
-          <tablecell borderwidth="0px">
-            <pardef id="14" keeptogether="true" keepwithnext="true">
-              <code event="hidewhen">
-                <formula>!(ReverseProxyEnable="Y" &amp; ReverseProxyHTTP="Y":"Redirect" &amp; ReverseProxyTypes="Standalone")</formula>
-              </code>
-            </pardef>
-            <par def="14">        Port</par>
-          </tablecell>
-          <tablecell borderwidth="0px">
-            <pardef id="15" keeptogether="true" keepwithnext="true">
-              <code event="hidewhen">
-                <formula>!(ReverseProxyEnable="Y" &amp; ReverseProxyHTTP="Y":"Redirect" &amp; ReverseProxyTypes="Standalone")</formula>
-              </code>
-            </pardef>
-            <par def="15">
-              <field kind="editable" name="ReverseProxyHTTPPort" type="number">
-                <numberformat bytes="false" digits="2" format="general" parens="false" percent="false" punctuated="false"/>
-                <code event="defaultvalue">
-                  <formula>8080</formula>
-                </code>
-                <code event="inputtranslation">
-                  <formula>@If(@Text(@ThisValue)=""; 8080; @ThisValue)</formula>
-                </code>
-              </field>
-            </par>
-          </tablecell>
-        </tablerow>
-        <tablerow>
-          <tablecell borderwidth="0px">
-            <par def="12">HTTPS</par>
-          </tablecell>
-          <tablecell borderwidth="0px">
-            <par def="13">
-              <field kind="editable" lookupaddressonrefresh="false" lookupeachchar="false" name="ReverseProxyHTTPS" type="keyword">
-                <keywords columns="2" recalconchange="true" ui="dialoglist">
-                  <textlist>
-                    <text>Yes|Y</text>
-                    <text>No|N</text>
-                  </textlist>
-                </keywords>
-                <code event="defaultvalue">
-                  <formula>"N"</formula>
-                </code>
-              </field>
-            </par>
-          </tablecell>
-        </tablerow>
-        <tablerow>
-          <tablecell borderwidth="0px">
-            <pardef id="16" keeptogether="true" keepwithnext="true">
-              <code event="hidewhen">
-                <formula>!(ReverseProxyEnable="Y" &amp; ReverseProxyHTTPS="Y" &amp; ReverseProxyTypes="Standalone")</formula>
-              </code>
-            </pardef>
-            <par def="16">        Port</par>
-          </tablecell>
-          <tablecell borderwidth="0px">
-            <pardef id="17" keeptogether="true" keepwithnext="true">
-              <code event="hidewhen">
-                <formula>!(ReverseProxyEnable="Y" &amp; ReverseProxyHTTPS="Y" &amp; ReverseProxyTypes="Standalone")</formula>
-              </code>
-            </pardef>
-            <par def="17">
-              <field kind="editable" name="ReverseProxyHTTPSPort" type="number">
-                <numberformat bytes="false" digits="2" format="general" parens="false" percent="false" punctuated="false"/>
-                <code event="defaultvalue">
-                  <formula>8443</formula>
-                </code>
-                <code event="inputtranslation">
-                  <formula>@If(@Text(@ThisValue)=""; 8443; @ThisValue)</formula>
-                </code>
-              </field>
-            </par>
-          </tablecell>
-        </tablerow>
-        <tablerow>
-          <tablecell borderwidth="0px">
-            <pardef id="18" keeptogether="true" keepwithnext="true">
-              <code event="hidewhen">
-                <formula>!(ReverseProxyEnable="Y" &amp; ReverseProxyHTTPS="Y" &amp; ReverseProxyTypes="Standalone")</formula>
-              </code>
-            </pardef>
-            <par def="18">        Private Key (PEM)</par>
-          </tablecell>
-          <tablecell borderwidth="0px">
-            <pardef id="19" keeptogether="true" keepwithnext="true">
-              <code event="hidewhen">
-                <formula>!(ReverseProxyEnable="Y" &amp; ReverseProxyHTTPS="Y" &amp; ReverseProxyTypes="Standalone")</formula>
-              </code>
-            </pardef>
-            <par def="19">
-              <run>
-                <font name="monospace"/>
-                <field kind="editable" name="ReverseProxyHTTPSKey" type="text"/>
-              </run>
-              <compositedata afterbegincount="3" aftercontainercount="1" afterparcount="8" containertype="65418" nexttype="222" prevtype="65418" type="98">
-Yg4BAIQAAAAAAAAAAAA=
-</compositedata>
-            </par>
-          </tablecell>
-        </tablerow>
-        <tablerow>
-          <tablecell borderwidth="0px">
-            <par def="18">        Certificates (PEM)</par>
-          </tablecell>
-          <tablecell borderwidth="0px">
-            <par def="19">
-              <run>
-                <font name="monospace"/>
-                <field kind="editable" name="ReverseProxyHTTPSChain" type="text"/>
-              </run>
-              <compositedata afterbegincount="3" aftercontainercount="1" afterparcount="7" containertype="65418" nexttype="222" prevtype="65418" type="98">
-Yg4BAIQAAAAAAAAAAAA=
-</compositedata>
-            </par>
-          </tablecell>
-        </tablerow>
-      </table>
-      <par def="3"/>
-      <par def="3"/>
-      <subformref name="Footer"/>
-      <pardef align="right" id="20">
-        <code event="hidewhen">
-          <formula>@IsNewDoc</formula>
-        </code>
-      </pardef>
-      <par def="20"/>
-    </richtext>
-  </body>
+<?xml version="1.0" encoding="UTF-8"?>
+<note class="form" xmlns="http://www.lotus.com/dxl">
+  <item name="$Comment" sign="true">
+    <text/>
+  </item>
   <item name="ReverseProxyPort" summary="false">
     <number>0</number>
+  </item>
+  <item name="$HTMLCode" sign="true">
+    <rawitemdata type="1">
+X/8QAAIADwAHAAAAAAAAAA==
+</rawitemdata>
+  </item>
+  <item name="$TITLE">
+    <text>Configuration</text>
+  </item>
+  <item name="$Info" sign="true">
+    <rawitemdata type="1">
+hhgBAIAAAAAAgAAAAQABAP///wAQAAAA
+</rawitemdata>
+  </item>
+  <item name="$SubForms">
+    <text>Footer</text>
   </item>
   <item name="$SubForm_RepIDs" sign="true">
     <text>0000000000000000</text>
   </item>
+  <item name="$WindowTitle" sign="true">
+    <formula>"Server"</formula>
+  </item>
+  <item name="$Flags">
+    <text/>
+  </item>
+  <item name="Server" placeholder="true">
+    <rawitemdata type="0"/>
+  </item>
+  <item name="BaseDirectory" placeholder="true">
+    <rawitemdata type="0"/>
+  </item>
+  <item name="ReverseProxyEnable" placeholder="true">
+    <rawitemdata type="0"/>
+  </item>
+  <item name="ReverseProxyTypes" placeholder="true">
+    <rawitemdata type="0"/>
+  </item>
+  <item name="ReverseProxyHostName" placeholder="true">
+    <rawitemdata type="0"/>
+  </item>
+  <item name="ReverseProxyHTTP" placeholder="true">
+    <rawitemdata type="0"/>
+  </item>
   <item name="ReverseProxyHTTPPort" summary="false">
     <number>0</number>
   </item>
+  <item name="ReverseProxyHTTPS" placeholder="true">
+    <rawitemdata type="0"/>
+  </item>
   <item name="ReverseProxyHTTPSPort" summary="false">
     <number>0</number>
+  </item>
+  <item name="ReverseProxyHTTPSKey" placeholder="true">
+    <rawitemdata type="0"/>
+  </item>
+  <item name="ReverseProxyHTTPSChain" placeholder="true">
+    <rawitemdata type="0"/>
+  </item>
+  <item name="CreatedBy" placeholder="true">
+    <rawitemdata type="0"/>
   </item>
   <item name="DateComposed" summary="false">
     <rawitemdata type="400">
 AAAAAAAAAAA=
 </rawitemdata>
   </item>
+  <item name="ModifiedBy" placeholder="true">
+    <rawitemdata type="0"/>
+  </item>
   <item name="DateModified" summary="false">
     <rawitemdata type="400">
 AAAAAAAAAAA=
 </rawitemdata>
   </item>
-</form>
+  <item name="$Fields">
+    <textlist>
+      <text>DateModified</text>
+      <text>ModifiedBy</text>
+      <text>DateComposed</text>
+      <text>CreatedBy</text>
+      <text>ReverseProxyHTTPSChain</text>
+      <text>ReverseProxyHTTPSKey</text>
+      <text>ReverseProxyHTTPSPort</text>
+      <text>ReverseProxyHTTPS</text>
+      <text>ReverseProxyHTTPPort</text>
+      <text>ReverseProxyHTTP</text>
+      <text>ReverseProxyHostName</text>
+      <text>ReverseProxyTypes</text>
+      <text>ReverseProxyEnable</text>
+      <text>BaseDirectory</text>
+      <text>Server</text>
+    </textlist>
+  </item>
+  <item name="$Body" sign="true">
+    <rawitemdata type="1">
+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
+AQAACkhUVFCkEgMBiBRyNoBwAAIAAAEBAACBAoL/WgANAAAAAAAAAAAAiBRyNogUAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAhgkAAAAAVIcAAAAAAAAAAAAAAAABAAAA
+BAAAAIMEDQC8BgoADQCF/wgAAQAACt0GAACK//7/UAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAHgAeAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAsP8UAAAA
+AiQAAAAAAAAAAAAAAACK/24AigIABQAgAgAAAAAAAAIBAAAKDgAAAAAAAAAQAAAAKwAOAAAADAAB
+AAEAWQADAFJldmVyc2VQcm94eUhUVFADAAUABAAaAFllc3xZTm98TlJlZGlyZWN0IHRvIEhUVFBT
+fFJlZGlyZWN0AN4GAACK/4X/CAABAAAKpBIEAOgF+BMAAAACAAABAQAAgQKC/1oADgAAAAAAAAAA
+AOgF+BPoBQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIYJAAAAAFSH
+AAAAAAAAAAAAAAAAAQAAAAQAAAC7/54ADgAAACYwjCIYMJAAAAB8AAUAEgBSZXZlcnNlUHJveHlF
+bmFibGUBAAEAWQAKAgUAEABSZXZlcnNlUHJveHlIVFRQAQABAFkAAQAIAFJlZGlyZWN0HwIKAhwC
+BQARAFJldmVyc2VQcm94eVR5cGVzAAEACgBTdGFuZGFsb25lCgIcAgQAHgEDAAcAEgALAAk1UzZT
+MTFTMTJTAIMEDgCF/xQAAQAACiAgICAgICAgUG9ydKQSBAGIFHI2gHAAAgAAAQEAAIECgv9aAA8A
+AAAAAAAAAACIFHI2iBQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACG
+CQAAAABUhwAAAAAAAAAAAAAAAAEAAAAEAAAAu/+eAA8AAAAmMIwiGDCQAAAAfAAFABIAUmV2ZXJz
+ZVByb3h5RW5hYmxlAQABAFkACgIFABAAUmV2ZXJzZVByb3h5SFRUUAEAAQBZAAEACABSZWRpcmVj
+dB8CCgIcAgUAEQBSZXZlcnNlUHJveHlUeXBlcwABAAoAU3RhbmRhbG9uZQoCHAIEAB4BAwAHABIA
+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
+</rawitemdata>
+  </item>
+  <item name="$V5ACTIONS" sign="true">
+    <rawitemdata type="1">
+vRwjAAAAAQABAAAAAQAAAAAAAAAAAAAACAACAHn/bAABANTQyAABAAAAAAAJAAAAAAABANTQyAAA
+AB8AAAAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAPz/OgAAAAAAAQAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAEAAAAAAAAAAAAAAAAAAAC+/zwAAAABAAQAjwAAAQYAAAAEAAAARGVsZXRlIAAAABIA
+AgDaBwAAAAAAAO0BAwAHAAwABQAJMFMwRQC+/5YAAAABAAUADwAAAAQAXAABAAAARWRpdCAAAAAS
+AAIA6AcAAAAAAADtAQMABwAMAAUACTBTMEUAXAAKAAQAAAA+AIsAAgApAQAAAAAAAPsCKgH7AVQB
+AAAAAAAAAAAQQA4CAgAFAAAAAAAAAPQAtAJ5AAoCBAAeARwCAwAHABgAEQAJNlM5UzEwUzExUzEy
+UzE4UwC+/4wAAAABAAAAkwEAAAQAAAACAAAAU2F2ZXIACgAEAAAARgD7AAUBAQADAFdlYgAKAuQA
+HQKvACwAIAACAMYLAAAAAAAA7QECAOgHAAAAAAAA7QGzAq4ADAABAAAArgAEALUDAwAHACYAHwAJ
+MlJUNVM2UzhTMTBSVFQxNVJUVDE5UlQyMVJUMjJSAL7/lgAAAAEAAACTAQAADgAAAAMAAABTYXZl
+IGFuZCBDbG9zZXIACgAEAAAARgD7AAUBAQADAFdlYgAKAuQAHQKvACwAIAACAMYLAAAAAAAA7QEC
+APwRAAAAAAAA7QGzAq4ADAABAAAArgAEALUDAwAHACYAHwAJMlJUNVM2UzhTMTBSVFQxNVJUVDE5
+UlQyMVJUMjJSAA==
+</rawitemdata>
+  </item>
+</note>

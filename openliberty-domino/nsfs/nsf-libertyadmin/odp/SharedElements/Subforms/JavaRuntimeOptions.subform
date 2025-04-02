@@ -1,96 +1,82 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<subform xmlns="http://www.lotus.com/dxl" name="JavaRuntimeOptions" renderpassthrough="true">
-  <body>
-    <richtext>
-      <pardef id="1"/>
-      <par def="1"/>
-      <table altbgcolor="white" bgcolor="#efefef" colorstyle="left" columnspacing="0.0500in" refwidth="9.1042in" rowspacing="0.0500in" widthtype="fitmargins">
-        <tablecolumn width="2.5000in"/>
-        <tablecolumn width="100%"/>
-        <tablerow>
-          <tablecell borderwidth="0px">
-            <pardef id="3" keeptogether="true" keepwithnext="true"/>
-            <par def="3">Java Runtime</par>
-          </tablecell>
-          <tablecell borderwidth="0px">
-            <pardef id="4" keeptogether="true" keepwithnext="true" linespacing="1.5"/>
-            <par def="4">
-              <field kind="editable" lookupaddressonrefresh="false" lookupeachchar="false" name="JavaJVM" type="keyword">
-                <keywords columns="2" recalconchange="true" ui="dialoglist">
-                  <textlist>
-                    <text>Domino|RunningJVM</text>
-                    <text>HotSpot</text>
-                    <text>OpenJ9</text>
-                    <text>GraalVM CE|GraalVMCE</text>
-                  </textlist>
-                </keywords>
-                <code event="defaultvalue">
-                  <formula>"HotSpot"</formula>
-                </code>
-              </field>
-            </par>
-            <pardef id="5" keeptogether="true" keepwithnext="true" linespacing="1.5">
-              <code event="hidewhen">
-                <formula>JavaJVM="":"RunningJVM"</formula>
-              </code>
-            </pardef>
-            <par def="5">
-              <field kind="editable" name="JavaVersion" type="keyword">
-                <keywords allownew="true" ui="dialoglist">
-                  <textlist>
-                    <text>1.8 (LTS)|1.8</text>
-                    <text>11 (LTS)|11</text>
-                    <text>17 (LTS)|17</text>
-                  </textlist>
-                </keywords>
-                <code event="defaultvalue">
-                  <formula>"11"</formula>
-                </code>
-              </field>
-            </par>
-            <pardef id="6" keeptogether="true" keepwithnext="true" linespacing="1.5">
-              <code event="hidewhen">
-                <formula>!(JavaJVM="HotSpot")</formula>
-              </code>
-            </pardef>
-            <par def="6">
-              <run>
-                <font color="gray" size="8pt"/>HotSpot JVMs are provided by Adoptium's Temurin releases<break/>More Information: </run>
-              <urllink href="https://adoptium.net" showborder="false">
-                <run>
-                  <font color="gray" size="8pt"/>https://adopium.net</run>
-              </urllink>
-            </par>
-            <pardef id="7" keeptogether="true" keepwithnext="true" linespacing="1.5">
-              <code event="hidewhen">
-                <formula>!(JavaJVM="OpenJ9")</formula>
-              </code>
-            </pardef>
-            <par def="7">
-              <run>
-                <font color="gray" size="8pt"/>OpenJ9 JVMs are provided by IBM's Semeru releases<break/>More Information:</run>
-              <urllink href="https://developer.ibm.com/languages/java/semeru-runtimes/" showborder="false">
-                <run>
-                  <font color="gray" size="8pt"/> https://developer.ibm.com/languages/java/semeru-runtimes/</run>
-              </urllink>
-              <run>
-                <font color="gray" size="8pt"/>
-              </run>
-            </par>
-            <pardef id="8" keeptogether="true" keepwithnext="true" linespacing="1.5">
-              <code event="hidewhen">
-                <formula>!(JavaJVM="GraalVMCE")</formula>
-              </code>
-            </pardef>
-            <par def="8">
-              <run>
-                <font color="gray" size="8pt"/>Note: GraalVM only provides downloads for Java LTS releases<break/>More Information: https://www.graalvm.org</run>
-            </par>
-          </tablecell>
-        </tablerow>
-      </table>
-      <pardef firstlineleftmargin="1in" id="2"/>
-      <par def="2"/>
-    </richtext>
-  </body>
-</subform>
+<?xml version="1.0" encoding="UTF-8"?>
+<note class="form" xmlns="http://www.lotus.com/dxl">
+  <item name="$HTMLCode" sign="true">
+    <rawitemdata type="1">
+X/8QAAIADwAHAAAAAAAAAA==
+</rawitemdata>
+  </item>
+  <item name="$TITLE">
+    <text>JavaRuntimeOptions</text>
+  </item>
+  <item name="$Comment" sign="true">
+    <text/>
+  </item>
+  <item name="$Info" sign="true">
+    <rawitemdata type="1">
+hhgBAIAAAAAAgAAAAQABAP///wAQAAAA
+</rawitemdata>
+  </item>
+  <item name="$Flags">
+    <text>CUAx3</text>
+  </item>
+  <item name="JavaJVM" placeholder="true">
+    <rawitemdata type="0"/>
+  </item>
+  <item name="JavaVersion" placeholder="true">
+    <rawitemdata type="0"/>
+  </item>
+  <item name="$Fields">
+    <textlist>
+      <text>JavaVersion</text>
+      <text>JavaJVM</text>
+    </textlist>
+  </item>
+  <item name="$Body" sign="true">
+    <rawitemdata type="1">
+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
+b3ZpZGVkIGJ5IElCTSdzIFNlbWVydSByZWxlYXNlcwBNb3JlIEluZm9ybWF0aW9uOgDSCAEAgICA
+AN4GAACF/90GAACt/37/DAAgAAgAAAAAAPb/VAAAAAAAAQAAADoAAAAAAAAAAAAAAAAAaHR0cHM6
+Ly9kZXZlbG9wZXIuaWJtLmNvbS9sYW5ndWFnZXMvamF2YS9zZW1lcnUtcnVudGltZXMvAK3/RgAL
+AAgQAAA6AGh0dHBzOi8vZGV2ZWxvcGVyLmlibS5jb20vbGFuZ3VhZ2VzL2phdmEvc2VtZXJ1LXJ1
+bnRpbWVzLwDdBgAAhf+F/0IAAQAOCCBodHRwczovL2RldmVsb3Blci5pYm0uY29tL2xhbmd1YWdl
+cy9qYXZhL3NlbWVydS1ydW50aW1lcy/SCAEAgICAAN4GAACF/64C3gYAAK4A3QYAAIX/hf8IAAEA
+DgjSCAEAgICAAN4GAACF/4ECgv9aAAgAAAABAAAAAACIFI44iBQAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAACGCQAAAACUhwAAAAAAAAAAAAAAAAEAAAAEAAAAu/9CAAgA
+AAAAAAAAAAA0AAAAJgAFAAcASmF2YUpWTQABAAkAR3JhYWxWTUNFAAoCBAAeAQMABwAMAAUACTBT
+MEUAgwQIAN0GAACF/4X/bQABAA4ITm90ZTogR3JhYWxWTSBvbmx5IHByb3ZpZGVzIGRvd25sb2Fk
+cyBmb3IgSmF2YSBMVFMgcmVsZWFzZXMATW9yZSBJbmZvcm1hdGlvbjogaHR0cHM6Ly93d3cuZ3Jh
+YWx2bS5vcmcA0ggBAICAgADeBgAAhf+lBgAAAACBAoMEAgCF/wgAAQAACg==
+</rawitemdata>
+  </item>
+</note>

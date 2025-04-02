@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<note xmlns="http://www.lotus.com/dxl" class="icon" default="true">
+<?xml version="1.0" encoding="UTF-8"?>
+<note class="icon" default="true" xmlns="http://www.lotus.com/dxl">
   <item name="IconBitmap" summary="true">
     <rawitemdata type="6">
 AiAgAQAA///////wD///gAH//gAAf/wAAD/4AAAf8AAAD+AAAAfgAAAHwAAAA8AAAAPAAAADgAAA
@@ -16,6 +16,9 @@ L2ZvgAAACMZmZmZmZmZmZmZmbIAAAACMZmZmZmZmZmZmZsgAAAAACMZmZmZmZmZmZmyAAAAAAACM
 AAAAUEECICABAAD/////+A4DgA==
 </rawitemdata>
   </item>
+  <item name="$DefaultFrameset">
+    <text>Outer Frame</text>
+  </item>
   <item name="$DefaultXPage">
     <text>Lists.xsp</text>
   </item>
@@ -25,20 +28,23 @@ AAAAUEECICABAAD/////+A4DgA==
   <item name="$AllowPost8HTML">
     <text>1</text>
   </item>
-  <item name="$DefaultFrameset">
-    <text>Outer Frame</text>
-  </item>
-  <item name="$TITLE">
-    <text>Open Liberty Admin</text>
-  </item>
-  <item name="$TemplateModTime">
-    <datetime dst="true">20210330T123941,35-04</datetime>
+  <item name="$FlagsNoRefresh">
+    <text/>
   </item>
   <item name="$TemplateServerName">
     <text>CN=Jesse Gallagher/O=IKSG</text>
   </item>
   <item name="$TemplateFileName">
-    <text>c:\Notes\Data\libertyadmin-20210330.ntf</text>
+    <text>c:\Notes\Data\nsf-libertyadmin-2.0.0-SNAPSHOT.ntf</text>
+  </item>
+  <item name="$TemplateModTime">
+    <datetime>20201231T150854,83-05</datetime>
+  </item>
+  <item name="$PIRCRefreshModTime">
+    <datetime>20210101T075238,52-05</datetime>
+  </item>
+  <item name="$TITLE">
+    <text>Open Liberty Admin</text>
   </item>
   <item name="$Daos">
     <text>1</text>

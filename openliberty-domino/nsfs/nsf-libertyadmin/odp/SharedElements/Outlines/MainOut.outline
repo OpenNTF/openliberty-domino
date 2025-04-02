@@ -1,26 +1,32 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<outline xmlns="http://www.lotus.com/dxl" name="MainOut" publicaccess="false">
-  <outlineentry hide="web" label="Formula Console" type="namedelementlink">
-    <namedelementlink name="FormulaConsole" type="form"/>
-    <code event="hidewhen">
-      <formula>!(@UserAccess(@DbName; [AccessLevel]) = "5":"6")</formula>
-    </code>
-  </outlineentry>
-  <outlineentry type="otherviews">
-    <code event="hidewhen">
-      <formula>@GetProfileField("Preferences"; "HiddenViews"; @UserName) = "Other Views"</formula>
-    </code>
-  </outlineentry>
-  <outlineentry label="Trash" type="namedelementlink">
-    <namedelementlink name="Trash" type="view"/>
-  </outlineentry>
-  <outlineentry hide="web" keepfocus="true" label="Other View..." type="action">
-    <code event="value">
-      <formula>@SetTargetFrame("View");
-@Command([ViewChange])</formula>
-    </code>
-    <code event="hidewhen">
-      <formula>!(@UserAccess(@DbName; [AccessLevel]) = "5":"6") | @GetProfileField("Preferences"; "HiddenViews"; @UserName) = "Other View..."</formula>
-    </code>
-  </outlineentry>
-</outline>
+<?xml version="1.0" encoding="UTF-8"?>
+<note class="filter" xmlns="http://www.lotus.com/dxl">
+  <item name="$SiteMapList" sign="true">
+    <rawitemdata type="1a">
+AQYBAAEABABIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAEAEgAhAARCAIApgAAAAAAAAASAAAAMgAAAAAAAAAAAAAAQAAAAAAA
+AwADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFRm9ybXVsYSBDb25zb2xlAAEA9v8w
+AAAAAAADAAMADgAAAAAAAAAAAAAAAAAAAAAAAAAAAEZvcm11bGFDb25zb2xlAAY+AAoABAAAACoA
+iwACACkBAAAAAAAA+wIqAQEAAQA1AAEAAQA2AB8CCgIEAB4BAwAHAA4ABwAJNlM4UzlTAEgAUAAg
+AAIAoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUAAAAAAA/P8AAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAGTgAAADwAAQALAFByZWZlcmVuY2VzAAEACwBIaWRkZW5WaWV3cwD0APcDAQAL
+AE90aGVyIFZpZXdzAAoCAwAHABAACQAJNFM2UzhTOVMASAAyAAEIAgCjAAAAAAAAAAgAAAAqAAAA
+AAAAAAAAAAAAAAAAAAADAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAVUcmFzaAAB
+APb/JwAAAAAAAwACAAUAAAAAAAAAAAAAAAAAAAAAAAAAAABUcmFzaD9IAPgAMAoAAGcAAAAAAAAA
+EAAAAFwAAAAAAAAAAAAAAIwAAAAAAAUADgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+BU90aGVyIFZpZXcuLi4AAQD2/1oAAQAAAAUADgBAAAAAAAAAAAAAAAAAAEAACgAEAAgAEgABAAQA
+Vmlld/sBGAEDAAcADAAFAAkwUzBFAAAAEgACAJITAAAAAAAA7QEDAAcACgADAAkwUgAABooACgAE
+AAAAZACLAAIAKQEAAAAAAAD7AioBAQABADUAAQABADYAHwIKAgQAHgEBAAsAUHJlZmVyZW5jZXMA
+AQALAEhpZGRlblZpZXdzAPQA9wMBAA0AT3RoZXIgVmlldy4uLgAKAh0CAwAHACAAGQAJNlM4UzlT
+MTNTMTRTMThTMjBTMjJTMjNTAA==
+</rawitemdata>
+  </item>
+  <item name="$TITLE">
+    <text>MainOut</text>
+  </item>
+  <item name="$Flags">
+    <text>m</text>
+  </item>
+  <item name="$POID">
+    <datetime dst="true">20210325T171453,17-04</datetime>
+  </item>
+</note>

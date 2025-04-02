@@ -1,19 +1,50 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<view xmlns="http://www.lotus.com/dxl" allowcustomizations="false" allownewdocuments="false" altrowcolor="#efefef" bgcolor="white" boldunreadrows="false" comment="Provides a programmatic check for the last time a or app was modified" evaluateactions="false" extendlastcolumn="true" gridcolor="white" gridstyle="solid" headerbgcolor="white" headerlinecount="1" headers="beveled" hidemarginborder="false" marginbgcolor="white" marginwidth="0px" name="(ServersModified)" onopengoto="lastopened" onrefresh="displayindicator" opencollapsed="false" publicaccess="false" rowlinecount="1" rowspacing="1" showhierarchies="false" showinmenu="false" showmargin="true" showresponsehierarchy="false" shrinkrows="false" totalscolor="black" uniquekeys="false" unreadcolor="black" unreadmarks="none">
-  <code event="selection">
-    <formula>SELECT Form="Server" &amp; !@IsAvailable($Conflict)</formula>
-  </code>
-  <actionbar bgcolor="#d4d0c8" bordercolor="black">
-    <actionbuttonstyle bgcolor="#d4d0c8"/>
-    <font color="system"/>
-    <border style="solid" width="0px 0px 1px"/>
-  </actionbar>
-  <column hidedetailrows="false" itemname="$3" resizable="true" separatemultiplevalues="false" showaslinks="false" sort="descending" sortnoaccent="false" sortnocase="true" width="10">
-    <columnheader title="Modified">
-      <font size="9pt" style="bold"/>
-    </columnheader>
-    <code event="value">
-      <formula>@Modified</formula>
-    </code>
-  </column>
-</view>
+<?xml version="1.0" encoding="UTF-8"?>
+<note class="view" xmlns="http://www.lotus.com/dxl">
+  <item name="$FormatNote" sign="true" summary="true">
+    <rawitemdata type="4">
+AQB34XWgl8DobRQ7ZAAShSWF
+</rawitemdata>
+  </item>
+  <item name="$FormulaClass" sign="true">
+    <text>1</text>
+  </item>
+  <item name="$TITLE" sign="true">
+    <text>(ServersModified)</text>
+  </item>
+  <item name="$Index" sign="true">
+    <text/>
+  </item>
+  <item name="$Formula" sign="true" summary="true">
+    <formula compiled="true">
+ZgACAAwAAgAkM6QAAwAFABgAEwACAAIACQAkMyRDb25mbGljdAAEAAQAAAAuAAUABABGb3JtAQAG
+AFNlcnZlcgoCBQAJACRDb25mbGljdABoAR4BHAIDAAcADgAIAAlMMVM0UzVT
+</formula>
+  </item>
+  <item name="$Collation" summary="true">
+    <rawitemdata type="2">
+DwABAABEgWYAAAACACQz
+</rawitemdata>
+  </item>
+  <item name="$ViewFormat" sign="true" summary="true">
+    <rawitemdata type="5">
+AQABAAQAikAAAFZDBQACAAgADgAAAFAAAQAACgAAAAAAAAAAAAICAAAAJDNNb2RpZmllZA4AAgAM
+AAIAJDOkAAMAJgABAAAAAQEACQEAAAoBAQ4KAAA/AK0rAQABAAEAAAAAAAAAAABXQwEBAAkAAAAA
+AAAAAAAAAAAAAAAAAAAEAAAAAAD//wAAAAAAAAAAAAAAAAAAQgARAAAAAQD///8AAQDv7+8AAQD/
+//8AAAAAAAAAAAABAP///wABAP///wAAAAEAAAAAAAEAAAAAAAEAAAAAAAAACAAAAAAAAQA=
+</rawitemdata>
+  </item>
+  <item name="$Comment" sign="true">
+    <text>Provides a programmatic check for the last time a or app was modified</text>
+  </item>
+  <item name="$Flags">
+    <text>Y</text>
+  </item>
+  <item name="$V5ACTIONS" sign="true">
+    <rawitemdata type="1">
+vRwjAAAAAQABAAAAAQAAAAAAAAAAAAAACAACAHn/bAABANTQyAABAAAAAAAJAAAAAAABANTQyAAA
+AB8AAAAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAPz/OgAAAAAAAQAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAEAAAAAAAAAAAAAAAAAAAA=
+</rawitemdata>
+  </item>
+</note>
