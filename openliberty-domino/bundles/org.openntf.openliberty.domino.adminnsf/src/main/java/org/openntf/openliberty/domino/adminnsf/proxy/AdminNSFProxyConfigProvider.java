@@ -129,9 +129,10 @@ public class AdminNSFProxyConfigProvider implements ReverseProxyConfigProvider {
 								String contextPath = (String)columnValues.get(1);
 								boolean useXForwardedFor = "Y".equals(columnValues.get(2)); //$NON-NLS-1$
 								boolean useWsHeaders = "Y".equals(columnValues.get(3)); //$NON-NLS-1$
+								boolean acceptProxyHeaders = "Y".equals(columnValues.get(5)); //$NON-NLS-1$
 								
 								URI uri = URI.create(baseUri + "/" + contextPath); //$NON-NLS-1$
-								ReverseProxyTarget target = new ReverseProxyTarget(uri, useXForwardedFor, useWsHeaders);
+								ReverseProxyTarget target = new ReverseProxyTarget(uri, useXForwardedFor, useWsHeaders, acceptProxyHeaders);
 								result.addTarget(contextPath, target);
 							}
 							

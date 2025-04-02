@@ -1,52 +1,91 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<view xmlns="http://www.lotus.com/dxl" alias="ReverseProxyTargets" allowcustomizations="false" allownewdocuments="false" altrowcolor="#efefef" bgcolor="white" boldunreadrows="false" comment="Provides a programmatic description of reverse-proxy target URLs" evaluateactions="false" extendlastcolumn="true" gridcolor="white" gridstyle="solid" headerbgcolor="white" headerlinecount="1" headers="beveled" hidemarginborder="false" marginbgcolor="white" marginwidth="0px" name="Utility\Reverse Proxy Targets" onopengoto="lastopened" onrefresh="displayindicator" opencollapsed="false" publicaccess="false" rowlinecount="1" rowspacing="1" showhierarchies="false" showinmenu="false" showmargin="true" showresponsehierarchy="true" shrinkrows="false" totalscolor="black" uniquekeys="false" unreadcolor="black" unreadmarks="none">
-  <code event="selection">
-    <formula>SELECT Form="Server" &amp; (HTTPPort != ""  | HTTPSPort != "") &amp; IncludeInReverseProxy="Y" &amp; ContextRoot != "/"</formula>
-  </code>
-  <actionbar bgcolor="#d4d0c8" bordercolor="black">
-    <actionbuttonstyle bgcolor="#d4d0c8"/>
-    <font color="system"/>
-    <border style="solid" width="0px 0px 1px"/>
-  </actionbar>
-  <column hidedetailrows="false" itemname="$2" resizable="true" separatemultiplevalues="false" showaslinks="false" sort="ascending" sortnoaccent="false" sortnocase="true" width="16.2500">
-    <columnheader title="URI">
-      <font size="9pt" style="bold underline"/>
-    </columnheader>
-    <code event="value">
-      <formula>port := @If(HTTPPort=""; HTTPSPort; HTTPPort);
-proto := @If(HTTPPort=""; "https"; "http");
-host := @If(HTTPHost="":"*"; "localhost"; HTTPHost);
-
-proto + "://" + host + ":" + port</formula>
-    </code>
-  </column>
-  <column hidedetailrows="false" itemname="$6" resizable="true" separatemultiplevalues="false" showaslinks="false" sortnoaccent="false" sortnocase="true" width="15.7500">
-    <columnheader title="ContextRoot">
-      <font size="9pt" style="bold"/>
-    </columnheader>
-    <code event="value">
-      <formula>val := @If(ContextRoot=""; AppName; ContextRoot);
-@While(@Begins(val; "/"); val := @Right(val; @Length(val)-1));
-val</formula>
-    </code>
-  </column>
-  <column hidedetailrows="false" itemname="UseXForwardedFor" resizable="true" separatemultiplevalues="false" showaslinks="false" sortnoaccent="false" sortnocase="true" width="12.1250">
-    <columnheader title="UseXForwardedFor">
-      <font size="9pt" style="bold"/>
-    </columnheader>
-  </column>
-  <column hidedetailrows="false" itemname="UseWSHeaders" resizable="true" separatemultiplevalues="false" showaslinks="false" sortnoaccent="false" sortnocase="true" width="12.1250">
-    <columnheader title="UseWSHeaders">
-      <font size="9pt" style="bold"/>
-    </columnheader>
-  </column>
-  <column hidedetailrows="false" itemname="$4" resizable="true" separatemultiplevalues="false" showaslinks="false" sortnoaccent="false" sortnocase="true" width="20.1250">
-    <columnheader title="Domino Servers">
-      <font size="9pt" style="bold"/>
-    </columnheader>
-    <columnnamesformat columncontainsname="true" showonline="false"/>
-    <code event="value">
-      <formula>@If(@Trim(DominoServers)=""; "*"; @Name([Abbreviate]; DominoServers))</formula>
-    </code>
-  </column>
-</view>
+<?xml version="1.0" encoding="UTF-8"?>
+<note class="view" xmlns="http://www.lotus.com/dxl">
+  <item name="$FormatNote" sign="true" summary="true">
+    <rawitemdata type="4">
+AQB34XWgl8DobRQ7ZAAShSWF
+</rawitemdata>
+  </item>
+  <item name="$FormulaClass" sign="true">
+    <text>1</text>
+  </item>
+  <item name="$TITLE" sign="true">
+    <text>Utility\Reverse Proxy Targets|ReverseProxyTargets</text>
+  </item>
+  <item name="$Index" sign="true">
+    <text/>
+  </item>
+  <item name="$Formula" sign="true" summary="true">
+    <formula compiled="true">
+kgMBAFIADQBwb3J0AEU1ZQCahiUAAAUACABIVFRQUG9ydAEAAAAKAq8AKAAUAAUACQBIVFRQU1Bv
+cnQArgAUAAUACABIVFRQUG9ydK4ABAC1AwMAAQBKAA4AcHJvdG8ARjVlAJqGJQAFAAgASFRUUFBv
+cnQBAAAACgKvACAAEAABAAUAaHR0cHMArgAQAAEABABodHRwrgAEALUDAwABAFoADQBob3N0AEc1
+ZQCahiUAAAUACABIVFRQSG9zdAEAAAABAAEAKgAfAgoCrwAoABQAAQAJAGxvY2FsaG9zdACuABQA
+BQAIAEhUVFBIb3N0rgAEALUDAwACAFYAAgAkMgUADgBwcm90bwBGNWUAmoYlAAEAAwA6Ly8AIgIF
+AA0AaG9zdABHNWUAmoYlAAAiAgEAAQA6ACICBQANAHBvcnQARTVlAJqGJQAAIgIDAAoABAABAFYA
+DAB2YWwA7DZkAHeIJQAFAAsAQ29udGV4dFJvb3QAAQAAAAoCrwAqABIABQAHAEFwcE5hbWUArgAY
+AAUACwBDb250ZXh0Um9vdACuAAQAtQMDAAgAZAAFAAwAdmFsAOw2ZAB3iCUAAQABAC8ARgIFAAwA
+dmFsAOw2ZAB3iCUABQAMAHZhbADsNmQAd4glAAUADAB2YWwA7DZkAHeIJQCmAQAAAAAAAAAA8D8j
+AmACCQL7AkYBAwACABoAAgAkNgUADAB2YWwA7DZkAHeIJQADAAIAWAACACQ0BQANAERvbWlub1Nl
+cnZlcnMAXgEBAAAACgKvADIADAABAAEAKgCuACYAAgAFAAAAAAAAAAUADQBEb21pbm9TZXJ2ZXJz
+ALQCrgAEALUDAwAFAFoAVQAIAAIAAgAQAAwAAgASAAkABAAkMiQ2VXNlWEZvcndhcmRlZEZvclVz
+ZVdTSGVhZGVycyQ0QWNjZXB0UHJveHlIZWFkZXJzJENvbmZsaWN0JFJFRgAEAAQAAACEAAUABABG
+b3JtAQAGAFNlcnZlcgoCBQAIAEhUVFBQb3J0AQAAAAsCBQAJAEhUVFBTUG9ydAABAAAACwIdAgQA
+HAIFABUASW5jbHVkZUluUmV2ZXJzZVByb3h5AAEAAQBZAAoCHAIFAAsAQ29udGV4dFJvb3QAAQAB
+AC8ACwIcAgMABwAyACsACUwxUzRTNVM3UzhTOVMyRTEwUzExUzEyUzE0UzE1UzE4UzE5UzIwUzIx
+UwA=
+</formula>
+  </item>
+  <item name="$Collation" summary="true">
+    <rawitemdata type="2">
+DwABAABEgGYAAAACACQy
+</rawitemdata>
+  </item>
+  <item name="$Comment" sign="true">
+    <text>Provides a programmatic description of reverse-proxy target URLs</text>
+  </item>
+  <item name="$Flags">
+    <text>Y</text>
+  </item>
+  <item name="$DesignerBuild">
+    <text>Build V1450_12042024</text>
+  </item>
+  <item name="$ViewFormat" sign="true">
+    <rawitemdata type="5">
+AQAGAAgAiEAAAFZDAQACAAMAngEAAIIAAQAACgAAAAAAAAAAAAICAAAAVkMAAAIACwAKAQAAfgAB
+AAAKAAAAAAAAAAAAAgIAAABWQwAAEAAQAAAAAABhAAEAAAoAAAAAAAAAAAACAgAAAFZDAAAMAAwA
+AAAAAGEAAQAACgAAAAAAAAAAAAICAAAAVkMAAAIADgBqAAAAoQABAAAKAAAAAAAAAAAAAgIAAABW
+QwAAEgASAAAAAABQAAEAAAoAAAAAAAAAAAACAgAAACQyVVJJngEBAFIADQBwb3J0AEU1ZQCahiUA
+AAUACABIVFRQUG9ydAEAAAAKAq8AKAAUAAUACQBIVFRQU1BvcnQArgAUAAUACABIVFRQUG9ydK4A
+BAC1AwMABwAQAAoACTFTMlM4UzEwUwEASgAOAHByb3RvAEY1ZQCahiUABQAIAEhUVFBQb3J0AQAA
+AAoCrwAgABAAAQAFAGh0dHBzAK4AEAABAAQAaHR0cK4ABAC1AwMABwASAAwACTBSMVMyUzhTMTBT
+AQBaAA0AaG9zdABHNWUAmoYlAAAFAAgASFRUUEhvc3QBAAAAAQABACoAHwIKAq8AKAAUAAEACQBs
+b2NhbGhvc3QArgAUAAUACABIVFRQSG9zdK4ABAC1AwMABwAUAA0ACTBSMVMyUzEwUzEyUwACAFYA
+AgAkMgUADgBwcm90bwBGNWUAmoYlAAEAAwA6Ly8AIgIFAA0AaG9zdABHNWUAmoYlAAAiAgEAAQA6
+ACICBQANAHBvcnQARTVlAJqGJQAAIgIDAAcAGgAUAAkwUlIxUzJTM1M0UzVTNlM3UzhTJDZDb250
+ZXh0Um9vdAoBCgAEAAEAVgAMAHZhbADsNmQAd4glAAUACwBDb250ZXh0Um9vdAABAAAACgKvACoA
+EgAFAAcAQXBwTmFtZQCuABgABQALAENvbnRleHRSb290AK4ABAC1AwMABwAQAAoACTFTMlM4UzEw
+UwgAZAAFAAwAdmFsAOw2ZAB3iCUAAQABAC8ARgIFAAwAdmFsAOw2ZAB3iCUABQAMAHZhbADsNmQA
+d4glAAUADAB2YWwA7DZkAHeIJQCmAQAAAAAAAAAA8D8jAmACCQL7AkYBAwAHABYAEAAJMFI2UzlT
+MTBTMTFTMTVTAgAaAAIAJDYFAAwAdmFsAOw2ZAB3iCUAAwAHAAoAAwAJMFIAVXNlWEZvcndhcmRl
+ZEZvclVzZVhGb3J3YXJkZWRGb3JVc2VXU0hlYWRlcnNVc2VXU0hlYWRlcnMkNERvbWlubyBTZXJ2
+ZXJzagACAFgAAgAkNAUADQBEb21pbm9TZXJ2ZXJzAF4BAQAAAAoCrwAyAAwAAQABACoArgAmAAIA
+BQAAAAAAAAAFAA0ARG9taW5vU2VydmVycwC0Aq4ABAC1AwMABwAQAAkACTlTMTFTMTVTAEFjY2Vw
+dFByb3h5SGVhZGVyc0FjY2VwdFByb3h5SGVhZGVycyYAAQAAAAEBAAkBAAAKAQEOCgAAPwCtKwEA
+AQABAAAAAAAAAAAAV0MBBQAJAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAA//8AAAAAAAAAAAAAAAAA
+AFdDAQEACQAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAP//AAAAAAAAAAAAAAAAAABXQwEBAAkAAAAA
+AAAAAAAAAAAAAAAAAAAEAAAAAAD//wAAAAAAAAAAAAAAAAAAV0MBAQAJAAAAAAAAAAAAAAAAAAAA
+AAAABAAAAAAA//8AAAAAAAAAAAAAAAAAAFdDAQEACQAAAAAAAAAAAAAAAAAAAAAAAAQIAAAAAP//
+AAAAAAAAAAAAAAAAAABXQwEBAAkAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAD//wAAAAAAAAAAAAAA
+AAAAQgARAAAAAQD///8AAQDv7+8AAQD///8AAAAAAAAAAAABAP///wABAP///wAAAAEAAAAAAAEA
+AAAAAAEAAAAAAAAACAAAAAAAAQBgQxwAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+</rawitemdata>
+  </item>
+  <item name="$V5ACTIONS" sign="true">
+    <rawitemdata type="1">
+vRwjAAAAAQABAAAAAQAAAAAAAAAAAAAACAACAHn/bAABANTQyAABAAAAAAAJAAAAAAABANTQyAAA
+AB8AAAAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAPz/OgAAAAAAAQAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAEAAAAAAAAAAAAAAAAAAAA=
+</rawitemdata>
+  </item>
+</note>

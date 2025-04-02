@@ -71,11 +71,14 @@ public class ReverseProxyModule extends ComponentModule {
 	private static final String HEADER_TRANSFER_ENCODING = "Transfer-Encoding"; //$NON-NLS-1$
 	private static final String HEADER_X_FORWARDED_FOR = "X-Forwarded-For"; //$NON-NLS-1$
 	private static final String HEADER_X_FORWARDED_PROTO = "X-Forwarded-Proto"; //$NON-NLS-1$
+	private static final String HEADER_X_FORWARDED_HOST = "X-Forwarded-Host"; //$NON-NLS-1$
+	private static final String HEADER_X_FORWARDED_PORT = "X-Forwarded-Port"; //$NON-NLS-1$
 
     /** These are the "hop-by-hop" headers that should not be copied.
      * http://www.w3.org/Protocols/rfc2616/rfc2616-sec13.html
      */
 	private static final Set<String> hopByHopHeaders;
+	private static final Set<String> proxyHeaders;
 	static {
 		hopByHopHeaders = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
 		hopByHopHeaders.addAll(Arrays.asList(
@@ -86,9 +89,14 @@ public class ReverseProxyModule extends ComponentModule {
 			"TE", //$NON-NLS-1$
 			"Trailers", //$NON-NLS-1$
 			"Transfer-Encoding", //$NON-NLS-1$
-			"Upgrade", //$NON-NLS-1$
+			"Upgrade" //$NON-NLS-1$
+		));
+		proxyHeaders = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+		proxyHeaders.addAll(Arrays.asList(
 			HEADER_X_FORWARDED_FOR,
-			HEADER_X_FORWARDED_PROTO
+			HEADER_X_FORWARDED_PROTO,
+			HEADER_X_FORWARDED_HOST,
+			HEADER_X_FORWARDED_PORT
 		));
 	}
 	
@@ -148,9 +156,9 @@ public class ReverseProxyModule extends ComponentModule {
 				proxyRequest = new BasicHttpRequest(method, proxyRequestUri);
 			}
 
-			copyRequestHeaders(servletRequest, proxyRequest);
-
 			setForwardingHeaders(target, servletRequest, proxyRequest);
+			
+			copyRequestHeaders(servletRequest, proxyRequest);
 			
 			// Execute the request
 			HttpHost host = new HttpHost(targetUri.getHost(), targetUri.getPort(), targetUri.getScheme());
@@ -271,6 +279,9 @@ public class ReverseProxyModule extends ComponentModule {
     		if (headerName.equalsIgnoreCase(HEADER_CONTENT_LENGTH)) {
     			continue;
     		}
+    		if (!this.target.isAcceptProxyHeaders() && proxyHeaders.contains(headerName)) {
+    			continue;
+    		}
     		if (hopByHopHeaders.contains(headerName)) {
     			continue;
     		}
@@ -283,6 +294,7 @@ public class ReverseProxyModule extends ComponentModule {
     		Enumeration<String> headers = servletRequest.getHeaders(headerName);
     		while (headers.hasMoreElements()) {// sometimes more than one value
     			String headerValue = headers.nextElement();
+    			proxyRequest.removeHeaders(headerName);
     			proxyRequest.addHeader(headerName, headerValue);
     		}
         }

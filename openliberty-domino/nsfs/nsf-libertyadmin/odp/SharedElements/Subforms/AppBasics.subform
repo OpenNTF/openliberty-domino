@@ -1,219 +1,156 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<subform xmlns="http://www.lotus.com/dxl" name="AppBasics" renderpassthrough="true">
-  <body>
-    <richtext>
-      <pardef id="1"/>
-      <par def="1"/>
-      <table altbgcolor="white" bgcolor="#efefef" colorstyle="left" columnspacing="0.0500in" refwidth="9.1042in" rowspacing="0.0500in" widthtype="fitmargins">
-        <tablecolumn width="2in"/>
-        <tablecolumn width="100%"/>
-        <tablerow>
-          <tablecell borderwidth="0px">
-            <pardef id="3" keeptogether="true" keepwithnext="true"/>
-            <par def="3">Name</par>
-          </tablecell>
-          <tablecell borderwidth="0px">
-            <pardef id="4" keeptogether="true" keepwithnext="true"/>
-            <par def="4">
-              <field kind="editable" name="Name" type="text">
-                <code event="defaultvalue">
-                  <formula>"defaultServer"</formula>
-                </code>
-              </field>
-              <compositedata afterbegincount="3" aftercontainercount="1" afterparcount="7" containertype="65418" nexttype="222" prevtype="65418" type="98">
-Yg4BAIQAAAAAAAAAAAA=
-</compositedata>
-            </par>
-          </tablecell>
-        </tablerow>
-        <tablerow>
-          <tablecell borderwidth="0px">
-            <par def="3">Domino Servers</par>
-          </tablecell>
-          <tablecell borderwidth="0px">
-            <par def="4">
-              <field allowmultivalues="true" description="Domino server names and groups that deploy this server" fieldhint="*" kind="editable" listdisplayseparator="comma" listinputseparators="comma semicolon newline" name="DominoServers" type="names"/>
-            </par>
-          </tablecell>
-        </tablerow>
-      </table>
-      <pardef firstlineleftmargin="1in" id="2"/>
-      <par def="2">
-        <run>
-          <font color="purple" size="12pt" style="bold"/>
-        </run>
-      </par>
-      <pardef id="5" leftmargin="1in" spaceafter="1.5">
-        <parstyle alldocuments="true" incyclekey="true" name="Headline" username="Jesse Gallagher-">
-          <font color="purple" name="sans-serif" size="12pt" style="bold"/>
-        </parstyle>
-      </pardef>
-      <par def="5">
-        <run>
-          <font color="purple" size="12pt" style="bold"/>Connection Information</run>
-      </par>
-      <table altbgcolor="white" bgcolor="#efefef" colorstyle="left" columnspacing="0.0500in" refwidth="9.1042in" rowspacing="0.0500in" widthtype="fitmargins">
-        <tablecolumn width="2in"/>
-        <tablecolumn width="100%"/>
-        <tablerow>
-          <tablecell borderwidth="0px">
-            <pardef id="6" keeptogether="true" keepwithnext="true"/>
-            <par def="6">Context Path</par>
-          </tablecell>
-          <tablecell borderwidth="0px">
-            <pardef id="7" keeptogether="true" keepwithnext="true"/>
-            <par def="7">
-              <field kind="editable" name="ContextRoot" type="text">
-                <code event="inputtranslation">
-                  <formula>thisval := @Trim(@ThisValue);
-val := @If(thisval=""; AppName; thisval);
-@If(@Begins(val; "/"); val; "/" + val)</formula>
-                </code>
-              </field>
-              <compositedata afterbegincount="3" aftercontainercount="1" afterparcount="7" containertype="65418" nexttype="222" prevtype="65418" type="98">
-Yg4BAIQAAAAAAAAAAAA=
-</compositedata>
-            </par>
-          </tablecell>
-        </tablerow>
-        <tablerow>
-          <tablecell borderwidth="0px">
-            <par def="6">Include in Reverse Proxy</par>
-          </tablecell>
-          <tablecell borderwidth="0px">
-            <par def="7">
-              <field borderstyle="none" kind="editable" lookupaddressonrefresh="false" lookupeachchar="false" name="IncludeInReverseProxy" type="keyword">
-                <keywords columns="2" helperbutton="false" ui="radiobutton">
-                  <textlist>
-                    <text>Yes|Y</text>
-                    <text>No|N</text>
-                  </textlist>
-                </keywords>
-                <code event="inputenabled">
-                  <formula>ContextRoot != "/"</formula>
-                </code>
-                <code event="defaultvalue">
-                  <formula>"No"</formula>
-                </code>
-              </field>
-            </par>
-          </tablecell>
-        </tablerow>
-      </table>
-      <par def="2"/>
-      <table altbgcolor="white" bgcolor="#e1e1e1" colorstyle="top" refwidth="6in" widthtype="fixedleft">
-        <tablecolumn width="2in"/>
-        <tablecolumn width="1in"/>
-        <tablecolumn width="1in"/>
-        <tablecolumn width="1in"/>
-        <tablecolumn width="1in"/>
-        <tablerow>
-          <tablecell borderwidth="0px">
-            <pardef id="8" keeptogether="true" keepwithnext="true"/>
-            <par def="8">Bind to Host</par>
-          </tablecell>
-          <tablecell borderwidth="0px">
-            <pardef id="9" keeptogether="true" keepwithnext="true"/>
-            <par def="9">HTTP Port</par>
-          </tablecell>
-          <tablecell borderwidth="0px">
-            <pardef id="10" keeptogether="true" keepwithnext="true"/>
-            <par def="10">HTTPS Port</par>
-          </tablecell>
-          <tablecell borderwidth="0px">
-            <pardef id="11" keeptogether="true" keepwithnext="true"/>
-            <par def="11">X-Forwarded-*</par>
-          </tablecell>
-          <tablecell borderwidth="0px">
-            <pardef id="12" keeptogether="true" keepwithnext="true"/>
-            <par def="12">$WS*</par>
-          </tablecell>
-        </tablerow>
-        <tablerow>
-          <tablecell borderwidth="0px">
-            <par def="8">
-              <field kind="editable" name="HTTPHost" type="text">
-                <code event="inputenabled">
-                  <formula>@False</formula>
-                </code>
-                <code event="defaultvalue">
-                  <formula>@ThisValue</formula>
-                </code>
-              </field>
-              <compositedata afterbegincount="3" aftercontainercount="1" afterparcount="6" containertype="65418" nexttype="222" prevtype="65418" type="98">
-Yg4BAIQAAAAAAAAAAAA=
-</compositedata>
-            </par>
-          </tablecell>
-          <tablecell borderwidth="0px">
-            <par def="9">
-              <field kind="editable" name="HTTPPort" type="text">
-                <code event="inputenabled">
-                  <formula>@False</formula>
-                </code>
-                <code event="defaultvalue">
-                  <formula>@ThisValue</formula>
-                </code>
-              </field>
-              <compositedata afterbegincount="3" aftercontainercount="1" afterparcount="6" containertype="65418" nexttype="222" prevtype="65418" type="98">
-Yg4BAIQAAAAAAAAAAAA=
-</compositedata>
-            </par>
-          </tablecell>
-          <tablecell borderwidth="0px">
-            <par def="10">
-              <field kind="editable" name="HTTPSPort" type="text">
-                <code event="inputenabled">
-                  <formula>@False</formula>
-                </code>
-                <code event="defaultvalue">
-                  <formula>@ThisValue</formula>
-                </code>
-              </field>
-              <compositedata afterbegincount="3" aftercontainercount="1" afterparcount="6" containertype="65418" nexttype="222" prevtype="65418" type="98">
-Yg4BAIQAAAAAAAAAAAA=
-</compositedata>
-            </par>
-          </tablecell>
-          <tablecell borderwidth="0px">
-            <par def="11">
-              <field kind="editable" name="UseXForwardedFor" type="keyword">
-                <keywords ui="dialoglist">
-                  <textlist>
-                    <text>Yes|Y</text>
-                    <text>No|N</text>
-                  </textlist>
-                </keywords>
-                <code event="inputenabled">
-                  <formula>@False</formula>
-                </code>
-                <code event="defaultvalue">
-                  <formula>@ThisValue</formula>
-                </code>
-              </field>
-            </par>
-          </tablecell>
-          <tablecell borderwidth="0px">
-            <par def="12">
-              <field kind="editable" name="UseWSHeaders" type="keyword">
-                <keywords ui="dialoglist">
-                  <textlist>
-                    <text>Yes|Y</text>
-                    <text>No|N</text>
-                  </textlist>
-                </keywords>
-                <code event="inputenabled">
-                  <formula>@False</formula>
-                </code>
-                <code event="defaultvalue">
-                  <formula>@ThisValue</formula>
-                </code>
-              </field>
-            </par>
-          </tablecell>
-        </tablerow>
-      </table>
-      <par def="2"/>
-    </richtext>
-  </body>
-</subform>
+<?xml version="1.0" encoding="UTF-8"?>
+<note class="form" xmlns="http://www.lotus.com/dxl">
+  <item name="$Comment" sign="true">
+    <text/>
+  </item>
+  <item name="$HTMLCode" sign="true">
+    <rawitemdata type="1">
+X/8QAAIADwAHAAAAAAAAAA==
+</rawitemdata>
+  </item>
+  <item name="$TITLE">
+    <text>AppBasics</text>
+  </item>
+  <item name="$Info" sign="true">
+    <rawitemdata type="1">
+hhgBAIAAAAAAgAAAAQABAP///wAQAAAA
+</rawitemdata>
+  </item>
+  <item name="$Flags">
+    <text>CUAx3</text>
+  </item>
+  <item name="$DesignerBuild">
+    <text>Build V1450_12042024</text>
+  </item>
+  <item name="Name" placeholder="true">
+    <rawitemdata type="0"/>
+  </item>
+  <item name="DominoServers" placeholder="true">
+    <rawitemdata type="0"/>
+  </item>
+  <item name="ContextRoot" placeholder="true">
+    <rawitemdata type="0"/>
+  </item>
+  <item name="IncludeInReverseProxy" placeholder="true">
+    <rawitemdata type="0"/>
+  </item>
+  <item name="HTTPHost" placeholder="true">
+    <rawitemdata type="0"/>
+  </item>
+  <item name="HTTPPort" placeholder="true">
+    <rawitemdata type="0"/>
+  </item>
+  <item name="HTTPSPort" placeholder="true">
+    <rawitemdata type="0"/>
+  </item>
+  <item name="UseXForwardedFor" placeholder="true">
+    <rawitemdata type="0"/>
+  </item>
+  <item name="UseWSHeaders" placeholder="true">
+    <rawitemdata type="0"/>
+  </item>
+  <item name="AcceptProxyHeaders" placeholder="true">
+    <rawitemdata type="0"/>
+  </item>
+  <item name="$Fields">
+    <textlist>
+      <text>AcceptProxyHeaders</text>
+      <text>UseWSHeaders</text>
+      <text>UseXForwardedFor</text>
+      <text>HTTPSPort</text>
+      <text>HTTPPort</text>
+      <text>HTTPHost</text>
+      <text>IncludeInReverseProxy</text>
+      <text>ContextRoot</text>
+      <text>DominoServers</text>
+      <text>Name</text>
+    </textlist>
+  </item>
+  <item name="$Body" sign="true">
+    <rawitemdata type="1">
+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
+AAqlBgAAAACBAoMEAgCF/wgAAQAACg==
+</rawitemdata>
+  </item>
+</note>

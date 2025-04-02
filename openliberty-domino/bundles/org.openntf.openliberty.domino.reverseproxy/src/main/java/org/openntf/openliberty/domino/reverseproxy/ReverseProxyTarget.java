@@ -27,11 +27,13 @@ public class ReverseProxyTarget {
 	private final URI uri;
 	private final boolean useXForwardedFor;
 	private final boolean useWsHeaders;
+	private final boolean acceptProxyHeaders;
 
-	public ReverseProxyTarget(URI uri, boolean useXForwardedFor, boolean useWsHeaders) {
+	public ReverseProxyTarget(URI uri, boolean useXForwardedFor, boolean useWsHeaders, boolean acceptProxyHeaders) {
 		this.uri = uri;
 		this.useXForwardedFor = useXForwardedFor;
 		this.useWsHeaders = useWsHeaders;
+		this.acceptProxyHeaders = acceptProxyHeaders;
 	}
 	
 	public URI getUri() {
@@ -42,6 +44,13 @@ public class ReverseProxyTarget {
 	}
 	public boolean isUseXForwardedFor() {
 		return useXForwardedFor;
+	}
+	
+	/**
+	 * @since 4.0.0
+	 */
+	public boolean isAcceptProxyHeaders() {
+		return acceptProxyHeaders;
 	}
 
 	@Override
