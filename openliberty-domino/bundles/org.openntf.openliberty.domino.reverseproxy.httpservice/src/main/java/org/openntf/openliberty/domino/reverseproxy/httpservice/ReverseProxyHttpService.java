@@ -16,6 +16,7 @@
 package org.openntf.openliberty.domino.reverseproxy.httpservice;
 
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.EventObject;
 import java.util.List;
@@ -164,7 +165,8 @@ public class ReverseProxyHttpService extends HttpService implements ReverseProxy
 			.collect(Collectors.toMap(
 				Map.Entry::getKey,
 				entry -> {
-					ReverseProxyModule module = new ReverseProxyModule(this.getEnvironment(), this, entry.getKey(), entry.getValue());
+					String moduleName = MessageFormat.format("WLP Reverse Proxy: {0} -> {1}", entry.getKey(), entry.getValue().getUri());
+					ReverseProxyModule module = new ReverseProxyModule(this.getEnvironment(), this, moduleName, entry.getValue());
 					module.initModule();
 					return module;
 				}
