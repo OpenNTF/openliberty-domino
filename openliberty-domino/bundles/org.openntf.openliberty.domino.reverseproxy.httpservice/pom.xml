@@ -77,7 +77,9 @@
 							com.ibm.domino.xsp.bootstrap
 						</Require-Bundle>
 						<Import-Package>
-							org.openntf.openliberty.domino.reverseproxy
+							org.openntf.openliberty.domino.reverseproxy,
+							javax.servlet,
+							javax.servlet.http
 						</Import-Package>
 						<Export-Package/>
 						<Fragment-Host>org.openntf.openliberty.domino</Fragment-Host>
